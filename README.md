@@ -134,22 +134,7 @@ plantech/
 
 ## 👨‍💻 Autores
 
-\<table align="center"\>
-\<tr\>
-\<td align="center"\>
-\<a href="\#"\>
-\<img src="https://www.google.com/search?q=https://ui-avatars.com/api/%3Fname%3DIsabella%2BNicolau%26background%3D2e7d32%26color%3Dfff" width="100px;" alt="Foto da Isabella"/\><br>
-\<sub\>\<b\>Isabella Maria Nicolau DaSilva\</b\>\</sub\>
-\</a\>
-\</td\>
-\<td align="center"\>
-\<a href="\#"\>
-\<img src="https://www.google.com/search?q=https://ui-avatars.com/api/%3Fname%3DGabriel%2BAndrade%26background%3D1b5e20%26color%3Dfff" width="100px;" alt="Foto do Gabriel"/\><br>
-\<sub\>\<b\>Gabriel Andrade Figueiredo\</b\>\</sub\>
-\</a\>
-\</td\>
-\</tr\>
-\</table\>
+**Alunos:"" Gabriel e Isabella
 
 **Orientador:** Prof. Me. Guilherme Dias Vicentini  
 **Instituição:** UMFG - 2025
