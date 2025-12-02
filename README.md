@@ -44,7 +44,7 @@ O objetivo foi informatizar os processos de almoxarifado, vendas e compras que a
 
 | Dashboard | Ponto de Venda (PDV) |
 |:---:|:---:|
-| ![Dashboard](https://via.placeholder.com/400x200?text=Dashboard+Plantech) | ![PDV](https://via.placeholder.com/400x200?text=Tela+de+Vendas) |
+| ![Dashboard](https://www.awesomescreenshot.com/image/57702474?key=27912f731737dddfbc24a1ded4ef962e) | ![PDV](https://www.awesomescreenshot.com/image/57702495?key=f6e08bcb92682828a1fcf3041bb4b9a7) |
 
 ---
 
