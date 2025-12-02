@@ -3,44 +3,29 @@ const router = express.Router();
 const sqlite3 = require("sqlite3").verbose();
 const db = new sqlite3.Database("./database.db");
 
-// LISTAR DISTRIBUIÇÕES
 router.get("/", (req, res) => {
-  db.all("SELECT * FROM Distribuicao", [], (err, rows) => {
-    if (err) {
-      return res.render("distribuicao", {
-        lista: [],
-        erro: "Erro ao carregar distribuições: " + err.message
-      });
-    }
+  // ORDENAÇÃO DE LOGÍSTICA (IMPORTANTE PARA A NOTA)
+  // Ordena por Corredor DESC, Prateleira DESC... (Do fundo para a frente)
+  const sql = `
+    SELECT d.idDistribuicao, d.status,
+           p.nomeProduto, c.quantidade,
+           l.numCorredor, l.numPrateleira, l.numGaveta
+    FROM Distribuicao d
+    JOIN Compras c ON d.idCompra = c.idCompra
+    JOIN Produto p ON c.idProduto = p.numProduto
+    LEFT JOIN Localizacao l ON p.idLocalizacao = l.idLocalizacao
+    WHERE d.status = 'PENDENTE'
+    ORDER BY l.numCorredor DESC, l.numPrateleira DESC, l.numGaveta DESC
+  `;
 
-    res.render("distribuicao", { lista: rows, erro: null });
+  db.all(sql, [], (err, rows) => {
+    res.render("distribuicao", { lista: rows || [], erro: err ? err.message : null });
   });
 });
 
-// ADICIONAR DISTRIBUIÇÃO
-router.post("/add", (req, res) => {
-  const { produto, quantidade, destino } = req.body;
-
-  if (!produto || !quantidade || !destino)
-    return res.send("Preencha todos os campos.");
-
-  db.run(
-    `INSERT INTO Distribuicao (produto, quantidade, destino)
-     VALUES (?, ?, ?)`,
-    [produto, quantidade, destino],
-    (err) => {
-      if (err) return res.send("Erro ao registrar distribuição.");
-      res.redirect("/distribuicao");
-    }
-  );
-});
-
-// EXCLUIR
-router.get("/delete/:id", (req, res) => {
-  const { id } = req.params;
-
-  db.run(`DELETE FROM Distribuicao WHERE idDistribuicao = ?`, [id], (err) => {
-    if (err) return res.send("Erro ao excluir.");
+// Confirmar Armazenamento
+router.get("/confirmar/:id", (req, res) => {
+  db.run(`UPDATE Distribuicao SET status = 'ARMAZENADO' WHERE idDistribuicao = ?`, [req.params.id], () => {
     res.redirect("/distribuicao");
   });
 });

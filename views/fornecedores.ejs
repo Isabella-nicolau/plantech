@@ -1,99 +1,69 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-
 <head>
-  <meta charset="UTF-8">
-  <title>Fornecedores - Plantech</title>
+  <meta charset="UTF-8"><title>Fornecedores - Plantech</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/style.css">
 </head>
-
-<body class="bg-light">
-
-  <nav class="navbar navbar-dark bg-dark p-3 mb-4">
-    <div class="container-fluid">
-      <span class="navbar-brand">Plantech • Fornecedores</span>
+<body>
+  <nav class="navbar navbar-dark p-3 mb-4">
+    <div class="container">
+      <span class="navbar-brand">🌱 Plantech • Fornecedores</span>
       <a href="/dashboard" class="btn btn-outline-light btn-sm">Voltar</a>
     </div>
   </nav>
 
   <div class="container">
+    <% if (erro) { %><div class="alert alert-danger"><%= erro %></div><% } %>
 
-    <% if (erro) { %>
-      <div class="alert alert-danger"><%= erro %></div>
-    <% } %>
-
-    <div class="card shadow-sm mb-4">
+    <div class="card mb-4">
       <div class="card-body">
-        <h4 class="card-title mb-3">Cadastrar Fornecedor</h4>
-
+        <h5 class="card-title text-success mb-3">Cadastrar Parceiro</h5>
         <form action="/fornecedores/add" method="POST" class="row g-3">
-
-          <div class="col-md-6">
-            <label class="form-label">Nome do Fornecedor</label>
+          <div class="col-md-5">
+            <label class="form-label">Nome Fantasia / Razão Social</label>
             <input type="text" name="nome" class="form-control" required>
           </div>
-
-          <div class="col-md-6">
+          <div class="col-md-3">
             <label class="form-label">CNPJ</label>
             <input type="text" name="cnpj" class="form-control" required>
           </div>
-
           <div class="col-md-4">
-            <label class="form-label">Telefone</label>
-            <input type="text" name="telefone" class="form-control">
-          </div>
-
-          <div class="col-md-8">
-            <label class="form-label">Email</label>
+            <label class="form-label">Email de Contato</label>
             <input type="email" name="email" class="form-control">
           </div>
-
-          <button class="btn btn-success w-100 mt-3">Salvar</button>
+          <div class="col-12"><button class="btn btn-success w-100">Registrar Fornecedor</button></div>
         </form>
       </div>
     </div>
 
-    <div class="card shadow-sm">
+    <div class="card">
       <div class="card-body">
-        <h4 class="card-title mb-3">Fornecedores Cadastrados</h4>
-
-        <table class="table table-striped table-bordered">
-          <thead class="table-dark">
+        <h5 class="card-title text-success">Lista de Fornecedores</h5>
+        <table class="table table-hover">
+          <thead>
             <tr>
               <th>ID</th>
-              <th>Nome</th>
+              <th>Fornecedor</th>
               <th>CNPJ</th>
-              <th>Telefone</th>
               <th>Email</th>
               <th>Ação</th>
             </tr>
           </thead>
-
           <tbody>
-            <% lista.forEach(item => { %>
+            <% lista.forEach(f => { %>
               <tr>
-                <td><%= item.idFornecedor %></td>
-                <td><%= item.nome %></td>
-                <td><%= item.cnpj %></td>
-                <td><%= item.telefone %></td>
-                <td><%= item.email %></td>
-                <td>
-                  <a href="/fornecedores/delete/<%= item.idFornecedor %>"
-                     class="btn btn-danger btn-sm">
-                    Excluir
-                  </a>
-                </td>
+                <td>#<%= f.idFornecedor %></td>
+                <td class="fw-bold"><%= f.nome %></td>
+                <td><%= f.cnpj %></td>
+                <td><%= f.email || "-" %></td>
+                <td><a href="/fornecedores/delete/<%= f.idFornecedor %>" class="btn btn-sm btn-danger">Remover</a></td>
               </tr>
             <% }) %>
           </tbody>
-
         </table>
-
       </div>
     </div>
-
   </div>
-
 </body>
-
 </html>

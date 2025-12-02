@@ -1,97 +1,72 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-
 <head>
-  <meta charset="UTF-8">
-  <title>Entrega - Plantech</title>
+  <meta charset="UTF-8"><title>Entrega - Plantech</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/style.css">
 </head>
-
-<body class="bg-light">
-
-  <nav class="navbar navbar-dark bg-dark p-3 mb-4">
-    <div class="container-fluid">
-      <span class="navbar-brand">Plantech • Entregas</span>
+<body>
+  <nav class="navbar navbar-dark p-3 mb-4">
+    <div class="container">
+      <span class="navbar-brand">🌱 Plantech • Saída de Mercadoria</span>
       <a href="/dashboard" class="btn btn-outline-light btn-sm">Voltar</a>
     </div>
   </nav>
 
   <div class="container">
-
-    <% if (erro) { %>
-      <div class="alert alert-danger"><%= erro %></div>
-    <% } %>
-
-    <div class="card shadow-sm mb-4">
+    <div class="card mb-4">
       <div class="card-body">
-        <h4 class="card-title mb-3">Registrar Entrega</h4>
-
+        <h5 class="card-title mb-3 text-success">Registrar Venda/Entrega</h5>
         <form action="/entrega/add" method="POST" class="row g-3">
-
           <div class="col-md-6">
-            <label class="form-label">Destinatário</label>
-            <input type="text" name="destinatario" class="form-control" required>
+            <label>Cliente</label>
+            <select name="idCliente" class="form-select" required>
+              <option value="" disabled selected>Selecione...</option>
+              <% clientes.forEach(c => { %>
+                <option value="<%= c.idCliente %>"><%= c.nome %></option>
+              <% }) %>
+            </select>
           </div>
-
-          <div class="col-md-6">
-            <label class="form-label">Produto</label>
-            <input type="text" name="produto" class="form-control" required>
-          </div>
-
           <div class="col-md-4">
-            <label class="form-label">Quantidade</label>
+            <label>Produto (Disponível)</label>
+            <select name="idProduto" class="form-select" required>
+              <option value="" disabled selected>Selecione...</option>
+              <% produtos.forEach(p => { %>
+                <option value="<%= p.numProduto %>"><%= p.nomeProduto %> (Estoque: <%= p.estoqueAtual %>)</option>
+              <% }) %>
+            </select>
+          </div>
+          <div class="col-md-2">
+            <label>Qtd</label>
             <input type="number" name="quantidade" class="form-control" required>
           </div>
-
-          <div class="col-md-8">
-            <label class="form-label">Endereço</label>
-            <input type="text" name="endereco" class="form-control" required>
-          </div>
-
-          <button class="btn btn-success w-100 mt-3">Salvar</button>
-
+          <div class="col-12"><button class="btn btn-success w-100">Confirmar Saída</button></div>
         </form>
       </div>
     </div>
 
-    <div class="card shadow-sm">
+    <div class="card">
       <div class="card-body">
-        <h4 class="card-title mb-3">Entregas Registradas</h4>
-
-        <table class="table table-striped table-bordered">
-          <thead class="table-dark">
-            <tr>
-              <th>ID</th>
-              <th>Destinatário</th>
-              <th>Produto</th>
-              <th>Quantidade</th>
-              <th>Endereço</th>
-              <th>Ação</th>
-            </tr>
+        <h5 class="card-title text-success">Histórico de Saídas</h5>
+        <table class="table table-hover">
+          <thead>
+            <tr><th>ID</th><th>Data</th><th>Cliente</th><th>Produto</th><th>Qtd</th><th>Ação</th></tr>
           </thead>
-
           <tbody>
             <% lista.forEach(item => { %>
               <tr>
                 <td><%= item.idEntrega %></td>
-                <td><%= item.destinatario %></td>
-                <td><%= item.produto %></td>
+                <td><%= new Date(item.dataEntrega).toLocaleDateString() %></td>
+                <td><%= item.nomeCliente %></td>
+                <td><%= item.nomeProduto %></td>
                 <td><%= item.quantidade %></td>
-                <td><%= item.endereco %></td>
-                <td>
-                  <a href="/entrega/delete/<%= item.idEntrega %>" class="btn btn-danger btn-sm">Excluir</a>
-                </td>
+                <td><a href="/entrega/delete/<%= item.idEntrega %>" class="btn btn-danger btn-sm">X</a></td>
               </tr>
             <% }) %>
           </tbody>
-
         </table>
-
       </div>
     </div>
-
   </div>
-
 </body>
-
 </html>

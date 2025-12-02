@@ -1,3 +1,71 @@
-body { padding-bottom: 40px; }
-h3 { margin-bottom: 20px; }
-table th, table td { vertical-align: middle; }
+:root {
+  --primary: #2e7d32;   /* Verde Floresta */
+  --secondary: #66bb6a; /* Verde Suave */
+  --bg-light: #f1f8e9;  /* Fundo muito claro */
+  --dark: #1b5e20;      /* Verde Escuro */
+  --text: #37474f;
+}
+
+body {
+  background-color: var(--bg-light);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: var(--text);
+  padding-bottom: 50px;
+}
+
+/* Navbar */
+.navbar {
+  background: linear-gradient(to right, var(--dark), var(--primary)) !important;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+.navbar-brand {
+  font-weight: bold;
+  letter-spacing: 1px;
+}
+
+/* Cards */
+.card {
+  border: none;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+  transition: transform 0.2s;
+}
+
+/* Dashboard Hover */
+.menu-card:hover {
+  transform: translateY(-5px);
+  border-bottom: 4px solid var(--secondary);
+}
+.menu-card .card-body i {
+  color: var(--primary);
+  font-size: 2rem;
+  margin-bottom: 10px;
+}
+
+/* Tabelas */
+.table {
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.table thead {
+  background-color: var(--primary);
+  color: white;
+}
+.table-hover tbody tr:hover {
+  background-color: rgba(102, 187, 106, 0.1);
+}
+
+/* Botões */
+.btn-success {
+  background-color: var(--primary);
+  border: none;
+}
+.btn-success:hover {
+  background-color: var(--dark);
+}
+.btn-danger {
+  background-color: #ef5350;
+  border: none;
+}

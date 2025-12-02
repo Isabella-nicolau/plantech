@@ -3,60 +3,54 @@ const router = express.Router();
 const sqlite3 = require("sqlite3").verbose();
 const db = new sqlite3.Database("./database.db");
 
-// LISTAR COMPRAS
+// Listar e Carregar Formulário
 router.get("/", (req, res) => {
-  db.all("SELECT * FROM Compras", [], (err, rows) => {
-    if (err) {
-      return res.render("compras", {
-        lista: [],
-        erro: "Erro ao carregar compras: " + err.message
-      });
-    }
+  const sqlLista = `
+    SELECT c.idCompra, c.quantidade, c.precoCusto, c.dataCompra,
+           p.nomeProduto, f.nome as nomeFornecedor
+    FROM Compras c
+    JOIN Produto p ON c.idProduto = p.numProduto
+    JOIN Fornecedores f ON c.idFornecedor = f.idFornecedor
+    ORDER BY c.dataCompra DESC
+  `;
 
-    res.render("compras", { lista: rows, erro: null });
+  db.all(sqlLista, (err, compras) => {
+    db.all("SELECT * FROM Fornecedores", (err, fornecedores) => {
+      db.all("SELECT * FROM Produto", (err, produtos) => {
+        res.render("compras", { 
+          lista: compras || [], 
+          fornecedores: fornecedores || [], 
+          produtos: produtos || [],
+          erro: err ? err.message : null 
+        });
+      });
+    });
   });
 });
 
-
-// ADICIONAR COMPRA
+// Adicionar (Gera Pendência na Distribuição)
 router.post("/add", (req, res) => {
-  const { nomeProduto, quantidade, preco } = req.body;
-
-  if (!nomeProduto || !quantidade || !preco)
-    return res.send("Preencha todos os campos.");
-
+  const { idProduto, idFornecedor, quantidade, precoCusto } = req.body;
+  
   db.run(
-    `INSERT INTO Compras (nomeProduto, quantidade, preco)
-     VALUES (?, ?, ?)`,
-    [nomeProduto, quantidade, preco],
-    (err) => {
-      if (err) return res.send("Erro ao registrar compra.");
+    `INSERT INTO Compras (idProduto, idFornecedor, quantidade, precoCusto) VALUES (?, ?, ?, ?)`,
+    [idProduto, idFornecedor, quantidade, precoCusto],
+    function(err) {
+      if (err) return res.send("Erro: " + err.message);
+      
+      // Regra de Negócio: Criar pendência de logística
+      db.run(`INSERT INTO Distribuicao (idCompra) VALUES (?)`, [this.lastID]);
+      
+      // Atualizar Estoque
+      db.run(`UPDATE Produto SET estoqueAtual = estoqueAtual + ? WHERE numProduto = ?`, [quantidade, idProduto]);
+      
       res.redirect("/compras");
     }
   );
 });
 
-// EXCLUIR COMPRA
 router.get("/delete/:id", (req, res) => {
-  const { id } = req.params;
-
-  db.run(`DELETE FROM Compras WHERE idCompra = ?`, [id], (err) => {
-    if (err) return res.send("Erro ao excluir compra.");
-    res.redirect("/compras");
-  });
-});
-
-router.get("/", (req, res) => {
-  db.all("SELECT * FROM Compras", [], (err, rows) => {
-    if (err) {
-      return res.render("compras", {
-        lista: [],
-        erro: "Erro ao carregar compras: " + err.message
-      });
-    }
-
-    res.render("compras", { lista: rows, erro: null });
-  });
+  db.run(`DELETE FROM Compras WHERE idCompra = ?`, [req.params.id], () => res.redirect("/compras"));
 });
 
 module.exports = router;

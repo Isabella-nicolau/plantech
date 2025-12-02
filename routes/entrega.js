@@ -3,51 +3,41 @@ const router = express.Router();
 const sqlite3 = require("sqlite3").verbose();
 const db = new sqlite3.Database("./database.db");
 
-// LISTAR ENTREGAS
 router.get("/", (req, res) => {
-  db.all("SELECT * FROM Entregas", [], (err, rows) => {
-    if (err) {
-      return res.render("entrega", {
-        lista: [],
-        erro: "Erro ao carregar entregas: " + err.message
+  const sql = `
+    SELECT e.idEntrega, e.quantidade, e.dataEntrega,
+           p.nomeProduto, c.nome as nomeCliente
+    FROM Entregas e
+    JOIN Produto p ON e.idProduto = p.numProduto
+    JOIN Clientes c ON e.idCliente = c.idCliente
+    ORDER BY e.dataEntrega DESC
+  `;
+  db.all(sql, (err, entregas) => {
+    db.all("SELECT * FROM Clientes", (err, clientes) => {
+      db.all("SELECT * FROM Produto WHERE estoqueAtual > 0", (err, produtos) => {
+        res.render("entrega", { lista: entregas || [], clientes: clientes || [], produtos: produtos || [] });
       });
-    }
-
-    res.render("entrega", { lista: rows, erro: null });
+    });
   });
 });
 
-// ADICIONAR ENTREGA
 router.post("/add", (req, res) => {
-  const { destinatario, produto, quantidade, endereco } = req.body;
-
-  if (!destinatario || !produto || !quantidade || !endereco) {
-    return res.send("Todos os campos são obrigatórios.");
-  }
-
-  db.run(
-    `INSERT INTO Entregas (destinatario, produto, quantidade, endereco)
-     VALUES (?, ?, ?, ?)`,
-    [destinatario, produto, quantidade, endereco],
-    (err) => {
-      if (err) return res.send("Erro ao registrar entrega.");
-      res.redirect("/entrega");
+  const { idCliente, idProduto, quantidade } = req.body;
+  // Verifica estoque antes
+  db.get("SELECT estoqueAtual FROM Produto WHERE numProduto = ?", [idProduto], (err, row) => {
+    if (row && row.estoqueAtual >= quantidade) {
+      db.run(`INSERT INTO Entregas (idCliente, idProduto, quantidade) VALUES (?, ?, ?)`, [idCliente, idProduto, quantidade], () => {
+        db.run(`UPDATE Produto SET estoqueAtual = estoqueAtual - ? WHERE numProduto = ?`, [quantidade, idProduto]);
+        res.redirect("/entrega");
+      });
+    } else {
+      res.send("Erro: Estoque insuficiente.");
     }
-  );
+  });
 });
 
-// EXCLUIR ENTREGA
 router.get("/delete/:id", (req, res) => {
-  const { id } = req.params;
-
-  db.run(
-    `DELETE FROM Entregas WHERE idEntrega = ?`,
-    [id],
-    (err) => {
-      if (err) return res.send("Erro ao excluir entrega.");
-      res.redirect("/entrega");
-    }
-  );
+    db.run(`DELETE FROM Entregas WHERE idEntrega = ?`, [req.params.id], () => res.redirect("/entrega"));
 });
 
 module.exports = router;
