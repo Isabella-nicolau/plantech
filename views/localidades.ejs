@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Localidades - Plantech</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+
+<nav class="navbar navbar-dark bg-dark p-3">
+  <span class="navbar-brand">Plantech - Localidades</span>
+  <a href="/dashboard" class="btn btn-light ms-3">Voltar</a>
+</nav>
+
+<div class="container mt-4">
+
+  <h3>Cadastrar Nova Localidade</h3>
+
+  <form action="/localidades/add" method="POST" class="row g-3">
+
+    <div class="col-md-3">
+      <label>Corredor</label>
+      <input type="number" name="numCorredor" class="form-control" required>
+    </div>
+
+    <div class="col-md-3">
+      <label>Prateleira</label>
+      <input type="number" name="numPrateleira" class="form-control" required>
+    </div>
+
+    <div class="col-md-3">
+      <label>Gaveta</label>
+      <input type="number" name="numGaveta" class="form-control" required>
+    </div>
+
+    <div class="col-md-3">
+      <label>Capacidade</label>
+      <input type="text" name="capacidade" class="form-control" required>
+    </div>
+
+    <div class="col-md-12">
+      <button class="btn btn-success mt-3">Salvar Localidade</button>
+    </div>
+
+  </form>
+
+  <hr class="my-4">
+
+  <h3>Localidades Cadastradas</h3>
+
+  <table class="table table-striped table-bordered mt-3">
+    <thead class="table-dark">
+      <tr>
+        <th>Corredor</th>
+        <th>Prateleira</th>
+        <th>Gaveta</th>
+        <th>Capacidade</th>
+        <th>Ação</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <% lista.forEach(item => { %>
+        <tr>
+          <td><%= item.numCorredor %></td>
+          <td><%= item.numPrateleira %></td>
+          <td><%= item.numGaveta %></td>
+          <td><%= item.capacidade %></td>
+          <td>
+            <a href="/localidades/delete/<%= item.numCorredor %>/<%= item.numPrateleira %>/<%= item.numGaveta %>" 
+            class="btn btn-danger btn-sm">Excluir</a>
+          </td>
+        </tr>
+      <% }) %>
+    </tbody>
+
+  </table>
+
+</div>
+
+</body>
+</html>
