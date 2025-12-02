@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Relatórios - Plantech</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/style.css">
+  <style>
+    /* Estilos Específicos para Relatórios */
+    .form-control {
+      background-color: #12141e !important;
+      border: 1px solid rgba(255, 255, 255, 0.1) !important;
+      color: #ffffff !important;
+    }
+    .form-control:focus {
+      border-color: var(--accent-lime) !important;
+      box-shadow: 0 0 0 2px rgba(204, 243, 129, 0.2) !important;
+    }
+    .form-label {
+      color: #e0e0e0;
+      font-weight: 500;
+      font-size: 0.9rem;
+    }
+    
+    @media print {
+      .no-print { display: none !important; }
+      body { background-color: #fff !important; color: #000 !important; }
+      .card-panel, .stat-card { border: 1px solid #ddd !important; background: none !important; color: #000 !important; box-shadow: none !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar navbar-expand-lg border-bottom border-secondary border-opacity-10 no-print">
+    <div class="container">
+      <a class="navbar-brand" href="/dashboard">
+        <span style="font-size: 1.5rem;">🌱</span> Plantech
+      </a>
+      <button class="navbar-toggler bg-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      
+      <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
+        <div class="nav-pills-custom">
+          <a href="/dashboard" class="nav-link-custom">Dashboard</a>
+          <a href="/compras" class="nav-link-custom">Compras</a>
+          <a href="/vendas" class="nav-link-custom">Vendas</a>
+          <a href="/produtos" class="nav-link-custom">Produtos</a>
+          <a href="/clientes" class="nav-link-custom">Clientes</a>
+          <a href="/fornecedores" class="nav-link-custom">Fornecedores</a>
+          <a href="/relatorios" class="nav-link-custom active">Relatórios</a> </div>
+      </div>
+
+      <div class="d-none d-lg-block">
+        <a href="/login/logout" class="btn btn-sm btn-outline-danger rounded-pill px-3">Sair ➔</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container pt-4">
+    
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-5 no-print">
+      <div class="mb-3 mb-md-0">
+        <h2 class="mb-0 fw-bold text-white">Relatórios Gerenciais</h2>
+        <p class="text-white text-opacity-50 small mb-0">Visão geral de vendas realizadas</p>
+      </div>
+      
+      <div class="nav-pills-custom">
+        <a href="/relatorios" class="nav-link-custom active" style="background-color: var(--accent-lime); color: #121212;">Vendas</a>
+        <a href="/relatorios/saidas" class="nav-link-custom">Saídas</a>
+        <a href="/relatorios/estoque" class="nav-link-custom">Estoque</a>
+        <a href="/relatorios/financeiro" class="nav-link-custom">Financeiro</a>
+      </div>
+    </div>
+
+    <div class="card-panel mb-5 no-print" style="background: rgba(255,255,255,0.02);">
+      <form action="/relatorios" method="GET" class="row g-3 align-items-end">
+        <div class="col-md-5">
+          <label class="form-label text-white">Data Início</label>
+          <input type="date" name="dataInicio" class="form-control" value="<%= query.dataInicio %>">
+        </div>
+        <div class="col-md-5">
+          <label class="form-label text-white">Data Fim</label>
+          <input type="date" name="dataFim" class="form-control" value="<%= query.dataFim %>">
+        </div>
+        <div class="col-md-2">
+          <button class="btn btn-primary w-100 fw-bold shadow-lg" style="height: 46px;">
+            Filtrar
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <% if (erro) { %>
+      <div class="alert alert-danger rounded-4 mb-4 text-center border-0 bg-danger bg-opacity-25 text-white"><%= erro %></div>
+    <% } %>
+
+    <% if (lista.length > 0 || query.dataInicio) { %>
+      <div class="row mb-5">
+        <div class="col-md-12">
+          <div class="stat-card bg-grad-green text-center p-4">
+            <h6 class="text-uppercase opacity-75 fw-bold mb-2 text-white">Faturamento Total no Período</h6>
+            <h1 class="display-4 fw-bold text-white mb-2">R$ <%= totalGeral.toFixed(2) %></h1>
+            <p class="mb-0 opacity-75 text-white"><%= lista.length %> vendas registradas</p>
+          </div>
+        </div>
+      </div>
+    <% } %>
+
+    <div class="card-panel h-100 p-0 overflow-hidden">
+      <div class="p-4 border-bottom border-secondary border-opacity-10 bg-dark bg-opacity-25 d-flex justify-content-between align-items-center">
+        <h5 class="text-white mb-0 fw-bold">📋 Histórico de Vendas</h5>
+        <button onclick="window.print()" class="btn btn-sm btn-outline-light rounded-pill px-3 no-print">
+          🖨️ Imprimir
+        </button>
+      </div>
+      
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="bg-dark text-white">
+            <tr>
+              <th class="ps-4" style="background: #151725;">Data</th>
+              <th style="background: #151725;">Cliente</th>
+              <th style="background: #151725;">Produtos</th>
+              <th class="text-end pe-4" style="background: #151725;">Valor Total</th>
+            </tr>
+          </thead>
+          <tbody class="border-top-0">
+            <% lista.forEach(item => { %>
+              <tr>
+                <td class="ps-4">
+                  <div class="text-white"><%= new Date(item.dataVenda).toLocaleDateString() %></div>
+                  <small class="text-white text-opacity-50"><%= new Date(item.dataVenda).toLocaleTimeString() %></small>
+                </td>
+                <td class="fw-bold text-white"><%= item.nomeCliente %></td>
+                <td>
+                  <small class="text-white text-opacity-50 d-block" style="max-width: 350px; line-height: 1.4;">
+                    <%= item.listaProdutos %>
+                  </small>
+                </td>
+                <td class="text-end pe-4">
+                  <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 fs-6 px-3">
+                    R$ <%= item.valorTotal.toFixed(2) %>
+                  </span>
+                </td>
+              </tr>
+            <% }) %>
+            
+            <% if (lista.length === 0) { %>
+              <tr>
+                <td colspan="4" class="text-center py-5 text-muted">
+                  Nenhum registro encontrado para o período selecionado.
+                </td>
+              </tr>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="text-center mt-4 text-muted small opacity-50 no-print">
+      Relatório gerado em <%= new Date().toLocaleDateString() %> às <%= new Date().toLocaleTimeString() %>
+    </div>
+
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

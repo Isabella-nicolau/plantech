@@ -1,29 +1,167 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="UTF-8"><title>Dashboard - Plantech</title>
+  <meta charset="UTF-8">
+  <title>Dashboard - Plantech</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="/style.css">
+  <style>
+    /* Ajuste para centralizar verticalmente */
+    .dashboard-container {
+      min-height: calc(100vh - 100px);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    /* Gradiente extra para Fornecedores (Ciano) */
+    .bg-grad-cyan {
+      background: linear-gradient(135deg, #06b6d4, #2563eb);
+      box-shadow: 0 10px 25px rgba(6, 182, 212, 0.3);
+    }
+  </style>
 </head>
 <body>
-  <nav class="navbar navbar-dark p-3 mb-5">
+
+  <nav class="navbar navbar-expand-lg border-bottom border-secondary border-opacity-10">
     <div class="container">
-      <span class="navbar-brand">🌱 Plantech • Dashboard</span>
-      <a href="/login/logout" class="btn btn-outline-light btn-sm">Sair</a>
+      <a class="navbar-brand" href="/dashboard">
+        <span style="font-size: 1.5rem;">🌱</span> Plantech
+      </a>
+
+      <button class="navbar-toggler bg-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
+        <div class="nav-pills-custom">
+          <a href="/dashboard" class="nav-link-custom active">Dashboard</a>
+          <a href="/compras" class="nav-link-custom">Compras</a>
+          <a href="/vendas" class="nav-link-custom">Vendas</a>
+          <a href="/produtos" class="nav-link-custom">Produtos</a>
+          <a href="/clientes" class="nav-link-custom">Clientes</a>
+          <a href="/fornecedores" class="nav-link-custom">Fornecedores</a>
+          <a href="/relatorios" class="nav-link-custom">Relatórios</a>
+        </div>
+      </div>
+
+      <div class="d-none d-lg-block">
+        <a href="/login/logout" class="btn btn-sm btn-outline-danger rounded-pill px-3">Sair ➔</a>
+      </div>
     </div>
   </nav>
 
-  <div class="container">
+  <div class="container dashboard-container pb-5">
+    
+    <div class="row align-items-end mb-5 text-center text-lg-start">
+      <div class="col-lg-8">
+        <h1 style="font-weight: 700; font-size: 3.5rem; margin-bottom: 0; background: linear-gradient(to right, #fff, #8b9bb4); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+          Visão Geral
+        </h1>
+        <p class="text-white fs-5 mt-2">Gestão integrada de estoque e financeiro</p>
+      </div>
+      <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
+        <div class="d-inline-flex align-items-center gap-3 px-4 py-2 rounded-pill" style="background: var(--bg-card); border: 1px solid rgba(255,255,255,0.05);">
+          <span class="text-white small">Status do Sistema:</span>
+          <span class="badge bg-success rounded-pill shadow-sm">● Operacional</span>
+        </div>
+      </div>
+    </div>
+
     <div class="row g-4">
-      <div class="col-md-4"><a href="/compras" class="text-decoration-none"><div class="card menu-card p-4 text-center h-100"><h4 class="card-title">📥 Compras</h4><p class="text-muted">Entrada de Notas e Produtos</p></div></a></div>
-      <div class="col-md-4"><a href="/distribuicao" class="text-decoration-none"><div class="card menu-card p-4 text-center h-100"><h4 class="card-title">📦 Logística</h4><p class="text-muted">Armazenamento Inteligente</p></div></a></div>
-      <div class="col-md-4"><a href="/entrega" class="text-decoration-none"><div class="card menu-card p-4 text-center h-100"><h4 class="card-title">📤 Entregas</h4><p class="text-muted">Saída para Clientes</p></div></a></div>
-      
-      <div class="col-md-3"><a href="/produtos" class="text-decoration-none"><div class="card menu-card p-3 text-center h-100"><h5>🏷️ Produtos</h5></div></a></div>
-      <div class="col-md-3"><a href="/localidades" class="text-decoration-none"><div class="card menu-card p-3 text-center h-100"><h5>📍 Localidades</h5></div></a></div>
-      <div class="col-md-3"><a href="/clientes" class="text-decoration-none"><div class="card menu-card p-3 text-center h-100"><h5>👥 Clientes</h5></div></a></div>
-      <div class="col-md-3"><a href="/fornecedores" class="text-decoration-none"><div class="card menu-card p-3 text-center h-100"><h5>🏭 Fornecedores</h5></div></a></div>
+
+      <div class="col-md-6 col-lg-4">
+        <a href="/compras" class="text-decoration-none">
+          <div class="stat-card bg-grad-blue h-100">
+            <div class="d-flex justify-content-between mb-4">
+              <span class="badge bg-white bg-opacity-25 backdrop-blur">Entradas</span>
+              <span class="fs-3">📥</span>
+            </div>
+            <div class="mt-auto">
+              <h3 class="fw-bold mb-1">Compras</h3>
+              <p class="mb-0 opacity-75 small">Lançar Notas e Estoque</p>
+            </div>
+          </div>
+        </a>
+      </div>
+
+      <div class="col-md-6 col-lg-4">
+        <a href="/vendas" class="text-decoration-none">
+          <div class="stat-card bg-grad-orange h-100">
+            <div class="d-flex justify-content-between mb-4">
+              <span class="badge bg-white bg-opacity-25 backdrop-blur">Saídas</span>
+              <span class="fs-3">🛒</span>
+            </div>
+            <div class="mt-auto">
+              <h3 class="fw-bold mb-1">PDV Vendas</h3>
+              <p class="mb-0 opacity-75 small">Registrar Venda e Baixa</p>
+            </div>
+          </div>
+        </a>
+      </div>
+
+      <div class="col-md-6 col-lg-4">
+        <a href="/produtos" class="text-decoration-none">
+          <div class="stat-card bg-grad-green h-100">
+            <div class="d-flex justify-content-between mb-4">
+              <span class="badge bg-white bg-opacity-25 backdrop-blur">Catálogo</span>
+              <span class="fs-3">📦</span>
+            </div>
+            <div class="mt-auto">
+              <h3 class="fw-bold mb-1">Produtos</h3>
+              <p class="mb-0 opacity-75 small">Gerenciar Itens e Preços</p>
+            </div>
+          </div>
+        </a>
+      </div>
+
+      <div class="col-md-6 col-lg-4">
+        <a href="/clientes" class="text-decoration-none">
+          <div class="stat-card bg-grad-purple h-100">
+            <div class="d-flex justify-content-between mb-4">
+              <span class="badge bg-white bg-opacity-25 backdrop-blur">CRM</span>
+              <span class="fs-3">👥</span>
+            </div>
+            <div class="mt-auto">
+              <h3 class="fw-bold mb-1">Clientes</h3>
+              <p class="mb-0 opacity-75 small">Gestão de PF e PJ</p>
+            </div>
+          </div>
+        </a>
+      </div>
+
+      <div class="col-md-6 col-lg-4">
+        <a href="/fornecedores" class="text-decoration-none">
+          <div class="stat-card bg-grad-cyan h-100">
+            <div class="d-flex justify-content-between mb-4">
+              <span class="badge bg-white bg-opacity-25 backdrop-blur">Parceiros</span>
+              <span class="fs-3">🏭</span>
+            </div>
+            <div class="mt-auto">
+              <h3 class="fw-bold mb-1">Fornecedores</h3>
+              <p class="mb-0 opacity-75 small">Origem e Abastecimento</p>
+            </div>
+          </div>
+        </a>
+      </div>
+
+      <div class="col-md-6 col-lg-4">
+        <a href="/relatorios" class="text-decoration-none">
+          <div class="stat-card bg-grad-red h-100">
+            <div class="d-flex justify-content-between mb-4">
+              <span class="badge bg-white bg-opacity-25 backdrop-blur">BI & Financeiro</span>
+              <span class="fs-3">📊</span>
+            </div>
+            <div class="mt-auto">
+              <h3 class="fw-bold mb-1">Relatórios</h3>
+              <p class="mb-0 opacity-75 small">Análise de Performance</p>
+            </div>
+          </div>
+        </a>
+      </div>
+
     </div>
   </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

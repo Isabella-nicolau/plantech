@@ -1,71 +1,150 @@
+/* public/style.css - Design Plantech Dark Premium */
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700&display=swap');
+
 :root {
-  --primary: #2e7d32;   /* Verde Floresta */
-  --secondary: #66bb6a; /* Verde Suave */
-  --bg-light: #f1f8e9;  /* Fundo muito claro */
-  --dark: #1b5e20;      /* Verde Escuro */
-  --text: #37474f;
+  /* Paleta Base (Fundo Escuro Azulado) */
+  --bg-body: #0f111a;
+  --bg-card: #1c1f2e;
+  --bg-input: #151725;
+  
+  /* Texto */
+  --text-main: #ffffff;
+  --text-white: #ffffff;
+  --text-dark: #121212;
+  
+  /* Cores de Destaque (Gradientes da Imagem) */
+  --accent-lime: #ccf381;
+  --grad-blue: linear-gradient(135deg, #3b82f6, #2563eb);
+  --grad-orange: linear-gradient(135deg, #f97316, #ea580c);
+  --grad-green: linear-gradient(135deg, #22c55e, #16a34a);
+  --grad-purple: linear-gradient(135deg, #a855f7, #9333ea);
+  --grad-red: linear-gradient(135deg, #ef4444, #dc2626);
+  --grad-dark: linear-gradient(135deg, #2a2d3e, #1f2235);
+
+  /* Bordas */
+  --radius-xl: 30px;
+  --radius-lg: 20px;
+  --radius-md: 12px;
 }
 
 body {
-  background-color: var(--bg-light);
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  color: var(--text);
+  background-color: var(--bg-body);
+  color: var(--text-main);
+  font-family: 'Outfit', sans-serif;
   padding-bottom: 50px;
 }
 
-/* Navbar */
+/* --- NAVBAR --- */
 .navbar {
-  background: linear-gradient(to right, var(--dark), var(--primary)) !important;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  padding: 20px 0;
+  margin-bottom: 30px;
 }
 .navbar-brand {
-  font-weight: bold;
+  font-weight: 700;
+  font-size: 1.8rem;
+  color: var(--text-main) !important;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Botões de Navegação (Estilo Pílula) */
+.nav-pills-custom {
+  background: var(--bg-card);
+  padding: 5px;
+  border-radius: 50px;
+  display: inline-flex;
+  gap: 5px;
+}
+.nav-link-custom {
+  color: var(--text-white);
+  padding: 8px 20px;
+  border-radius: 50px;
+  text-decoration: none;
+  font-weight: 500;
+  transition: 0.3s;
+}
+.nav-link-custom:hover { color: var(--text-main); }
+.nav-link-custom.active {
+  background-color: var(--accent-lime);
+  color: var(--text-dark);
+  font-weight: 700;
+  box-shadow: 0 0 15px rgba(204, 243, 129, 0.3);
+}
+
+/* --- CARDS E PAINÉIS --- */
+.card-panel {
+  background-color: var(--bg-card);
+  border-radius: var(--radius-lg);
+  padding: 25px;
+  border: 1px solid rgba(255,255,255,0.03);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+}
+
+/* Cards Coloridos (Dashboard) */
+.stat-card {
+  border-radius: var(--radius-lg);
+  padding: 25px;
+  color: white;
+  transition: transform 0.3s ease;
+  border: none;
+  min-height: 160px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.stat-card:hover { transform: translateY(-5px); }
+
+/* Variações de Fundo */
+.bg-grad-blue { background: var(--grad-blue); box-shadow: 0 10px 25px rgba(37, 99, 235, 0.3); }
+.bg-grad-orange { background: var(--grad-orange); box-shadow: 0 10px 25px rgba(234, 88, 12, 0.3); }
+.bg-grad-green { background: var(--grad-green); box-shadow: 0 10px 25px rgba(22, 163, 74, 0.3); }
+.bg-grad-purple { background: var(--grad-purple); box-shadow: 0 10px 25px rgba(147, 51, 234, 0.3); }
+.bg-grad-red { background: var(--grad-red); box-shadow: 0 10px 25px rgba(220, 38, 38, 0.3); }
+
+/* --- FORMULÁRIOS DARK --- */
+.form-label { color: var(--text-white); font-size: 0.9rem; margin-bottom: 8px; }
+.form-control, .form-select {
+  background-color: var(--bg-input);
+  border: 1px solid rgba(255,255,255,0.08);
+  color: var(--text-main);
+  border-radius: var(--radius-md);
+  padding: 12px 15px;
+}
+.form-control:focus, .form-select:focus {
+  background-color: var(--bg-input);
+  border-color: var(--accent-lime);
+  color: var(--text-main);
+  box-shadow: 0 0 0 2px rgba(204, 243, 129, 0.1);
+}
+input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); }
+
+/* --- TABELAS --- */
+.table { --bs-table-bg: transparent; --bs-table-color: var(--text-white); border-color: rgba(255,255,255,0.05); }
+.table thead th {
+  color: var(--text-main);
+  font-weight: 600;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  text-transform: uppercase;
+  font-size: 0.8rem;
   letter-spacing: 1px;
 }
+.table-hover tbody tr:hover { color: var(--text-main); background-color: rgba(255,255,255,0.03); }
 
-/* Cards */
-.card {
+/* --- BOTÕES --- */
+.btn-primary {
+  background-color: var(--accent-lime);
+  color: var(--text-dark);
   border: none;
-  border-radius: 12px;
-  background: #fff;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-  transition: transform 0.2s;
+  border-radius: 50px;
+  font-weight: 700;
+  padding: 10px 25px;
 }
+.btn-primary:hover { background-color: #b3e060; color: black; transform: scale(1.02); }
 
-/* Dashboard Hover */
-.menu-card:hover {
-  transform: translateY(-5px);
-  border-bottom: 4px solid var(--secondary);
-}
-.menu-card .card-body i {
-  color: var(--primary);
-  font-size: 2rem;
-  margin-bottom: 10px;
-}
+.btn-outline-light { border-radius: 50px; border-color: rgba(255,255,255,0.2); }
+.btn-danger { border-radius: 50px; padding: 5px 15px; }
 
-/* Tabelas */
-.table {
-  background: white;
-  border-radius: 8px;
-  overflow: hidden;
-}
-.table thead {
-  background-color: var(--primary);
-  color: white;
-}
-.table-hover tbody tr:hover {
-  background-color: rgba(102, 187, 106, 0.1);
-}
-
-/* Botões */
-.btn-success {
-  background-color: var(--primary);
-  border: none;
-}
-.btn-success:hover {
-  background-color: var(--dark);
-}
-.btn-danger {
-  background-color: #ef5350;
-  border: none;
-}
+/* Utilitários */
+.text-lime { color: var(--accent-lime); }
+.badge-soft { background: rgba(255,255,255,0.15); color: white; border-radius: 8px; padding: 5px 10px; }

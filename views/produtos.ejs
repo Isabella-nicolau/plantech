@@ -1,75 +1,237 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="UTF-8"><title>Produtos - Plantech</title>
+  <meta charset="UTF-8">
+  <title>Produtos - Plantech</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="/style.css">
+  <style>
+    /* Ajustes de Contraste e Inputs */
+    .form-control, .form-select {
+      background-color: #12141e !important;
+      border: 1px solid rgba(255, 255, 255, 0.1) !important;
+      color: #ffffff !important;
+    }
+    .form-control:focus, .form-select:focus {
+      border-color: var(--accent-lime) !important;
+      box-shadow: 0 0 0 2px rgba(204, 243, 129, 0.2) !important;
+    }
+    .form-label {
+      color: #e0e0e0;
+      font-weight: 500;
+      font-size: 0.9rem;
+    }
+    ::placeholder {
+      color: rgba(255, 255, 255, 0.3) !important;
+    }
+    
+    /* Scroll na tabela */
+    .table-container {
+      max-height: 70vh;
+      overflow-y: auto;
+    }
+    .table-container::-webkit-scrollbar { width: 6px; }
+    .table-container::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+
+    /* Avatar do Produto (Verde) */
+    .avatar-prod {
+      width: 45px; height: 45px;
+      background-color: #2e7d32;
+      color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 12px;
+      font-size: 1.2rem;
+    }
+  </style>
 </head>
 <body>
-  <nav class="navbar navbar-dark p-3 mb-4">
+
+  <nav class="navbar navbar-expand-lg border-bottom border-secondary border-opacity-10">
     <div class="container">
-      <span class="navbar-brand">🌱 Plantech • Produtos</span>
-      <a href="/dashboard" class="btn btn-outline-light btn-sm">Voltar</a>
+      <a class="navbar-brand" href="/dashboard">
+        <span style="font-size: 1.5rem;">🌱</span> Plantech
+      </a>
+      <button class="navbar-toggler bg-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      
+      <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
+        <div class="nav-pills-custom">
+          <a href="/dashboard" class="nav-link-custom">Dashboard</a>
+          <a href="/compras" class="nav-link-custom">Compras</a>
+          <a href="/vendas" class="nav-link-custom">Vendas</a>
+          <a href="/produtos" class="nav-link-custom active">Produtos</a> <a href="/clientes" class="nav-link-custom">Clientes</a>
+          <a href="/fornecedores" class="nav-link-custom">Fornecedores</a>
+          <a href="/relatorios" class="nav-link-custom">Relatórios</a>
+        </div>
+      </div>
+
+      <div class="d-none d-lg-block">
+        <a href="/login/logout" class="btn btn-sm btn-outline-danger rounded-pill px-3">Sair ➔</a>
+      </div>
     </div>
   </nav>
 
-  <div class="container">
-    <div class="card mb-4">
-      <div class="card-body">
-        <h5 class="card-title mb-3 text-success">Novo Produto</h5>
-        <form action="/produtos/add" method="POST" class="row g-3">
-          <div class="col-md-6">
-            <label>Nome do Produto</label>
-            <input type="text" name="nomeProduto" class="form-control" required>
-          </div>
-          <div class="col-md-3">
-            <label>Preço Venda</label>
-            <input type="number" step="0.01" name="precoVenda" class="form-control" required>
-          </div>
-          <div class="col-md-3">
-            <label>Localização</label>
-            <select name="idLocalizacao" class="form-select" required>
-              <option value="" disabled selected>Onde guardar?</option>
-              <% locais.forEach(l => { %>
-                <option value="<%= l.idLocalizacao %>">
-                  C:<%= l.numCorredor %> P:<%= l.numPrateleira %> G:<%= l.numGaveta %>
-                </option>
-              <% }) %>
-            </select>
-          </div>
-          <div class="col-12"><button class="btn btn-success w-100">Cadastrar</button></div>
-        </form>
+  <div class="container pt-4">
+    
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <div>
+        <h2 class="mb-0 fw-bold text-white">Catálogo de Produtos</h2>
+        <p class="text-white text-opacity-50 small mb-0">Gerencie o inventário e preços de venda</p>
       </div>
+      <span class="badge bg-white bg-opacity-10 text-white px-3 py-2 rounded-pill border border-secondary border-opacity-25">
+        Itens: <%= lista.length %>
+      </span>
     </div>
 
-    <div class="card">
-      <div class="card-body">
-        <h5 class="card-title text-success">Catálogo</h5>
-        <table class="table table-striped">
-          <thead>
-            <tr>
-              <th>ID</th><th>Nome</th><th>Localização</th><th>Preço</th><th>Estoque</th><th>Ação</th>
-            </tr>
-          </thead>
-          <tbody>
-            <% lista.forEach(p => { %>
-              <tr>
-                <td><%= p.numProduto %></td>
-                <td><%= p.nomeProduto %></td>
-                <td>
-                  <% if(p.numCorredor) { %>
-                    C:<%= p.numCorredor %> P:<%= p.numPrateleira %> G:<%= p.numGaveta %>
-                  <% } else { %> - <% } %>
-                </td>
-                <td>R$ <%= p.precoVenda %></td>
-                <td><%= p.estoqueAtual %></td>
-                <td><a href="/produtos/delete/<%= p.numProduto %>" class="btn btn-danger btn-sm">Excluir</a></td>
-              </tr>
-            <% }) %>
-          </tbody>
-        </table>
+    <% if (locals.erro) { %>
+      <div class="alert alert-danger rounded-4 mb-4 text-center border-0 bg-danger bg-opacity-25 text-white"><%= erro %></div>
+    <% } %>
+
+    <div class="row g-4">
+      
+      <div class="col-lg-4">
+        <div class="card-panel h-100 bg-grad-dark" style="border: 1px solid rgba(255,255,255,0.05);">
+          <div class="d-flex align-items-center gap-2 mb-4 text-lime">
+            <span class="fs-5">📦</span> 
+            <h5 class="mb-0 fw-bold">Novo Item</h5>
+          </div>
+          
+          <form action="/produtos/add" method="POST" class="row g-3">
+            
+            <div class="col-12">
+              <label class="form-label">Nome do Produto</label>
+              <input type="text" name="nomeProduto" class="form-control" required placeholder="Ex: Adubo NPK 10-10-10">
+            </div>
+
+            <div class="col-6">
+              <label class="form-label">Categoria</label>
+              <select name="categoria" class="form-select">
+                <option value="" disabled selected>Tipo...</option>
+                <option value="Plantas">Plantas</option>
+                <option value="Gramas">Gramas</option>
+                <option value="Vasos">Vasos</option>
+                <option value="Insumos">Insumos</option>
+                <option value="Ferramentas">Ferramentas</option>
+              </select>
+            </div>
+
+            <div class="col-6">
+              <label class="form-label">Unidade</label>
+              <select name="unidadeMedida" class="form-select">
+                <option value="UN">Unidade</option>
+                <option value="M2">m²</option>
+                <option value="KG">Kg</option>
+                <option value="LT">Litro</option>
+                <option value="CX">Caixa</option>
+              </select>
+            </div>
+
+            <div class="col-6">
+              <label class="form-label">Preço Venda (R$)</label>
+              <input type="number" step="0.01" name="precoVenda" class="form-control" required placeholder="0.00">
+            </div>
+
+            <div class="col-6">
+              <label class="form-label text-lime">Estoque Inicial</label>
+              <input type="number" name="estoqueAtual" class="form-control" placeholder="0" min="0">
+            </div>
+
+            <div class="col-12">
+              <label class="form-label">Descrição</label>
+              <textarea name="descricao" class="form-control" rows="2" placeholder="Detalhes técnicos..."></textarea>
+            </div>
+
+            <div class="col-12 mt-4">
+              <button class="btn btn-primary w-100 py-3 shadow-lg rounded-pill fw-bold">
+                <span class="fs-6">💾</span> Adicionar ao Catálogo
+              </button>
+            </div>
+
+          </form>
+        </div>
       </div>
+
+      <div class="col-lg-8">
+        <div class="card-panel h-100 p-0 overflow-hidden">
+          <div class="p-4 border-bottom border-secondary border-opacity-10 bg-dark bg-opacity-25">
+            <h5 class="text-white mb-0 fw-bold">📋 Estoque Atual</h5>
+          </div>
+          
+          <div class="table-container p-0">
+            <table class="table table-hover align-middle mb-0">
+              <thead class="bg-dark text-white sticky-top" style="z-index: 2;">
+                <tr>
+                  <th class="ps-4" style="background: #151725;">Produto</th>
+                  <th style="background: #151725;">Categoria</th>
+                  <th style="background: #151725;">Preço</th>
+                  <th style="background: #151725;">Saldo</th>
+                  <th class="text-end pe-4" style="background: #151725;">Ação</th>
+                </tr>
+              </thead>
+              <tbody class="border-top-0">
+                <% lista.forEach(p => { %>
+                  <tr>
+                    <td class="ps-4 py-3">
+                      <div class="d-flex align-items-center gap-3">
+                        <div class="avatar-prod shadow-sm">
+                          <%= p.nomeProduto.charAt(0).toUpperCase() %>
+                        </div>
+                        <div>
+                          <strong class="text-white d-block"><%= p.nomeProduto %></strong>
+                          <small class="text-white text-opacity-50"><%= p.descricao || "Sem descrição" %></small>
+                        </div>
+                      </div>
+                    </td>
+                    
+                    <td>
+                      <span class="badge bg-dark border border-secondary border-opacity-25 text-white fw-normal">
+                        <%= p.categoria %>
+                      </span>
+                    </td>
+                    
+                    <td class="text-lime fw-bold">
+                      R$ <%= p.precoVenda.toFixed(2) %>
+                    </td>
+                    
+                    <td>
+                      <% if(p.estoqueAtual > 0) { %>
+                        <span class="badge bg-success bg-opacity-75 text-white">
+                          <%= p.estoqueAtual %> <%= p.unidadeMedida %>
+                        </span>
+                      <% } else { %>
+                        <span class="badge bg-danger bg-opacity-75 text-white">Esgotado</span>
+                      <% } %>
+                    </td>
+                    
+                    <td class="text-end pe-4">
+                      <a href="/produtos/delete/<%= p.numProduto %>" 
+                         class="btn btn-sm btn-outline-danger rounded-pill px-3"
+                         title="Excluir Produto"
+                         onclick="return confirm('Tem certeza? Isso pode afetar históricos de vendas.');">
+                        🗑️
+                      </a>
+                    </td>
+                  </tr>
+                <% }) %>
+                
+                <% if(lista.length === 0) { %>
+                  <tr>
+                    <td colspan="5" class="text-center py-5">
+                      <div class="opacity-25 mb-2" style="font-size: 3rem;">🌱</div>
+                      <p class="text-white text-opacity-50">Nenhum produto cadastrado.</p>
+                    </td>
+                  </tr>
+                <% } %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

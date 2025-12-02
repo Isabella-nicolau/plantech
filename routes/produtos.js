@@ -3,28 +3,42 @@ const router = express.Router();
 const sqlite3 = require("sqlite3").verbose();
 const db = new sqlite3.Database("./database.db");
 
+// LISTAR
 router.get("/", (req, res) => {
-  const sql = `SELECT p.*, l.numCorredor, l.numPrateleira, l.numGaveta 
-               FROM Produto p 
-               LEFT JOIN Localizacao l ON p.idLocalizacao = l.idLocalizacao`;
-  
-  db.all(sql, (err, produtos) => {
-    db.all("SELECT * FROM Localizacao", (err, locais) => {
-      res.render("produtos", { lista: produtos || [], locais: locais || [] });
-    });
+  db.all("SELECT * FROM Produto ORDER BY nomeProduto ASC", [], (err, produtos) => {
+    if (err) return res.render("produtos", { lista: [], erro: err.message });
+    res.render("produtos", { lista: produtos || [], erro: null });
   });
 });
 
+// ADICIONAR (Agora com Estoque Inicial)
 router.post("/add", (req, res) => {
-  const { nomeProduto, precoVenda, idLocalizacao } = req.body;
-  db.run(`INSERT INTO Produto (nomeProduto, precoVenda, idLocalizacao) VALUES (?, ?, ?)`, 
-    [nomeProduto, precoVenda, idLocalizacao], 
-    () => res.redirect("/produtos")
+  const { nomeProduto, descricao, categoria, unidadeMedida, precoVenda, estoqueAtual } = req.body;
+
+  if (!nomeProduto || !categoria || !precoVenda) {
+    return res.send("Erro: Nome, Categoria e Preço são obrigatórios.");
+  }
+
+  // Se o estoque não for informado, grava 0
+  const estoqueFinal = estoqueAtual ? parseInt(estoqueAtual) : 0;
+
+  db.run(
+    `INSERT INTO Produto (nomeProduto, descricao, categoria, unidadeMedida, precoVenda, estoqueAtual) 
+     VALUES (?, ?, ?, ?, ?, ?)`, 
+    [nomeProduto, descricao, categoria, unidadeMedida, precoVenda, estoqueFinal], 
+    (err) => {
+      if (err) return res.send("Erro ao cadastrar: " + err.message);
+      res.redirect("/produtos");
+    }
   );
 });
 
+// EXCLUIR
 router.get("/delete/:id", (req, res) => {
-  db.run(`DELETE FROM Produto WHERE numProduto = ?`, [req.params.id], () => res.redirect("/produtos"));
+  db.run(`DELETE FROM Produto WHERE numProduto = ?`, [req.params.id], (err) => {
+    if (err) return res.send("Erro ao excluir. Verifique movimentações.");
+    res.redirect("/produtos");
+  });
 });
 
 module.exports = router;

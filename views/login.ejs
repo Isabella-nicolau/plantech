@@ -1,26 +1,144 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="UTF-8"><title>Login - Plantech</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <meta charset="UTF-8">
+  <title>Login - Plantech ERP</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="/style.css">
+  <style>
+    /* Estilos Específicos do Login */
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      /* Fundo escuro sutil */
+      background-image: radial-gradient(circle at top right, #1a1d29, #0f111a);
+    }
+
+    .login-card {
+      width: 100%;
+      max-width: 900px;
+      background-color: var(--bg-card);
+      border-radius: 30px;
+      overflow: hidden;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      min-height: 600px;
+    }
+
+    /* Esquerda: Visual */
+    .login-visual {
+      /* Imagem de Fundo (Tecnologia + Agro) */
+      background: url('https://images.unsplash.com/photo-1625246333195-5512a402983e?q=80&w=2070&auto=format&fit=crop') center/cover no-repeat;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 40px;
+      color: white;
+    }
+
+    /* Overlay Verde para leitura */
+    .login-visual::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: linear-gradient(to bottom, rgba(16, 85, 30, 0.85), rgba(15, 17, 26, 0.95));
+      z-index: 1;
+    }
+
+    .visual-content { position: relative; z-index: 2; }
+
+    /* Direita: Formulário */
+    .login-form-container {
+      padding: 50px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    /* Inputs Personalizados */
+    .form-control {
+      background-color: #12141e !important;
+      border: 1px solid rgba(255, 255, 255, 0.15) !important;
+      color: #ffffff !important;
+      padding: 15px;
+      font-size: 1rem;
+    }
+    
+    .form-control:focus {
+      border-color: var(--accent-lime) !important;
+      box-shadow: 0 0 0 3px rgba(204, 243, 129, 0.2) !important;
+    }
+
+    .form-label { color: #ccc; font-weight: 500; margin-bottom: 8px; }
+    .text-link { color: var(--accent-lime); text-decoration: none; font-size: 0.9rem; }
+    .text-link:hover { text-decoration: underline; color: #fff; }
+
+    @media (max-width: 768px) {
+      .login-visual { display: none; }
+      .login-card { max-width: 400px; min-height: auto; }
+      .login-form-container { padding: 30px; }
+    }
+  </style>
 </head>
-<body class="d-flex align-items-center justify-content-center" style="height: 100vh;">
-  <div class="card p-4 shadow-lg" style="width: 350px;">
-    <h3 class="text-center text-success mb-4 fw-bold">🌱 Plantech</h3>
-    <% if(locals.erro) { %> <div class="alert alert-danger p-2"><%= erro %></div> <% } %>
-    <form action="/login" method="POST">
-      <div class="mb-3">
-        <label>Usuário</label>
-        <input type="text" name="username" class="form-control" required>
+<body>
+
+  <div class="login-card row g-0">
+    
+    <div class="col-md-6 login-visual">
+      <div class="visual-content">
+        <h2 class="fw-bold d-flex align-items-center gap-2">
+          <span style="font-size: 2rem;">🌱</span> Plantech
+        </h2>
       </div>
-      <div class="mb-3">
-        <label>Senha</label>
-        <input type="password" name="password" class="form-control" required>
+      
+      <div class="visual-content text-center mb-5">
+        <h1 class="fw-bold mb-3 display-5">ERP Inteligente</h1>
+        <p class="opacity-75 fs-5">
+          Otimize seu negócio de jardinagem com nosso ERP integrado.
+        </p>
+        <div style="margin-top: 30px; color: var(--accent-lime);">✦ ✦ ✦</div>
       </div>
-      <button class="btn btn-success w-100">Entrar</button>
-    </form>
-    <div class="text-center mt-3 text-muted small">Acesso Restrito</div>
+
+      <div class="visual-content text-center small opacity-50">
+        &copy; 2025 Plantech Systems
+      </div>
+    </div>
+
+    <div class="col-md-6 login-form-container">
+      
+      <div class="mb-5">
+        <h2 class="fw-bold text-white mb-2">Bem-vindo!</h2>
+        <p class="text-white">Acesse o painel administrativo.</p>
+      </div>
+
+      <% if(locals.erro) { %> 
+        <div class="alert alert-danger border-0 bg-danger bg-opacity-25 text-white mb-4 text-center">
+          ⚠️ <%= erro %>
+        </div> 
+      <% } %>
+
+      <form action="/login" method="POST">
+        <div class="mb-4">
+          <label class="form-label">Usuário</label>
+          <input type="text" name="username" class="form-control rounded-3" placeholder="Ex: admin" required>
+        </div>
+
+        <div class="mb-2">
+          <label class="form-label">Senha</label>
+          <input type="password" name="password" class="form-control rounded-3" placeholder="••••••••" required>
+        </div>
+
+
+        <button class="btn btn-primary w-100 py-3 fs-5 rounded-pill shadow-lg">
+          Entrar na Plataforma
+        </button>
+      </form>
+
+    </div>
   </div>
+
 </body>
 </html>
