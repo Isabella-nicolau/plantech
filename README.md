@@ -1,184 +1,161 @@
-🌱 Plantech – Sistema de Gestão 
-Gerenciamento de Localidades, Clientes, Fornecedores, Produtos, Compras, Distribuição e Entrega.
 
-📌 Descrição do Projeto
+````markdown
+# 🌱 Plantech - Sistema de Gestão de Almoxarifado Inteligente
 
-O Plantech é um sistema web desenvolvido para auxiliar no controle operacional de um ambiente agrícola.
-Seu objetivo é facilitar o cadastro, organização e consulta de dados essenciais como:
+![Badge em Desenvolvimento](http://img.shields.io/static/v1?label=STATUS&message=FINALIZADO&color=GREEN&style=for-the-badge)
+![Node.js](https://img.shields.io/badge/Node.js-43853D?style=for-the-badge&logo=node.js&logoColor=white)
+![Express](https://img.shields.io/badge/Express.js-404D59?style=for-the-badge)
+![SQLite](https://img.shields.io/badge/SQLite-07405E?style=for-the-badge&logo=sqlite&logoColor=white)
+![Bootstrap](https://img.shields.io/badge/Bootstrap-563D7C?style=for-the-badge&logo=bootstrap&logoColor=white)
 
-Localidades
+> **Projeto de Estágio Supervisionado I** | Curso Superior de Tecnologia em Análise e Desenvolvimento de Sistemas - UMFG.
 
-Clientes (Pessoa Física e Jurídica)
+---
 
-Fornecedores
+## 📌 Sobre o Projeto
 
-Produtos
+O **Plantech** é um sistema ERP focado na gestão logística de almoxarifados agrícolas. Diferente de sistemas comuns, ele não apenas registra entradas e saídas, mas **otimiza o fluxo de trabalho** do estoquista.
 
-Compras
+O sistema resolve o problema da desorganização física através de um **Algoritmo de Distribuição Inteligente (LIFO)**, garantindo que os produtos sejam listados para armazenamento na ordem inversa à do carregamento do carrinho, otimizando o trajeto nos corredores.
 
-Distribuição
+### 🎯 Diferenciais
+* **Logística LIFO:** Geração automática de listas de armazenamento ordenadas por localização física (Corredor > Prateleira > Gaveta).
+* **Rastreabilidade Total:** Vínculo forte entre Fornecedores, Notas Fiscais, Produtos e Clientes.
+* **Controle de Estoque em Tempo Real:** Baixa automática nas vendas e incremento nas compras.
+* **Interface Premium:** Design moderno, responsivo e intuitivo pensado para uso diário.
 
-Entregas
+---
 
-Relação de preços
+## 🚀 Funcionalidades
 
-O sistema foi criado como parte do Projeto de Estágio Supervisionado I, atendendo todos os requisitos do documento oficial fornecido pela instituição.
+### 1. Gestão de Atores
+* **Fornecedores:** Cadastro completo para rastreio de origem de mercadoria.
+* **Clientes:** Suporte a Pessoa Física (CPF) e Jurídica (CNPJ) com distinção visual.
 
-🛠 Tecnologias Utilizadas
+### 2. Mapeamento Físico (Almoxarifado)
+* Cadastro de endereços físicos (Localidades).
+* Definição de **Corredor**, **Prateleira** e **Gaveta** com capacidade de armazenamento.
 
-Node.js – Backend
+### 3. Fluxo de Entrada (Compras)
+* Registro de Notas de Compra vinculadas a fornecedores reais.
+* Geração automática de **Pendências de Distribuição**.
 
-Express – Estrutura de rotas
+### 4. Logística Interna (O Coração do Sistema)
+* Tela de "Checklist" para o estoquista.
+* O sistema diz **ONDE** guardar cada item recebido.
+* Ordenação inteligente para reduzir tempo de caminhada no galpão.
 
-SQLite3 – Banco de dados local
+### 5. Fluxo de Saída (Entrega/Venda)
+* Seleção apenas de produtos com saldo positivo em estoque.
+* Baixa automática e registro histórico da saída para o cliente.
 
-EJS – Template Engine para as páginas
+---
 
-Bootstrap 5 – Layout rápido e responsivo
+## 🛠 Tecnologias Utilizadas
 
-JavaScript – Lógica geral
+* **Backend:** Node.js + Express
+* **Banco de Dados:** SQLite3 (Relacional com Foreign Keys)
+* **Frontend:** EJS (Engine de Visualização) + Bootstrap 5 (Customizado)
+* **Autenticação:** Bcrypt (Hash de senhas) + Express Session
+* **Segurança:** Proteção de rotas (Middleware de Auth)
 
-HTML5 + CSS3 – Estrutura das telas
+---
 
-Estas tecnologias foram escolhidas por serem leves, fáceis de configurar e permitirem desenvolver tudo em menos de um dia.
+## 📸 Screenshots
 
-📁 Estrutura do Projeto
+*(Adicione aqui prints das suas telas novas. Sugestão: Crie uma pasta 'prints' e coloque as imagens lá)*
+
+| Dashboard | Lista de Distribuição |
+|:---:|:---:|
+| ![Dashboard](https://via.placeholder.com/400x200?text=Dashboard+Premium) | ![Logistica](https://via.placeholder.com/400x200?text=Logistica+LIFO) |
+
+---
+
+## 📦 Como Rodar o Projeto
+
+Pré-requisitos: Ter o **Node.js** instalado na máquina.
+
+1. **Clone o repositório:**
+   ```bash
+   git clone [https://github.com/SEU-USUARIO/plantech.git](https://github.com/SEU-USUARIO/plantech.git)
+   cd plantech
+````
+
+2.  **Instale as dependências:**
+
+    ```bash
+    npm install
+    ```
+
+3.  **Inicialize o Banco de Dados:**
+    *Este passo cria as tabelas e o usuário administrador.*
+
+    ```bash
+    node db/init.js
+    ```
+
+4.  **Rode o Servidor:**
+
+    ```bash
+    npm start
+    ```
+
+5.  **Acesse:**
+    Abra seu navegador em: `http://localhost:3000`
+
+🔐 **Login Padrão:**
+
+  * **Usuário:** `admin`
+  * **Senha:** `admin`
+
+-----
+
+## 📂 Estrutura de Arquivos
+
+```
 plantech/
-│── app.js                   → Arquivo principal do servidor
-│── package.json
-│── database.db              → Banco de dados SQLite
-│
+├── app.js              # Núcleo da aplicação
+├── database.db         # Banco de dados (Gerado automaticamente)
 ├── db/
-│   └── init.js              → Script de criação das tabelas
-│
-├── views/
-│   ├── dashboard.ejs        → Tela principal
-│   ├── login.ejs            → Tela de login
-│   ├── localidades.ejs
-│   ├── produtos.ejs
-│   ├── clientes.ejs
-│   ├── fornecedores.ejs
-│   ├── compras.ejs
-│   ├── distribuicao.ejs
-│   ├── entrega.ejs
-│   └── precos.ejs
-│
-├── routes/
-│   ├── localidades.js
-│   ├── produtos.js
-│   ├── clientes.js
-│   ├── fornecedores.js
-│   ├── compras.js
-│   ├── distribuicao.js
-│   ├── entrega.js
-│   └── precos.js
-│
-└── public/
-    └── css / imagens / js
+│   └── init.js         # Script de modelagem do banco (DDL)
+├── public/
+│   └── style.css       # Estilização Premium (Verde/Moderno)
+├── routes/             # Controladores (Lógica de Negócio)
+│   ├── compras.js      # Lógica de Entrada
+│   ├── distribuicao.js # Lógica LIFO
+│   └── ...
+└── views/              # Telas (Frontend EJS)
+    ├── dashboard.ejs
+    ├── distribuicao.ejs
+    └── ...
+```
 
-🚀 Como Rodar o Projeto
-1. Clonar o repositório
-git clone https://github.com/SEU-USUARIO/plantech.git
+-----
 
-2. Entrar no diretório
-cd plantech
+## 👨‍💻 Autores
 
-3. Instalar as dependências
-npm install
+\<table align="center"\>
+\<tr\>
+\<td align="center"\>
+\<a href="\#"\>
+\<img src="https://www.google.com/search?q=https://ui-avatars.com/api/%3Fname%3DIsabella%2BNicolau%26background%3D2e7d32%26color%3Dfff" width="100px;" alt="Foto da Isabella"/\><br>
+\<sub\>\<b\>Isabella Maria Nicolau DaSilva\</b\>\</sub\>
+\</a\>
+\</td\>
+\<td align="center"\>
+\<a href="\#"\>
+\<img src="https://www.google.com/search?q=https://ui-avatars.com/api/%3Fname%3DGabriel%2BAndrade%26background%3D1b5e20%26color%3Dfff" width="100px;" alt="Foto do Gabriel"/\><br>
+\<sub\>\<b\>Gabriel Andrade Figueiredo\</b\>\</sub\>
+\</a\>
+\</td\>
+\</tr\>
+\</table\>
 
-4. Criar o banco e tabelas
-node db/init.js
+**Orientador:** Prof. Me. Guilherme Dias Vicentini  
+**Instituição:** UMFG - 2025
 
-5. Iniciar o servidor
-npm start
+-----
 
-6. Acessar no navegador:
+*Feito com 💚 para revolucionar a gestão agrícola.*
 
-👉 http://localhost:3000
-
-🔐 Login Padrão
-
-Após gerar o banco com o init.js, o usuário padrão criado é:
-
-Usuário: admin
-
-Senha: admin
-
-📌 Funcionalidades Implementadas
-✔ Login e autenticação de usuário
-
-Controle simples com sessões e proteção de rotas.
-
-✔ Dashboard com todos os módulos
-
-Acesso rápido aos cadastros e operações do sistema.
-
-✔ Cadastro completo de:
-
-Localidades
-
-Produtos
-
-Clientes (PF / PJ)
-
-Fornecedores
-
-✔ Registro de compras
-
-Lista, consulta e inserção de compras.
-
-✔ Distribuição
-
-Controle interno de produtos.
-
-✔ Entrega
-
-Finalização da saída dos produtos.
-
-✔ Relação de preços
-
-Geração automática com base nas tabelas cadastradas.
-
-📸 Prints das Telas (adicione depois)
-
-Você pode completar com imagens do seu sistema:
-
-Dashboard
-
-Login
-
-Telas de cadastro
-
-Tabelas e listagens
-
-Para adicionar imagens no README:
-
-![Dashboard](prints/dashboard.png)
-
-🎯 Diferenciais para Nota Máxima
-
-Código organizado em rotas separadas
-
-Interface limpa usando Bootstrap
-
-Estrutura MVC simples
-
-Banco de dados funcional
-
-Documentação completa
-
-Sistema inteiramente navegável
-
-Justificativa clara das tecnologias
-
-Repositório estruturado
-
-👩‍💻 Autores
-
-Isabella (Keka) – Backend, Integração e Views
-
-[Nome do seu amigo] – Banco, Lógica e Organização das rotas
-
-📄 Licença
-
-Este projeto é acadêmico e não possui licença comercial.
+```
