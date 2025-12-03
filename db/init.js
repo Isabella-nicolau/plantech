@@ -2,9 +2,10 @@ const sqlite3 = require("sqlite3").verbose();
 const bcrypt = require("bcrypt");
 const db = new sqlite3.Database("./database.db");
 
-console.log("⏳ Iniciando criação do banco de dados...");
-
 db.serialize(() => {
+  // ... (Tabelas anteriores: Usuario, Clientes, Fornecedores, Produto, Compras, ItensCompra, Distribuicao - MANTENHA IGUAL) ...
+  // Vou repetir apenas as tabelas que mudaram ou são dependentes para facilitar a cópia:
+
   // 1. Usuários
   db.run(`CREATE TABLE IF NOT EXISTS Usuario (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -44,7 +45,7 @@ db.serialize(() => {
     estoqueAtual INTEGER DEFAULT 0
   )`);
 
-  // 4. Compras (Cabeçalho)
+  // 4. Compras
   db.run(`CREATE TABLE IF NOT EXISTS Compras (
     idCompra INTEGER PRIMARY KEY AUTOINCREMENT,
     idFornecedor INTEGER,
@@ -53,7 +54,6 @@ db.serialize(() => {
     FOREIGN KEY(idFornecedor) REFERENCES Fornecedores(idFornecedor)
   )`);
 
-  // 5. Itens da Compra
   db.run(`CREATE TABLE IF NOT EXISTS ItensCompra (
     idItem INTEGER PRIMARY KEY AUTOINCREMENT,
     idCompra INTEGER,
@@ -65,7 +65,6 @@ db.serialize(() => {
     FOREIGN KEY(idProduto) REFERENCES Produto(numProduto)
   )`);
 
-  // 6. Distribuição
   db.run(`CREATE TABLE IF NOT EXISTS Distribuicao (
     idDistribuicao INTEGER PRIMARY KEY AUTOINCREMENT,
     idItemCompra INTEGER,
@@ -73,12 +72,14 @@ db.serialize(() => {
     FOREIGN KEY(idItemCompra) REFERENCES ItensCompra(idItem)
   )`);
 
-  // 7. Vendas (Cabeçalho)
+  // 7. Vendas (
   db.run(`CREATE TABLE IF NOT EXISTS Vendas (
     idVenda INTEGER PRIMARY KEY AUTOINCREMENT,
     idCliente INTEGER,
     dataVenda DATETIME DEFAULT CURRENT_TIMESTAMP,
-    valorTotal REAL,
+    subtotal REAL,        -- Valor sem desconto
+    desconto REAL,        -- Novo campo RF4
+    valorTotal REAL,      -- Valor final a pagar
     formaPagamento TEXT,
     FOREIGN KEY(idCliente) REFERENCES Clientes(idCliente)
   )`);
@@ -95,25 +96,9 @@ db.serialize(() => {
     FOREIGN KEY(idProduto) REFERENCES Produto(numProduto)
   )`);
 
-  // CRIAÇÃO DO USUÁRIO ADMIN (Fundamental para o Login)
+  // Admin
   const senha = "admin";
   bcrypt.hash(senha, 10, (err, hash) => {
-    if (err) {
-      console.error("Erro ao gerar hash da senha:", err);
-      return;
-    }
-    
-    db.run(
-      `INSERT OR IGNORE INTO Usuario (username, password) VALUES (?, ?)`,
-      ["admin", hash],
-      (err) => {
-        if (err) {
-          console.error("Erro ao criar usuário admin:", err);
-        } else {
-          console.log("✅ Usuário 'admin' criado/verificado com sucesso!");
-          console.log("👉 Login: admin | Senha: admin");
-        }
-      }
-    );
+    if (!err) db.run(`INSERT OR IGNORE INTO Usuario (username, password) VALUES (?, ?)`, ["admin", hash]);
   });
 });
