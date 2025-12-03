@@ -3,51 +3,44 @@ const router = express.Router();
 const sqlite3 = require("sqlite3").verbose();
 const db = new sqlite3.Database("./database.db");
 
-// LISTAR CLIENTES
 router.get("/", (req, res) => {
   db.all("SELECT * FROM Clientes ORDER BY nome ASC", [], (err, rows) => {
-    if (err) {
-      return res.render("clientes", { 
-        lista: [], 
-        erro: "Erro ao carregar clientes: " + err.message 
-      });
-    }
+    if (err) return res.render("clientes", { lista: [], erro: err.message });
     res.render("clientes", { lista: rows, erro: null });
   });
 });
 
-// ADICIONAR CLIENTE (RF1)
 router.post("/add", (req, res) => {
   const { tipo, nome, nomeFantasia, documento, telefone, email, endereco } = req.body;
-
-  // Validação básica
-  if (!tipo || !nome || !documento || !endereco) {
-    return res.render("clientes", { 
-      lista: [], // Idealmente recarregar a lista aqui, mas simplificado para o exemplo
-      erro: "Preencha os campos obrigatórios (Nome/Razão, Documento e Endereço)." 
-    });
-  }
-
-  // Se for PF, garantimos que nomeFantasia seja vazio ou null
-  const fantasiaFinal = (tipo === 'PJ') ? nomeFantasia : null;
-
+  if (!nome || !documento) return res.send("Nome e Documento obrigatórios.");
+  
   db.run(
-    `INSERT INTO Clientes (tipo, nome, nomeFantasia, documento, telefone, email, endereco)
-     VALUES (?, ?, ?, ?, ?, ?, ?)`,
-    [tipo, nome, fantasiaFinal, documento, telefone, email, endereco],
+    `INSERT INTO Clientes (tipo, nome, nomeFantasia, documento, telefone, email, endereco) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+    [tipo, nome, nomeFantasia, documento, telefone, email, endereco],
     (err) => {
-      if (err) return res.send("Erro ao cadastrar cliente: " + err.message);
+      if (err) return res.send("Erro: " + err.message);
       res.redirect("/clientes");
     }
   );
 });
 
-// EXCLUIR CLIENTE
+// NOVA ROTA: ATUALIZAR
+router.post("/update/:id", (req, res) => {
+  const { id } = req.params;
+  const { tipo, nome, nomeFantasia, documento, telefone, email, endereco } = req.body;
+
+  db.run(
+    `UPDATE Clientes SET tipo=?, nome=?, nomeFantasia=?, documento=?, telefone=?, email=?, endereco=? WHERE idCliente=?`,
+    [tipo, nome, nomeFantasia, documento, telefone, email, endereco, id],
+    (err) => {
+      if (err) return res.send("Erro ao atualizar: " + err.message);
+      res.redirect("/clientes");
+    }
+  );
+});
+
 router.get("/delete/:id", (req, res) => {
-  db.run(`DELETE FROM Clientes WHERE idCliente = ?`, [req.params.id], (err) => {
-    if (err) return res.send("Erro ao excluir: " + err.message);
-    res.redirect("/clientes");
-  });
+  db.run(`DELETE FROM Clientes WHERE idCliente = ?`, [req.params.id], () => res.redirect("/clientes"));
 });
 
 module.exports = router;

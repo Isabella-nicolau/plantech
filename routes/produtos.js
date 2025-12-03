@@ -41,4 +41,17 @@ router.get("/delete/:id", (req, res) => {
   });
 });
 
+// NOVA ROTA: ATUALIZAR
+router.post("/update/:id", (req, res) => {
+  const { id } = req.params;
+  const { nomeProduto, descricao, categoria, unidadeMedida, precoVenda, estoqueAtual } = req.body;
+
+  db.run(
+    `UPDATE Produto SET nomeProduto=?, descricao=?, categoria=?, unidadeMedida=?, precoVenda=?, estoqueAtual=? WHERE numProduto=?`,
+    [nomeProduto, descricao, categoria, unidadeMedida, precoVenda, estoqueAtual, id],
+    (err) => res.redirect("/produtos")
+  );
+});
+// ...
+
 module.exports = router;

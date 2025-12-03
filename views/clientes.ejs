@@ -33,7 +33,7 @@
     .table-container::-webkit-scrollbar { width: 6px; }
     .table-container::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
 
-    /* Classes para os Avatares (Corrige o erro de sintaxe anterior) */
+    /* Classes para os Avatares */
     .avatar-base {
       width: 45px;
       height: 45px;
@@ -44,6 +44,21 @@
     }
     .avatar-pf {
       background-color: #e0e0e0; /* Cinza Claro */
+    }
+
+    /* Botão de Edição */
+    .btn-warning-custom {
+      background-color: #f59e0b;
+      color: #000;
+      border: none;
+      border-radius: 50px;
+      font-weight: 700;
+      padding: 10px 25px;
+      transition: 0.3s;
+    }
+    .btn-warning-custom:hover {
+      background-color: #d97706;
+      color: #fff;
     }
   </style>
 </head>
@@ -65,7 +80,8 @@
           <a href="/compras" class="nav-link-custom">Compras</a>
           <a href="/vendas" class="nav-link-custom">Vendas</a>
           <a href="/produtos" class="nav-link-custom">Produtos</a>
-          <a href="/clientes" class="nav-link-custom active">Clientes</a> <a href="/fornecedores" class="nav-link-custom">Fornecedores</a>
+          <a href="/clientes" class="nav-link-custom active">Clientes</a>
+          <a href="/fornecedores" class="nav-link-custom">Fornecedores</a>
           <a href="/relatorios" class="nav-link-custom">Relatórios</a>
         </div>
       </div>
@@ -83,9 +99,12 @@
         <h2 class="mb-0 fw-bold text-white">Carteira de Clientes</h2>
         <p class="text-white text-opacity-50 small mb-0">Gerencie consumidores Pessoa Física e Jurídica</p>
       </div>
-      <span class="badge bg-white bg-opacity-10 text-white px-3 py-2 rounded-pill border border-secondary border-opacity-25">
-        Total: <%= lista.length %>
-      </span>
+      <div class="d-flex gap-2">
+        <button onclick="limparForm()" class="btn btn-outline-light btn-sm rounded-pill px-3">Novo (+)</button>
+        <span class="badge bg-white bg-opacity-10 text-white px-3 py-2 rounded-pill border border-secondary border-opacity-25">
+          Total: <%= lista.length %>
+        </span>
+      </div>
     </div>
 
     <% if (erro) { %>
@@ -98,10 +117,10 @@
         <div class="card-panel h-100 bg-grad-dark" style="border: 1px solid rgba(255,255,255,0.05);">
           <div class="d-flex align-items-center gap-2 mb-4 text-lime">
             <span class="fs-5">✨</span> 
-            <h5 class="mb-0 fw-bold">Novo Cliente</h5>
+            <h5 class="mb-0 fw-bold" id="formTitle">Novo Cliente</h5>
           </div>
           
-          <form action="/clientes/add" method="POST" class="row g-3">
+          <form action="/clientes/add" method="POST" class="row g-3" id="formCliente">
             
             <div class="col-12">
               <label class="form-label">Tipo de Pessoa</label>
@@ -113,37 +132,45 @@
 
             <div class="col-12">
               <label class="form-label" id="labelNome">Nome Completo</label>
-              <input type="text" name="nome" class="form-control" required placeholder="Ex: João da Silva">
+              <input type="text" name="nome" id="inputNome" class="form-control" required placeholder="Ex: João da Silva">
             </div>
 
             <div class="col-12" id="divFantasia" style="display:none;">
               <label class="form-label">Nome Fantasia</label>
-              <input type="text" name="nomeFantasia" class="form-control" placeholder="Ex: Mercado Silva">
+              <input type="text" name="nomeFantasia" id="inputFantasia" class="form-control" placeholder="Ex: Mercado Silva">
             </div>
 
             <div class="col-12">
               <label class="form-label" id="labelDocumento">CPF</label>
-              <input type="text" name="documento" class="form-control" required placeholder="Apenas números">
+              <input type="text" name="documento" id="inputDoc" class="form-control" 
+                     required placeholder="000.000.000-00" 
+                     oninput="mascaraDocumento(this)"
+                     minlength="14" maxlength="14">
+              <div class="form-text text-white opacity-50 small">Somente números</div>
             </div>
 
             <div class="col-6">
               <label class="form-label">Telefone</label>
-              <input type="text" name="telefone" class="form-control" placeholder="(00) 00000-0000">
+              <input type="text" name="telefone" id="inputTel" class="form-control" placeholder="(00) 00000-0000" oninput="mascaraTelefone(this)" maxlength="15">
             </div>
 
             <div class="col-6">
               <label class="form-label">Email</label>
-              <input type="email" name="email" class="form-control" placeholder="cliente@email.com">
+              <input type="email" name="email" id="inputEmail" class="form-control" placeholder="cliente@email.com">
             </div>
 
             <div class="col-12">
               <label class="form-label">Endereço Completo</label>
-              <textarea name="endereco" class="form-control" rows="2" required placeholder="Rua, Número, Bairro..."></textarea>
+              <textarea name="endereco" id="inputEnd" class="form-control" rows="2" required placeholder="Rua, Número, Bairro..."></textarea>
             </div>
 
-            <div class="col-12 mt-4">
-              <button class="btn btn-primary w-100 py-3 shadow-lg rounded-pill fw-bold">
+            <div class="col-12 mt-4 d-flex gap-2">
+              <button class="btn btn-primary w-100 py-3 shadow-lg rounded-pill fw-bold" id="btnSalvar">
                 <span class="fs-6">💾</span> Salvar Cadastro
+              </button>
+              
+              <button type="button" class="btn btn-outline-secondary w-100 py-3 rounded-pill fw-bold" id="btnCancelar" onclick="limparForm()" style="display:none;">
+                Cancelar
               </button>
             </div>
 
@@ -172,11 +199,9 @@
                   <tr>
                     <td class="ps-4 py-3">
                       <div class="d-flex align-items-center gap-3">
-                        
                         <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold shadow-sm flex-shrink-0 avatar-base <%= c.tipo == 'PJ' ? 'avatar-pj' : 'avatar-pf' %>">
                           <%= c.tipo %>
                         </div>
-
                         <div style="line-height: 1.3;">
                           <strong class="text-white d-block"><%= c.nome %></strong>
                           <% if(c.tipo == 'PJ' && c.nomeFantasia){ %>
@@ -202,6 +227,19 @@
                     </td>
                     
                     <td class="text-end pe-4">
+                      <button class="btn btn-sm btn-outline-warning rounded-pill px-3 me-1"
+                        onclick="editar(this)"
+                        data-id="<%= c.idCliente %>"
+                        data-tipo="<%= c.tipo %>"
+                        data-nome="<%= c.nome %>"
+                        data-fantasia="<%= c.nomeFantasia %>"
+                        data-doc="<%= c.documento %>"
+                        data-tel="<%= c.telefone %>"
+                        data-email="<%= c.email %>"
+                        data-end="<%= c.endereco %>">
+                        ✏️
+                      </button>
+
                       <a href="/clientes/delete/<%= c.idCliente %>" 
                          class="btn btn-sm btn-outline-danger rounded-pill px-3"
                          title="Excluir Cliente"
@@ -232,21 +270,120 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
   <script>
+    // Configura o formulário dependendo se é PF ou PJ
     function alternarTipo() {
       const tipo = document.getElementById('tipoCliente').value;
       const labelNome = document.getElementById('labelNome');
       const labelDoc = document.getElementById('labelDocumento');
       const divFantasia = document.getElementById('divFantasia');
+      const inputDoc = document.getElementById('inputDoc');
+
+      // Limpa o valor para evitar máscaras misturadas se o usuário trocar
+      // inputDoc.value = ""; 
 
       if (tipo === 'PF') {
         labelNome.innerText = "Nome Completo";
         labelDoc.innerText = "CPF";
         divFantasia.style.display = "none";
+        
+        // Define validação para CPF (14 chars: 000.000.000-00)
+        inputDoc.setAttribute("maxlength", "14");
+        inputDoc.setAttribute("minlength", "14");
+        inputDoc.setAttribute("placeholder", "000.000.000-00");
       } else {
         labelNome.innerText = "Razão Social";
         labelDoc.innerText = "CNPJ";
         divFantasia.style.display = "block";
+        
+        // Define validação para CNPJ (18 chars: 00.000.000/0000-00)
+        inputDoc.setAttribute("maxlength", "18");
+        inputDoc.setAttribute("minlength", "18");
+        inputDoc.setAttribute("placeholder", "00.000.000/0000-00");
       }
+    }
+
+    // Função de Máscara para CPF/CNPJ
+    function mascaraDocumento(input) {
+      const tipo = document.getElementById('tipoCliente').value;
+      let v = input.value.replace(/\D/g, ""); // Remove tudo que não é dígito
+
+      if (tipo === 'PF') {
+        // Limita a 11 números para CPF
+        if (v.length > 11) v = v.slice(0, 11);
+
+        // Aplica a máscara CPF: 000.000.000-00
+        v = v.replace(/(\d{3})(\d)/, "$1.$2");
+        v = v.replace(/(\d{3})(\d)/, "$1.$2");
+        v = v.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+
+      } else {
+        // Limita a 14 números para CNPJ
+        if (v.length > 14) v = v.slice(0, 14);
+
+        // Aplica a máscara CNPJ: 00.000.000/0000-00
+        v = v.replace(/^(\d{2})(\d)/, "$1.$2");
+        v = v.replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3");
+        v = v.replace(/\.(\d{3})(\d)/, ".$1/$2");
+        v = v.replace(/(\d{4})(\d)/, "$1-$2");
+      }
+
+      input.value = v;
+    }
+
+    // Função opcional para máscara de telefone
+    function mascaraTelefone(input) {
+      let v = input.value.replace(/\D/g, "");
+      if (v.length > 11) v = v.slice(0, 11);
+      
+      // Formata (00) 00000-0000
+      v = v.replace(/^(\d{2})(\d)/g, "($1) $2");
+      v = v.replace(/(\d)(\d{4})$/, "$1-$2");
+      
+      input.value = v;
+    }
+
+    // Preenche o formulário para edição
+    function editar(btn) {
+      const d = btn.dataset;
+      
+      document.getElementById('tipoCliente').value = d.tipo;
+      
+      // Chama alternarTipo para configurar os inputs corretamente (máscaras e labels)
+      alternarTipo(); 
+      
+      document.getElementById('inputNome').value = d.nome;
+      document.getElementById('inputFantasia').value = d.fantasia;
+      document.getElementById('inputDoc').value = d.doc;
+      document.getElementById('inputTel').value = d.tel;
+      document.getElementById('inputEmail').value = d.email;
+      document.getElementById('inputEnd').value = d.end;
+
+      const form = document.getElementById('formCliente');
+      form.action = "/clientes/update/" + d.id;
+      
+      document.getElementById('formTitle').innerText = "✏️ Editando Cliente";
+      
+      const btnSalvar = document.getElementById('btnSalvar');
+      btnSalvar.innerHTML = '<span class="fs-6">💾</span> Atualizar';
+      btnSalvar.classList.remove('btn-primary');
+      btnSalvar.classList.add('btn-warning-custom');
+      
+      document.getElementById('btnCancelar').style.display = "block";
+    }
+
+    // Reseta o formulário
+    function limparForm() {
+      document.getElementById('formCliente').reset();
+      document.getElementById('formCliente').action = "/clientes/add";
+      document.getElementById('formTitle').innerText = "✨ Novo Cliente";
+      
+      const btnSalvar = document.getElementById('btnSalvar');
+      btnSalvar.innerHTML = '<span class="fs-6">💾</span> Salvar Cadastro';
+      btnSalvar.classList.add('btn-primary');
+      btnSalvar.classList.remove('btn-warning-custom');
+      
+      document.getElementById('btnCancelar').style.display = "none";
+      alternarTipo();
     }
   </script>
 

@@ -6,7 +6,7 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="/style.css">
   <style>
-    /* Ajustes de Contraste e Inputs */
+    /* Ajustes específicos para inputs no Dark Mode */
     .form-control, .form-select {
       background-color: #12141e !important;
       border: 1px solid rgba(255, 255, 255, 0.1) !important;
@@ -25,7 +25,7 @@
       color: rgba(255, 255, 255, 0.3) !important;
     }
     
-    /* Scroll na tabela */
+    /* Scroll personalizado na tabela */
     .table-container {
       max-height: 70vh;
       overflow-y: auto;
@@ -33,7 +33,7 @@
     .table-container::-webkit-scrollbar { width: 6px; }
     .table-container::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
 
-    /* Avatar do Produto (Verde) */
+    /* Avatar do Produto (Verde Escuro) */
     .avatar-prod {
       width: 45px; height: 45px;
       background-color: #2e7d32;
@@ -41,6 +41,22 @@
       display: flex; align-items: center; justify-content: center;
       border-radius: 12px;
       font-size: 1.2rem;
+      font-weight: bold;
+    }
+
+    /* Botão de Edição (Amarelo) */
+    .btn-warning-custom {
+      background-color: #f59e0b;
+      color: #000;
+      border: none;
+      border-radius: 50px;
+      font-weight: 700;
+      padding: 10px 25px;
+      transition: 0.3s;
+    }
+    .btn-warning-custom:hover {
+      background-color: #d97706;
+      color: #fff;
     }
   </style>
 </head>
@@ -51,10 +67,11 @@
       <a class="navbar-brand" href="/dashboard">
         <span style="font-size: 1.5rem;">🌱</span> Plantech
       </a>
+
       <button class="navbar-toggler bg-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
         <span class="navbar-toggler-icon"></span>
       </button>
-      
+
       <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
         <div class="nav-pills-custom">
           <a href="/dashboard" class="nav-link-custom">Dashboard</a>
@@ -79,9 +96,12 @@
         <h2 class="mb-0 fw-bold text-white">Catálogo de Produtos</h2>
         <p class="text-white text-opacity-50 small mb-0">Gerencie o inventário e preços de venda</p>
       </div>
-      <span class="badge bg-white bg-opacity-10 text-white px-3 py-2 rounded-pill border border-secondary border-opacity-25">
-        Itens: <%= lista.length %>
-      </span>
+      <div class="d-flex gap-2">
+        <button onclick="limparForm()" class="btn btn-outline-light btn-sm rounded-pill px-3">Novo (+)</button>
+        <span class="badge bg-white bg-opacity-10 text-white px-3 py-2 rounded-pill border border-secondary border-opacity-25">
+          Itens: <%= lista.length %>
+        </span>
+      </div>
     </div>
 
     <% if (locals.erro) { %>
@@ -94,19 +114,19 @@
         <div class="card-panel h-100 bg-grad-dark" style="border: 1px solid rgba(255,255,255,0.05);">
           <div class="d-flex align-items-center gap-2 mb-4 text-lime">
             <span class="fs-5">📦</span> 
-            <h5 class="mb-0 fw-bold">Novo Item</h5>
+            <h5 class="mb-0 fw-bold" id="formTitle">Novo Item</h5>
           </div>
           
-          <form action="/produtos/add" method="POST" class="row g-3">
+          <form action="/produtos/add" method="POST" class="row g-3" id="formProd">
             
             <div class="col-12">
               <label class="form-label">Nome do Produto</label>
-              <input type="text" name="nomeProduto" class="form-control" required placeholder="Ex: Adubo NPK 10-10-10">
+              <input type="text" name="nomeProduto" id="inputNome" class="form-control" required placeholder="Ex: Adubo NPK 10-10-10">
             </div>
 
             <div class="col-6">
               <label class="form-label">Categoria</label>
-              <select name="categoria" class="form-select">
+              <select name="categoria" id="selCat" class="form-select">
                 <option value="" disabled selected>Tipo...</option>
                 <option value="Plantas">Plantas</option>
                 <option value="Gramas">Gramas</option>
@@ -118,7 +138,7 @@
 
             <div class="col-6">
               <label class="form-label">Unidade</label>
-              <select name="unidadeMedida" class="form-select">
+              <select name="unidadeMedida" id="selUnd" class="form-select">
                 <option value="UN">Unidade</option>
                 <option value="M2">m²</option>
                 <option value="KG">Kg</option>
@@ -129,22 +149,26 @@
 
             <div class="col-6">
               <label class="form-label">Preço Venda (R$)</label>
-              <input type="number" step="0.01" name="precoVenda" class="form-control" required placeholder="0.00">
+              <input type="number" step="0.01" name="precoVenda" id="inputPreco" class="form-control" required placeholder="0.00">
             </div>
 
             <div class="col-6">
               <label class="form-label text-lime">Estoque Inicial</label>
-              <input type="number" name="estoqueAtual" class="form-control" placeholder="0" min="0">
+              <input type="number" name="estoqueAtual" id="inputEstoque" class="form-control" placeholder="0" min="0">
             </div>
 
             <div class="col-12">
               <label class="form-label">Descrição</label>
-              <textarea name="descricao" class="form-control" rows="2" placeholder="Detalhes técnicos..."></textarea>
+              <textarea name="descricao" id="inputDesc" class="form-control" rows="2" placeholder="Detalhes técnicos, tamanho, cor..."></textarea>
             </div>
 
-            <div class="col-12 mt-4">
-              <button class="btn btn-primary w-100 py-3 shadow-lg rounded-pill fw-bold">
-                <span class="fs-6">💾</span> Adicionar ao Catálogo
+            <div class="col-12 mt-4 d-flex gap-2">
+              <button class="btn btn-primary w-100 py-3 shadow-lg rounded-pill fw-bold" id="btnSalvar">
+                <span class="fs-6">💾</span> Adicionar
+              </button>
+              
+              <button type="button" class="btn btn-outline-secondary w-100 py-3 rounded-pill fw-bold" id="btnCancelar" onclick="limparForm()" style="display:none;">
+                Cancelar
               </button>
             </div>
 
@@ -174,12 +198,14 @@
                   <tr>
                     <td class="ps-4 py-3">
                       <div class="d-flex align-items-center gap-3">
-                        <div class="avatar-prod shadow-sm">
+                        <div class="avatar-prod shadow-sm flex-shrink-0">
                           <%= p.nomeProduto.charAt(0).toUpperCase() %>
                         </div>
-                        <div>
+                        <div style="line-height: 1.3;">
                           <strong class="text-white d-block"><%= p.nomeProduto %></strong>
-                          <small class="text-white text-opacity-50"><%= p.descricao || "Sem descrição" %></small>
+                          <small class="text-white text-opacity-50 text-truncate d-block" style="max-width: 200px;">
+                            <%= p.descricao || "Sem descrição" %>
+                          </small>
                         </div>
                       </div>
                     </td>
@@ -205,6 +231,18 @@
                     </td>
                     
                     <td class="text-end pe-4">
+                      <button class="btn btn-sm btn-outline-warning rounded-pill px-3 me-1"
+                        onclick="editar(this)"
+                        data-id="<%= p.numProduto %>"
+                        data-nome="<%= p.nomeProduto %>"
+                        data-cat="<%= p.categoria %>"
+                        data-und="<%= p.unidadeMedida %>"
+                        data-preco="<%= p.precoVenda %>"
+                        data-estoque="<%= p.estoqueAtual %>"
+                        data-desc="<%= p.descricao %>">
+                        ✏️
+                      </button>
+
                       <a href="/produtos/delete/<%= p.numProduto %>" 
                          class="btn btn-sm btn-outline-danger rounded-pill px-3"
                          title="Excluir Produto"
@@ -233,5 +271,47 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    function editar(btn) {
+      const d = btn.dataset;
+      
+      // Preencher campos
+      document.getElementById('inputNome').value = d.nome;
+      document.getElementById('selCat').value = d.cat;
+      document.getElementById('selUnd').value = d.und;
+      document.getElementById('inputPreco').value = d.preco;
+      document.getElementById('inputEstoque').value = d.estoque;
+      document.getElementById('inputDesc').value = d.desc;
+
+      // Mudar modo do formulário
+      const form = document.getElementById('formProd');
+      form.action = "/produtos/update/" + d.id;
+      
+      document.getElementById('formTitle').innerText = "✏️ Editando Produto";
+      
+      const btnSalvar = document.getElementById('btnSalvar');
+      btnSalvar.innerHTML = '<span class="fs-6">💾</span> Atualizar';
+      btnSalvar.classList.remove('btn-primary');
+      btnSalvar.classList.add('btn-warning-custom');
+      
+      document.getElementById('btnCancelar').style.display = "block";
+    }
+
+    function limparForm() {
+      // Resetar formulário
+      document.getElementById('formProd').reset();
+      document.getElementById('formProd').action = "/produtos/add";
+      document.getElementById('formTitle').innerText = "Novo Item";
+      
+      const btnSalvar = document.getElementById('btnSalvar');
+      btnSalvar.innerHTML = '<span class="fs-6">💾</span> Adicionar';
+      btnSalvar.classList.add('btn-primary');
+      btnSalvar.classList.remove('btn-warning-custom');
+      
+      document.getElementById('btnCancelar').style.display = "none";
+    }
+  </script>
+
 </body>
 </html>
