@@ -12,15 +12,38 @@
       border: 1px solid rgba(255, 255, 255, 0.1) !important;
       color: #ffffff !important;
     }
+    
+    /* Foco padrão (Verde Plantech) */
     .form-control:focus, .form-select:focus {
       border-color: var(--accent-lime) !important;
       box-shadow: 0 0 0 2px rgba(204, 243, 129, 0.2) !important;
     }
+
+    /* ESTILO DE ERRO (Quando o campo obrigatório estiver vazio) */
+    .was-validated .form-control:invalid, 
+    .was-validated .form-select:invalid {
+      border-color: #ef4444 !important; /* Vermelho */
+      background-image: none !important; /* Remove ícone padrão do bootstrap */
+    }
+    
+    .was-validated .form-control:invalid:focus, 
+    .was-validated .form-select:invalid:focus {
+      box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.25) !important;
+    }
+
     .form-label {
       color: #e0e0e0;
       font-weight: 500;
       font-size: 0.9rem;
     }
+    
+    /* Asterisco de Obrigatório */
+    .text-required {
+      color: #ef4444; /* Vermelho */
+      font-weight: bold;
+      margin-left: 3px;
+    }
+
     ::placeholder {
       color: rgba(255, 255, 255, 0.3) !important;
     }
@@ -34,32 +57,15 @@
     .table-container::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
 
     /* Classes para os Avatares */
-    .avatar-base {
-      width: 45px;
-      height: 45px;
-      color: #121212; /* Texto preto para contraste */
-    }
-    .avatar-pj {
-      background-color: var(--accent-lime); /* Verde Neon */
-    }
-    .avatar-pf {
-      background-color: #e0e0e0; /* Cinza Claro */
-    }
+    .avatar-base { width: 45px; height: 45px; color: #121212; }
+    .avatar-pj { background-color: var(--accent-lime); }
+    .avatar-pf { background-color: #e0e0e0; }
 
     /* Botão de Edição */
     .btn-warning-custom {
-      background-color: #f59e0b;
-      color: #000;
-      border: none;
-      border-radius: 50px;
-      font-weight: 700;
-      padding: 10px 25px;
-      transition: 0.3s;
+      background-color: #f59e0b; color: #000; border: none; border-radius: 50px; font-weight: 700; padding: 10px 25px; transition: 0.3s;
     }
-    .btn-warning-custom:hover {
-      background-color: #d97706;
-      color: #fff;
-    }
+    .btn-warning-custom:hover { background-color: #d97706; color: #fff; }
   </style>
 </head>
 <body>
@@ -120,7 +126,7 @@
             <h5 class="mb-0 fw-bold" id="formTitle">Novo Cliente</h5>
           </div>
           
-          <form action="/clientes/add" method="POST" class="row g-3" id="formCliente">
+          <form action="/clientes/add" method="POST" class="row g-3 needs-validation" id="formCliente" novalidate>
             
             <div class="col-12">
               <label class="form-label">Tipo de Pessoa</label>
@@ -131,8 +137,9 @@
             </div>
 
             <div class="col-12">
-              <label class="form-label" id="labelNome">Nome Completo</label>
+              <label class="form-label" id="labelNome">Nome Completo <span class="text-required">*</span></label>
               <input type="text" name="nome" id="inputNome" class="form-control" required placeholder="Ex: João da Silva">
+              <div class="invalid-feedback text-end small" style="color: #ef4444;">Nome é obrigatório.</div>
             </div>
 
             <div class="col-12" id="divFantasia" style="display:none;">
@@ -141,12 +148,12 @@
             </div>
 
             <div class="col-12">
-              <label class="form-label" id="labelDocumento">CPF</label>
+              <label class="form-label" id="labelDocumento">CPF <span class="text-required">*</span></label>
               <input type="text" name="documento" id="inputDoc" class="form-control" 
                      required placeholder="000.000.000-00" 
                      oninput="mascaraDocumento(this)"
-                     minlength="14" maxlength="14">
-              <div class="form-text text-white opacity-50 small">Somente números</div>
+                     minlength="14" maxlength="18">
+              <div class="invalid-feedback text-end small" style="color: #ef4444;">Documento inválido ou vazio.</div>
             </div>
 
             <div class="col-6">
@@ -160,12 +167,13 @@
             </div>
 
             <div class="col-12">
-              <label class="form-label">Endereço Completo</label>
+              <label class="form-label">Endereço Completo <span class="text-required">*</span></label>
               <textarea name="endereco" id="inputEnd" class="form-control" rows="2" required placeholder="Rua, Número, Bairro..."></textarea>
+              <div class="invalid-feedback text-end small" style="color: #ef4444;">Endereço é obrigatório.</div>
             </div>
 
             <div class="col-12 mt-4 d-flex gap-2">
-              <button class="btn btn-primary w-100 py-3 shadow-lg rounded-pill fw-bold" id="btnSalvar">
+              <button type="submit" class="btn btn-primary w-100 py-3 shadow-lg rounded-pill fw-bold" id="btnSalvar">
                 <span class="fs-6">💾</span> Salvar Cadastro
               </button>
               
@@ -270,7 +278,21 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
   <script>
-    // Configura o formulário dependendo se é PF ou PJ
+    // Lógica de Validação Visual (Borda Vermelha)
+    (() => {
+      'use strict'
+      const forms = document.querySelectorAll('.needs-validation')
+      Array.from(forms).forEach(form => {
+        form.addEventListener('submit', event => {
+          if (!form.checkValidity()) {
+            event.preventDefault()
+            event.stopPropagation()
+          }
+          form.classList.add('was-validated')
+        }, false)
+      })
+    })()
+
     function alternarTipo() {
       const tipo = document.getElementById('tipoCliente').value;
       const labelNome = document.getElementById('labelNome');
@@ -278,78 +300,55 @@
       const divFantasia = document.getElementById('divFantasia');
       const inputDoc = document.getElementById('inputDoc');
 
-      // Limpa o valor para evitar máscaras misturadas se o usuário trocar
-      // inputDoc.value = ""; 
-
       if (tipo === 'PF') {
-        labelNome.innerText = "Nome Completo";
-        labelDoc.innerText = "CPF";
+        // Atualiza Labels e Placeholder
+        labelNome.innerHTML = 'Nome Completo <span class="text-required">*</span>';
+        labelDoc.innerHTML = 'CPF <span class="text-required">*</span>';
         divFantasia.style.display = "none";
         
-        // Define validação para CPF (14 chars: 000.000.000-00)
         inputDoc.setAttribute("maxlength", "14");
-        inputDoc.setAttribute("minlength", "14");
         inputDoc.setAttribute("placeholder", "000.000.000-00");
       } else {
-        labelNome.innerText = "Razão Social";
-        labelDoc.innerText = "CNPJ";
+        labelNome.innerHTML = 'Razão Social <span class="text-required">*</span>';
+        labelDoc.innerHTML = 'CNPJ <span class="text-required">*</span>';
         divFantasia.style.display = "block";
         
-        // Define validação para CNPJ (18 chars: 00.000.000/0000-00)
         inputDoc.setAttribute("maxlength", "18");
-        inputDoc.setAttribute("minlength", "18");
         inputDoc.setAttribute("placeholder", "00.000.000/0000-00");
       }
     }
 
-    // Função de Máscara para CPF/CNPJ
     function mascaraDocumento(input) {
       const tipo = document.getElementById('tipoCliente').value;
-      let v = input.value.replace(/\D/g, ""); // Remove tudo que não é dígito
+      let v = input.value.replace(/\D/g, "");
 
       if (tipo === 'PF') {
-        // Limita a 11 números para CPF
         if (v.length > 11) v = v.slice(0, 11);
-
-        // Aplica a máscara CPF: 000.000.000-00
         v = v.replace(/(\d{3})(\d)/, "$1.$2");
         v = v.replace(/(\d{3})(\d)/, "$1.$2");
         v = v.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
-
       } else {
-        // Limita a 14 números para CNPJ
         if (v.length > 14) v = v.slice(0, 14);
-
-        // Aplica a máscara CNPJ: 00.000.000/0000-00
         v = v.replace(/^(\d{2})(\d)/, "$1.$2");
         v = v.replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3");
         v = v.replace(/\.(\d{3})(\d)/, ".$1/$2");
         v = v.replace(/(\d{4})(\d)/, "$1-$2");
       }
-
       input.value = v;
     }
 
-    // Função opcional para máscara de telefone
     function mascaraTelefone(input) {
       let v = input.value.replace(/\D/g, "");
       if (v.length > 11) v = v.slice(0, 11);
-      
-      // Formata (00) 00000-0000
       v = v.replace(/^(\d{2})(\d)/g, "($1) $2");
       v = v.replace(/(\d)(\d{4})$/, "$1-$2");
-      
       input.value = v;
     }
 
-    // Preenche o formulário para edição
     function editar(btn) {
       const d = btn.dataset;
-      
       document.getElementById('tipoCliente').value = d.tipo;
-      
-      // Chama alternarTipo para configurar os inputs corretamente (máscaras e labels)
-      alternarTipo(); 
+      alternarTipo();
       
       document.getElementById('inputNome').value = d.nome;
       document.getElementById('inputFantasia').value = d.fantasia;
@@ -359,7 +358,7 @@
       document.getElementById('inputEnd').value = d.end;
 
       const form = document.getElementById('formCliente');
-      form.action = "/clientes/update/" + d.id;
+      form.action = "/clientes/update/" + d.id; // Precisa implementar rota update no back se quiser funcionalidade real
       
       document.getElementById('formTitle').innerText = "✏️ Editando Cliente";
       
@@ -371,10 +370,12 @@
       document.getElementById('btnCancelar').style.display = "block";
     }
 
-    // Reseta o formulário
     function limparForm() {
-      document.getElementById('formCliente').reset();
-      document.getElementById('formCliente').action = "/clientes/add";
+      const form = document.getElementById('formCliente');
+      form.reset();
+      form.classList.remove('was-validated'); // Reseta o visual vermelho
+      form.action = "/clientes/add";
+      
       document.getElementById('formTitle').innerText = "✨ Novo Cliente";
       
       const btnSalvar = document.getElementById('btnSalvar');

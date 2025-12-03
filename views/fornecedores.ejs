@@ -6,21 +6,41 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="/style.css">
   <style>
-    /* Ajustes específicos para o tema Dark */
+    /* Ajustes específicos para inputs no Dark Mode */
     .form-control, .form-select {
       background-color: #12141e !important;
       border: 1px solid rgba(255, 255, 255, 0.1) !important;
       color: #ffffff !important;
     }
+    
+    /* Foco padrão (Ciano) */
     .form-control:focus, .form-select:focus {
-      border-color: #06b6d4 !important; /* Ciano para Fornecedores */
+      border-color: #06b6d4 !important;
       box-shadow: 0 0 0 2px rgba(6, 182, 212, 0.2) !important;
     }
+
+    /* ESTILO DE ERRO (Quando o campo obrigatório estiver vazio) */
+    .was-validated .form-control:invalid {
+      border-color: #ef4444 !important; /* Vermelho */
+      background-image: none !important;
+    }
+    .was-validated .form-control:invalid:focus {
+      box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.25) !important;
+    }
+
     .form-label {
       color: #e0e0e0;
       font-weight: 500;
       font-size: 0.9rem;
     }
+
+    /* Asterisco de Obrigatório */
+    .text-required {
+      color: #ef4444; /* Vermelho */
+      font-weight: bold;
+      margin-left: 3px;
+    }
+
     ::placeholder {
       color: rgba(255, 255, 255, 0.3) !important;
     }
@@ -58,20 +78,11 @@
       transform: scale(1.02);
     }
 
-    /* Botão de Edição (Amarelo) */
+    /* Botão de Edição */
     .btn-warning-custom {
-      background-color: #f59e0b;
-      color: #000;
-      border: none;
-      border-radius: 50px;
-      font-weight: 700;
-      padding: 10px 25px;
-      transition: 0.3s;
+      background-color: #f59e0b; color: #000; border: none; border-radius: 50px; font-weight: 700; padding: 10px 25px; transition: 0.3s;
     }
-    .btn-warning-custom:hover {
-      background-color: #d97706;
-      color: #fff;
-    }
+    .btn-warning-custom:hover { background-color: #d97706; color: #fff; }
   </style>
 </head>
 <body>
@@ -92,8 +103,7 @@
           <a href="/vendas" class="nav-link-custom">Vendas</a>
           <a href="/produtos" class="nav-link-custom">Produtos</a>
           <a href="/clientes" class="nav-link-custom">Clientes</a>
-          <a href="/fornecedores" class="nav-link-custom active">Fornecedores</a>
-          <a href="/relatorios" class="nav-link-custom">Relatórios</a>
+          <a href="/fornecedores" class="nav-link-custom active">Fornecedores</a> <a href="/relatorios" class="nav-link-custom">Relatórios</a>
         </div>
       </div>
 
@@ -131,26 +141,32 @@
             <h5 class="mb-0 fw-bold" id="formTitle">Novo Parceiro</h5>
           </div>
           
-          <form action="/fornecedores/add" method="POST" class="row g-3" id="formForn">
+          <form action="/fornecedores/add" method="POST" class="row g-3 needs-validation" id="formForn" novalidate>
             
             <div class="col-12">
-              <label class="form-label">Razão Social</label>
+              <label class="form-label">Razão Social <span class="text-required">*</span></label>
               <input type="text" name="nome" id="inputNome" class="form-control" required placeholder="Nome da empresa">
+              <div class="invalid-feedback text-end small" style="color: #ef4444;">Nome é obrigatório.</div>
             </div>
 
             <div class="col-12">
-              <label class="form-label">CNPJ</label>
-              <input type="text" name="cnpj" id="inputCnpj" class="form-control" required placeholder="00.000.000/0000-00">
+              <label class="form-label">CNPJ <span class="text-required">*</span></label>
+              <input type="text" name="cnpj" id="inputCnpj" class="form-control" 
+                     required placeholder="00.000.000/0000-00"
+                     maxlength="18"
+                     oninput="mascaraCNPJ(this)">
+              <div class="invalid-feedback text-end small" style="color: #ef4444;">CNPJ é obrigatório.</div>
             </div>
 
             <div class="col-12">
-              <label class="form-label">Endereço (Obrigatório)</label>
+              <label class="form-label">Endereço <span class="text-required">*</span></label>
               <textarea name="endereco" id="inputEnd" class="form-control" rows="2" required placeholder="Logradouro, Número, Cidade - UF"></textarea>
+              <div class="invalid-feedback text-end small" style="color: #ef4444;">Endereço é obrigatório.</div>
             </div>
 
             <div class="col-6">
               <label class="form-label">Telefone</label>
-              <input type="text" name="telefone" id="inputTel" class="form-control" placeholder="(00) 0000-0000">
+              <input type="text" name="telefone" id="inputTel" class="form-control" placeholder="(00) 0000-0000" oninput="mascaraTelefone(this)" maxlength="15">
             </div>
 
             <div class="col-6">
@@ -159,7 +175,7 @@
             </div>
 
             <div class="col-12 mt-4 d-flex gap-2">
-              <button class="btn btn-cyan w-100 py-3 shadow-lg" id="btnSalvar">Salvar Fornecedor</button>
+              <button type="submit" class="btn btn-cyan w-100 py-3 shadow-lg" id="btnSalvar">Salvar Fornecedor</button>
               
               <button type="button" class="btn btn-outline-secondary w-100 py-3 rounded-pill fw-bold" id="btnCancelar" onclick="limparForm()" style="display:none;">
                 Cancelar
@@ -254,23 +270,58 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
   <script>
+    // Validação Visual
+    (() => {
+      'use strict'
+      const forms = document.querySelectorAll('.needs-validation')
+      Array.from(forms).forEach(form => {
+        form.addEventListener('submit', event => {
+          if (!form.checkValidity()) {
+            event.preventDefault()
+            event.stopPropagation()
+          }
+          form.classList.add('was-validated')
+        }, false)
+      })
+    })()
+
+    // Máscara CNPJ
+    function mascaraCNPJ(input) {
+      let v = input.value.replace(/\D/g, "");
+      if (v.length > 14) v = v.slice(0, 14);
+      
+      v = v.replace(/^(\d{2})(\d)/, "$1.$2");
+      v = v.replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3");
+      v = v.replace(/\.(\d{3})(\d)/, ".$1/$2");
+      v = v.replace(/(\d{4})(\d)/, "$1-$2");
+      
+      input.value = v;
+    }
+
+    // Máscara Telefone
+    function mascaraTelefone(input) {
+      let v = input.value.replace(/\D/g, "");
+      if (v.length > 11) v = v.slice(0, 11);
+      v = v.replace(/^(\d{2})(\d)/g, "($1) $2");
+      v = v.replace(/(\d)(\d{4})$/, "$1-$2");
+      input.value = v;
+    }
+
+    // Função de Editar
     function editar(btn) {
       const d = btn.dataset;
       
-      // Preencher campos
       document.getElementById('inputNome').value = d.nome;
       document.getElementById('inputCnpj').value = d.cnpj;
       document.getElementById('inputTel').value = d.tel;
       document.getElementById('inputEmail').value = d.email;
       document.getElementById('inputEnd').value = d.end;
 
-      // Mudar ação do formulário
       const form = document.getElementById('formForn');
-      form.action = "/fornecedores/update/" + d.id;
+      form.action = "/fornecedores/update/" + d.id; 
       
-      document.getElementById('formTitle').innerText = "✏️ Editando #" + d.id;
+      document.getElementById('formTitle').innerText = "✏️ Editando Fornecedor";
       
-      // Ajustar botões
       const btnSalvar = document.getElementById('btnSalvar');
       btnSalvar.innerText = "Atualizar Cadastro";
       btnSalvar.classList.remove('btn-cyan');
@@ -279,19 +330,19 @@
       document.getElementById('btnCancelar').style.display = "block";
     }
 
+    // Limpar Formulário
     function limparForm() {
-      // Resetar formulário
-      document.getElementById('formForn').reset();
-      document.getElementById('formForn').action = "/fornecedores/add";
+      const form = document.getElementById('formForn');
+      form.reset();
+      form.classList.remove('was-validated');
+      form.action = "/fornecedores/add";
       document.getElementById('formTitle').innerText = "Novo Parceiro";
       
-      // Restaurar botão salvar
       const btnSalvar = document.getElementById('btnSalvar');
       btnSalvar.innerText = "Salvar Fornecedor";
       btnSalvar.classList.add('btn-cyan');
       btnSalvar.classList.remove('btn-warning-custom');
       
-      // Esconder cancelar
       document.getElementById('btnCancelar').style.display = "none";
     }
   </script>

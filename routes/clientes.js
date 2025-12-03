@@ -12,28 +12,23 @@ router.get("/", (req, res) => {
 
 router.post("/add", (req, res) => {
   const { tipo, nome, nomeFantasia, documento, telefone, email, endereco } = req.body;
-  if (!nome || !documento) return res.send("Nome e Documento obrigatórios.");
-  
-  db.run(
-    `INSERT INTO Clientes (tipo, nome, nomeFantasia, documento, telefone, email, endereco) VALUES (?, ?, ?, ?, ?, ?, ?)`,
-    [tipo, nome, nomeFantasia, documento, telefone, email, endereco],
-    (err) => {
-      if (err) return res.send("Erro: " + err.message);
-      res.redirect("/clientes");
-    }
-  );
-});
 
-// NOVA ROTA: ATUALIZAR
-router.post("/update/:id", (req, res) => {
-  const { id } = req.params;
-  const { tipo, nome, nomeFantasia, documento, telefone, email, endereco } = req.body;
+  // VALIDAÇÃO RELAXADA: Apenas Nome e Documento são obrigatórios
+  if (!tipo || !nome || !documento) {
+    return res.render("clientes", { 
+      lista: [],
+      erro: "Erro: Nome e CPF/CNPJ são obrigatórios." 
+    });
+  }
+
+  const fantasiaFinal = (tipo === 'PJ') ? nomeFantasia : null;
 
   db.run(
-    `UPDATE Clientes SET tipo=?, nome=?, nomeFantasia=?, documento=?, telefone=?, email=?, endereco=? WHERE idCliente=?`,
-    [tipo, nome, nomeFantasia, documento, telefone, email, endereco, id],
+    `INSERT INTO Clientes (tipo, nome, nomeFantasia, documento, telefone, email, endereco)
+     VALUES (?, ?, ?, ?, ?, ?, ?)`,
+    [tipo, nome, fantasiaFinal, documento, telefone, email, endereco],
     (err) => {
-      if (err) return res.send("Erro ao atualizar: " + err.message);
+      if (err) return res.send("Erro ao cadastrar: " + err.message);
       res.redirect("/clientes");
     }
   );
