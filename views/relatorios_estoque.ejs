@@ -149,9 +149,9 @@
                 </td>
                 <td class="text-center">
                   <span class="fs-5 text-white fw-bold"><%= p.estoqueAtual %></span> 
-                  <small class="text-muted"><%= p.unidadeMedida %></small>
+                  <small class="text-white"><%= p.unidadeMedida %></small>
                 </td>
-                <td class="text-muted">R$ <%= p.precoVenda.toFixed(2) %></td>
+                <td class="text-white">R$ <%= p.precoVenda.toFixed(2) %></td>
                 <td class="text-end fw-bold text-lime">
                   R$ <%= (p.estoqueAtual * p.precoVenda).toFixed(2) %>
                 </td>
@@ -175,7 +175,7 @@
       </div>
     </div>
 
-    <div class="text-center mt-4 text-muted small opacity-50 no-print">
+    <div class="text-center mt-4 text-muted small opacity-100 no-print">
       Relatório gerado em <%= new Date().toLocaleDateString() %> às <%= new Date().toLocaleTimeString() %>
     </div>
 
