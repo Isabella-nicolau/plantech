@@ -6,26 +6,47 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="/style.css">
   <style>
-    /* Ajustes específicos para inputs no Dark Mode */
+    /* Ajustes de Contraste e Inputs */
     .form-control, .form-select {
       background-color: #12141e !important;
       border: 1px solid rgba(255, 255, 255, 0.1) !important;
       color: #ffffff !important;
     }
+    
+    /* Foco padrão (Verde Plantech) */
     .form-control:focus, .form-select:focus {
       border-color: var(--accent-lime) !important;
       box-shadow: 0 0 0 2px rgba(204, 243, 129, 0.2) !important;
     }
+
+    /* Validação Visual */
+    .was-validated .form-control:invalid, 
+    .was-validated .form-select:invalid {
+      border-color: #ef4444 !important;
+      background-image: none !important;
+    }
+    .was-validated .form-control:invalid:focus {
+      box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.25) !important;
+    }
+
     .form-label {
       color: #e0e0e0;
       font-weight: 500;
       font-size: 0.9rem;
     }
+    
+    /* Asterisco de Obrigatório */
+    .text-required {
+      color: #ef4444; 
+      font-weight: bold; 
+      margin-left: 3px;
+    }
+
     ::placeholder {
       color: rgba(255, 255, 255, 0.3) !important;
     }
     
-    /* Scroll personalizado na tabela */
+    /* Scroll na tabela */
     .table-container {
       max-height: 70vh;
       overflow-y: auto;
@@ -33,7 +54,7 @@
     .table-container::-webkit-scrollbar { width: 6px; }
     .table-container::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
 
-    /* Avatar do Produto (Verde Escuro) */
+    /* Avatar do Produto (Verde) */
     .avatar-prod {
       width: 45px; height: 45px;
       background-color: #2e7d32;
@@ -41,23 +62,13 @@
       display: flex; align-items: center; justify-content: center;
       border-radius: 12px;
       font-size: 1.2rem;
-      font-weight: bold;
     }
 
-    /* Botão de Edição (Amarelo) */
+    /* Botão de Edição */
     .btn-warning-custom {
-      background-color: #f59e0b;
-      color: #000;
-      border: none;
-      border-radius: 50px;
-      font-weight: 700;
-      padding: 10px 25px;
-      transition: 0.3s;
+      background-color: #f59e0b; color: #000; border: none; border-radius: 50px; font-weight: 700; padding: 10px 25px; transition: 0.3s;
     }
-    .btn-warning-custom:hover {
-      background-color: #d97706;
-      color: #fff;
-    }
+    .btn-warning-custom:hover { background-color: #d97706; color: #fff; }
   </style>
 </head>
 <body>
@@ -67,11 +78,10 @@
       <a class="navbar-brand" href="/dashboard">
         <span style="font-size: 1.5rem;">🌱</span> Plantech
       </a>
-
       <button class="navbar-toggler bg-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
         <span class="navbar-toggler-icon"></span>
       </button>
-
+      
       <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
         <div class="nav-pills-custom">
           <a href="/dashboard" class="nav-link-custom">Dashboard</a>
@@ -117,11 +127,12 @@
             <h5 class="mb-0 fw-bold" id="formTitle">Novo Item</h5>
           </div>
           
-          <form action="/produtos/add" method="POST" class="row g-3" id="formProd">
+          <form action="/produtos/add" method="POST" class="row g-3 needs-validation" id="formProd" novalidate>
             
             <div class="col-12">
-              <label class="form-label">Nome do Produto</label>
+              <label class="form-label">Nome do Produto <span class="text-required">*</span></label>
               <input type="text" name="nomeProduto" id="inputNome" class="form-control" required placeholder="Ex: Adubo NPK 10-10-10">
+              <div class="invalid-feedback text-end small" style="color: #ef4444;">Nome é obrigatório.</div>
             </div>
 
             <div class="col-6">
@@ -148,22 +159,23 @@
             </div>
 
             <div class="col-6">
-              <label class="form-label">Preço Venda (R$)</label>
+              <label class="form-label">Preço Venda (R$) <span class="text-required">*</span></label>
               <input type="number" step="0.01" name="precoVenda" id="inputPreco" class="form-control" required placeholder="0.00">
+              <div class="invalid-feedback text-end small" style="color: #ef4444;">Preço é obrigatório.</div>
             </div>
 
             <div class="col-6">
-              <label class="form-label text-lime">Estoque Inicial</label>
+              <label class="form-label text-lime">Estoque Inicial <small class="text-muted text-white-50">(Op)</small></label>
               <input type="number" name="estoqueAtual" id="inputEstoque" class="form-control" placeholder="0" min="0">
             </div>
 
             <div class="col-12">
-              <label class="form-label">Descrição</label>
+              <label class="form-label">Descrição <small class="text-muted text-white-50">(Op)</small></label>
               <textarea name="descricao" id="inputDesc" class="form-control" rows="2" placeholder="Detalhes técnicos, tamanho, cor..."></textarea>
             </div>
 
             <div class="col-12 mt-4 d-flex gap-2">
-              <button class="btn btn-primary w-100 py-3 shadow-lg rounded-pill fw-bold" id="btnSalvar">
+              <button type="submit" class="btn btn-primary w-100 py-3 shadow-lg rounded-pill fw-bold" id="btnSalvar">
                 <span class="fs-6">💾</span> Adicionar
               </button>
               
@@ -273,10 +285,25 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
   <script>
+    // Validação Visual
+    (() => {
+      'use strict'
+      const forms = document.querySelectorAll('.needs-validation')
+      Array.from(forms).forEach(form => {
+        form.addEventListener('submit', event => {
+          if (!form.checkValidity()) {
+            event.preventDefault()
+            event.stopPropagation()
+          }
+          form.classList.add('was-validated')
+        }, false)
+      })
+    })()
+
+    // Função de Editar
     function editar(btn) {
       const d = btn.dataset;
       
-      // Preencher campos
       document.getElementById('inputNome').value = d.nome;
       document.getElementById('selCat').value = d.cat;
       document.getElementById('selUnd').value = d.und;
@@ -284,8 +311,8 @@
       document.getElementById('inputEstoque').value = d.estoque;
       document.getElementById('inputDesc').value = d.desc;
 
-      // Mudar modo do formulário
       const form = document.getElementById('formProd');
+      // Necessário rota de update no backend (ex: /produtos/update/:id)
       form.action = "/produtos/update/" + d.id;
       
       document.getElementById('formTitle').innerText = "✏️ Editando Produto";
@@ -298,10 +325,12 @@
       document.getElementById('btnCancelar').style.display = "block";
     }
 
+    // Limpar Formulário
     function limparForm() {
-      // Resetar formulário
-      document.getElementById('formProd').reset();
-      document.getElementById('formProd').action = "/produtos/add";
+      const form = document.getElementById('formProd');
+      form.reset();
+      form.classList.remove('was-validated');
+      form.action = "/produtos/add";
       document.getElementById('formTitle').innerText = "Novo Item";
       
       const btnSalvar = document.getElementById('btnSalvar');
