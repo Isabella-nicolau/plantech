@@ -5,41 +5,93 @@
   <title>Relatórios - Plantech</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="/style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  
   <style>
-    /* Estilos Específicos para Relatórios */
-    .form-control {
-      background-color: #12141e !important;
-      border: 1px solid rgba(255, 255, 255, 0.1) !important;
-      color: #ffffff !important;
-    }
-    .form-control:focus {
-      border-color: var(--accent-lime) !important;
-      box-shadow: 0 0 0 2px rgba(204, 243, 129, 0.2) !important;
-    }
-    .form-label {
-      color: #e0e0e0;
-      font-weight: 500;
-      font-size: 0.9rem;
+    /* --- ESTILOS DO RELATÓRIO OCULTO (PDF A4 Profissional) --- */
+    #relatorio-pdf {
+      display: none; /* Invisível na tela */
+      background-color: #ffffff;
+      color: #000000;
+      padding: 30px; /* Margem interna do papel */
+      font-family: 'Helvetica', 'Arial', sans-serif;
+      font-size: 11px; /* Fonte um pouco menor para caber mais */
+      width: 100%;
+      max-width: 800px;
+      margin: 0 auto;
     }
     
-    @media print {
-      .no-print { display: none !important; }
-      body { background-color: #fff !important; color: #000 !important; }
-      .card-panel, .stat-card { border: 1px solid #ddd !important; background: none !important; color: #000 !important; box-shadow: none !important; }
+    .pdf-header {
+      border-bottom: 2px solid #2e7d32;
+      padding-bottom: 10px;
+      margin-bottom: 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
     }
+    .pdf-title h1 { font-size: 20px; font-weight: bold; color: #2e7d32; margin: 0; }
+    .pdf-title h2 { font-size: 12px; color: #555; margin: 5px 0 0 0; text-transform: uppercase; }
+    .pdf-info { text-align: right; font-size: 10px; color: #666; }
+    
+    /* Resumo Compacto */
+    .pdf-summary { 
+      margin-top: 15px; 
+      background: #f8f9fa; 
+      border: 1px solid #ddd; 
+      padding: 10px; 
+      border-radius: 4px; 
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .summary-total { font-weight: bold; font-size: 14px; color: #2e7d32; }
+    
+    /* Tabela com Quebra de Página Segura */
+    .pdf-table { 
+      width: 100%; 
+      border-collapse: collapse; 
+      margin-bottom: 10px; 
+    }
+    .pdf-table th { 
+      background-color: #f0f0f0; 
+      color: #333; 
+      font-weight: bold; 
+      text-transform: uppercase; 
+      padding: 6px; 
+      border: 1px solid #ccc; 
+      font-size: 10px; 
+    }
+    .pdf-table td { 
+      padding: 6px; 
+      border: 1px solid #ddd; 
+      color: #333; 
+    }
+    .pdf-table tr { 
+      page-break-inside: avoid; /* Evita cortar a linha no meio */
+    }
+    .pdf-table tr:nth-child(even) { background-color: #f9f9f9; }
+    
+    .pdf-footer { 
+      margin-top: 20px; 
+      border-top: 1px solid #ccc; 
+      padding-top: 5px; 
+      display: flex; 
+      justify-content: space-between; 
+      font-size: 9px; 
+      color: #777; 
+    }
+
+    /* Estilos da Tela (Dark) */
+    .form-control { background-color: #12141e !important; border: 1px solid rgba(255, 255, 255, 0.1) !important; color: #ffffff !important; }
+    @media print { .no-print { display: none !important; } }
   </style>
 </head>
 <body>
 
-  <nav class="navbar navbar-expand-lg border-bottom border-secondary border-opacity-10 no-print">
+  <nav class="navbar navbar-expand-lg border-bottom border-secondary border-opacity-10 no-print" data-html2canvas-ignore="true">
     <div class="container">
-      <a class="navbar-brand" href="/dashboard">
-        <span style="font-size: 1.5rem;">🌱</span> Plantech
-      </a>
-      <button class="navbar-toggler bg-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      
+      <a class="navbar-brand" href="/dashboard"><span style="font-size: 1.5rem;">🌱</span> Plantech</a>
+      <button class="navbar-toggler bg-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"><span class="navbar-toggler-icon"></span></button>
       <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
         <div class="nav-pills-custom">
           <a href="/dashboard" class="nav-link-custom">Dashboard</a>
@@ -48,23 +100,20 @@
           <a href="/produtos" class="nav-link-custom">Produtos</a>
           <a href="/clientes" class="nav-link-custom">Clientes</a>
           <a href="/fornecedores" class="nav-link-custom">Fornecedores</a>
-          <a href="/relatorios" class="nav-link-custom active">Relatórios</a> </div>
+          <a href="/relatorios" class="nav-link-custom active">Relatórios</a>
+        </div>
       </div>
-
-      <div class="d-none d-lg-block">
-        <a href="/login/logout" class="btn btn-sm btn-outline-danger rounded-pill px-3">Sair ➔</a>
-      </div>
+      <div class="d-none d-lg-block"><a href="/login/logout" class="btn btn-sm btn-outline-danger rounded-pill px-3">Sair ➔</a></div>
     </div>
   </nav>
 
   <div class="container pt-4">
     
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-5 no-print">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-5 no-print" data-html2canvas-ignore="true">
       <div class="mb-3 mb-md-0">
         <h2 class="mb-0 fw-bold text-white">Relatórios Gerenciais</h2>
         <p class="text-white text-opacity-50 small mb-0">Visão geral de vendas realizadas</p>
       </div>
-      
       <div class="nav-pills-custom">
         <a href="/relatorios" class="nav-link-custom active" style="background-color: var(--accent-lime); color: #121212;">Vendas</a>
         <a href="/relatorios/saidas" class="nav-link-custom">Saídas</a>
@@ -73,7 +122,7 @@
       </div>
     </div>
 
-    <div class="card-panel mb-5 no-print" style="background: rgba(255,255,255,0.02);">
+    <div class="card-panel mb-5 no-print" style="background: rgba(255,255,255,0.02);" data-html2canvas-ignore="true">
       <form action="/relatorios" method="GET" class="row g-3 align-items-end">
         <div class="col-md-5">
           <label class="form-label text-white">Data Início</label>
@@ -84,9 +133,7 @@
           <input type="date" name="dataFim" class="form-control" value="<%= query.dataFim %>">
         </div>
         <div class="col-md-2">
-          <button class="btn btn-primary w-100 fw-bold shadow-lg" style="height: 46px;">
-            Filtrar
-          </button>
+          <button class="btn btn-primary w-100 fw-bold shadow-lg" style="height: 46px;">Filtrar</button>
         </div>
       </form>
     </div>
@@ -96,7 +143,7 @@
     <% } %>
 
     <% if (lista.length > 0 || query.dataInicio) { %>
-      <div class="row mb-5">
+      <div class="row mb-5 no-print">
         <div class="col-md-12">
           <div class="stat-card bg-grad-green text-center p-4">
             <h6 class="text-uppercase opacity-75 fw-bold mb-2 text-white">Faturamento Total no Período</h6>
@@ -107,12 +154,10 @@
       </div>
     <% } %>
 
-    <div class="card-panel h-100 p-0 overflow-hidden">
+    <div class="card-panel h-100 p-0 overflow-hidden no-print">
       <div class="p-4 border-bottom border-secondary border-opacity-10 bg-dark bg-opacity-25 d-flex justify-content-between align-items-center">
         <h5 class="text-white mb-0 fw-bold">📋 Histórico de Vendas</h5>
-        <button onclick="window.print()" class="btn btn-sm btn-outline-light rounded-pill px-3 no-print">
-          🖨️ Imprimir
-        </button>
+        <button onclick="baixarPDFVendas()" class="btn btn-sm btn-outline-light rounded-pill px-3 shadow-lg" data-html2canvas-ignore="true">💾 Baixar Relatório Oficial</button>
       </div>
       
       <div class="table-responsive">
@@ -133,37 +178,99 @@
                   <small class="text-white text-opacity-50"><%= new Date(item.dataVenda).toLocaleTimeString() %></small>
                 </td>
                 <td class="fw-bold text-white"><%= item.nomeCliente %></td>
-                <td>
-                  <small class="text-white text-opacity-50 d-block" style="max-width: 350px; line-height: 1.4;">
-                    <%= item.listaProdutos %>
-                  </small>
-                </td>
-                <td class="text-end pe-4">
-                  <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 fs-6 px-3">
-                    R$ <%= item.valorTotal.toFixed(2) %>
-                  </span>
-                </td>
+                <td><small class="text-white text-opacity-50 d-block" style="max-width: 350px; line-height: 1.4;"><%= item.listaProdutos %></small></td>
+                <td class="text-end pe-4"><span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 fs-6 px-3">R$ <%= item.valorTotal.toFixed(2) %></span></td>
               </tr>
             <% }) %>
-            
             <% if (lista.length === 0) { %>
-              <tr>
-                <td colspan="4" class="text-center py-5 text-muted">
-                  Nenhum registro encontrado para o período selecionado.
-                </td>
-              </tr>
+              <tr><td colspan="4" class="text-center py-5 text-muted">Nenhum registro encontrado.</td></tr>
             <% } %>
           </tbody>
         </table>
       </div>
     </div>
-
+    
     <div class="text-center mt-4 text-muted small opacity-50 no-print">
       Relatório gerado em <%= new Date().toLocaleDateString() %> às <%= new Date().toLocaleTimeString() %>
     </div>
 
   </div>
 
+  <div id="relatorio-pdf">
+    <div class="pdf-header">
+      <div class="pdf-title">
+        <h1>Plantech ERP</h1>
+        <h2>Relatório de Vendas por Período</h2>
+      </div>
+      <div class="pdf-info">
+        <p><strong>Carrapicho Jardinagem</strong></p>
+        <p>CNPJ: 32.665.550/0001-00</p>
+        <p>Período: <%= query.dataInicio || 'Início' %> a <%= query.dataFim || 'Hoje' %></p>
+        <p>Emissão: <%= new Date().toLocaleString() %></p>
+      </div>
+    </div>
+
+    <div class="pdf-summary">
+      <div><span>Total de Vendas:</span> <strong><%= lista.length %></strong></div>
+      <div class="summary-total"><span>Faturamento:</span> R$ <%= totalGeral.toFixed(2) %></div>
+    </div>
+    <br>
+
+    <table class="pdf-table">
+      <thead>
+        <tr>
+          <th style="width: 15%;">Data</th>
+          <th style="width: 25%;">Cliente</th>
+          <th style="width: 40%;">Produtos</th>
+          <th style="width: 20%; text-align: right;">Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (lista && lista.length > 0) { %>
+          <% lista.forEach((item) => { %>
+            <tr>
+              <td><%= new Date(item.dataVenda).toLocaleDateString() %> <br> <span style="font-size:9px; color:#666;"><%= new Date(item.dataVenda).toLocaleTimeString() %></span></td>
+              <td><strong><%= item.nomeCliente %></strong></td>
+              <td style="font-size: 10px; line-height: 1.2;"><%= item.listaProdutos %></td>
+              <td style="text-align: right; font-weight: bold;">R$ <%= item.valorTotal.toFixed(2) %></td>
+            </tr>
+          <% }) %>
+        <% } else { %>
+          <tr><td colspan="4" style="text-align:center; padding: 20px; color:#777;">Nenhuma venda registrada neste período.</td></tr>
+        <% } %>
+      </tbody>
+    </table>
+
+    <div class="pdf-footer">
+      <span>Sistema Plantech v2.5</span>
+      <span>Relatório gerencial de faturamento.</span>
+    </div>
+  </div>
+
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  
+  <script>
+    function baixarPDFVendas() {
+      const elemento = document.getElementById('relatorio-pdf');
+      
+      // Torna visível apenas para o gerador
+      elemento.style.display = 'block';
+
+      const opt = {
+        margin: [10, 10, 15, 10],
+        filename: 'Relatorio_Vendas_Plantech.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        // Configurações cruciais para não cortar dados
+        html2canvas: { scale: 2, scrollY: 0 }, 
+        pagebreak: { mode: ['avoid-all', 'css', 'legacy'] },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      };
+
+      html2pdf().set(opt).from(elemento).save().then(() => {
+        elemento.style.display = 'none'; // Esconde de novo
+      });
+    }
+  </script>
+
 </body>
 </html>
