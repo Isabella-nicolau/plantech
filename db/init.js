@@ -102,7 +102,6 @@ db.serialize(() => {
 
   // --- 2. INSERÇÃO DE DADOS MOCKADOS (SEED) ---
 
-  // Verifica se já tem admin. Se não tiver, assume que o banco está vazio e popula tudo.
   db.get("SELECT count(*) as qtd FROM Usuario", (err, row) => {
     if (row.qtd === 0) {
       console.log("📦 Banco vazio detectado. Inserindo dados de exemplo...");
@@ -112,7 +111,7 @@ db.serialize(() => {
         db.run(`INSERT INTO Usuario (username, password) VALUES (?, ?)`, ["admin", hash]);
       });
 
-      // B. Clientes
+      // B. Clientes (5 registros)
       const clientes = [
         ['PF', 'João da Silva', null, '123.456.789-00', '(44) 99999-1111', 'joao@gmail.com', 'Rua das Flores, 123'],
         ['PF', 'Maria Oliveira', null, '987.654.321-11', '(44) 98888-2222', 'maria@hotmail.com', 'Av. Brasil, 500'],
@@ -122,7 +121,7 @@ db.serialize(() => {
       ];
       clientes.forEach(c => db.run(`INSERT INTO Clientes (tipo, nome, nomeFantasia, documento, telefone, email, endereco) VALUES (?,?,?,?,?,?,?)`, c));
 
-      // C. Fornecedores
+      // C. Fornecedores (4 registros)
       const fornecedores = [
         ['Holambra Flores', '11.111.111/0001-11', '(19) 3802-1000', 'vendas@holambra.com', 'Sitio Holanda, SP'],
         ['NutriPlan Fertilizantes', '22.222.222/0001-22', '(41) 3333-4444', 'contato@nutriplan.com.br', 'Distrito Industrial, PR'],
@@ -131,37 +130,76 @@ db.serialize(() => {
       ];
       fornecedores.forEach(f => db.run(`INSERT INTO Fornecedores (nome, cnpj, telefone, email, endereco) VALUES (?,?,?,?,?)`, f));
 
-      // D. Produtos (Estoque Inicial simulado)
+      // D. Produtos (12 registros com estoque inicial simulado)
       const produtos = [
-        ['Orquídea Phalaenopsis', 'Cor rosa, vaso p15', 'Plantas', 'UN', 45.00, 15],
-        ['Terra Vegetal Adubada', 'Saco de 20kg', 'Insumos', 'KG', 25.00, 50],
-        ['Vaso de Cerâmica M', 'Esmaltado azul', 'Vasos', 'UN', 38.90, 20],
-        ['Tesoura de Poda', 'Aço inox profissional', 'Ferramentas', 'UN', 89.90, 8],
-        ['Grama Esmeralda', 'Placa 40x60cm', 'Gramas', 'M2', 12.50, 200],
-        ['Adubo NPK 10-10-10', 'Caixa 1kg', 'Insumos', 'CX', 18.50, 30],
-        ['Mangueira Flexível', '20 metros com esguicho', 'Ferramentas', 'UN', 75.00, 12],
-        ['Suculenta Mini', 'Variedades diversas', 'Plantas', 'UN', 5.00, 100],
-        ['Pedra de Rio', 'Saco 10kg branca', 'Insumos', 'KG', 35.00, 40],
-        ['Cachepô Madeira', 'Suspenso com corrente', 'Vasos', 'UN', 22.00, 25],
-        ['Palmeira Real', 'Muda de 1.5m', 'Plantas', 'UN', 120.00, 5],
-        ['Regador Plástico', '5 Litros verde', 'Ferramentas', 'UN', 15.00, 18]
+        ['Orquídea Phalaenopsis', 'Cor rosa, vaso p15', 'Plantas', 'UN', 45.00, 15],      // ID 1
+        ['Terra Vegetal Adubada', 'Saco de 20kg', 'Insumos', 'KG', 25.00, 50],           // ID 2
+        ['Vaso de Cerâmica M', 'Esmaltado azul', 'Vasos', 'UN', 38.90, 20],              // ID 3
+        ['Tesoura de Poda', 'Aço inox profissional', 'Ferramentas', 'UN', 89.90, 8],     // ID 4
+        ['Grama Esmeralda', 'Placa 40x60cm', 'Gramas', 'M2', 12.50, 200],                // ID 5
+        ['Adubo NPK 10-10-10', 'Caixa 1kg', 'Insumos', 'CX', 18.50, 30],                 // ID 6
+        ['Mangueira Flexível', '20 metros com esguicho', 'Ferramentas', 'UN', 75.00, 12], // ID 7
+        ['Suculenta Mini', 'Variedades diversas', 'Plantas', 'UN', 5.00, 100],           // ID 8
+        ['Pedra de Rio', 'Saco 10kg branca', 'Insumos', 'KG', 35.00, 40],                // ID 9
+        ['Cachepô Madeira', 'Suspenso com corrente', 'Vasos', 'UN', 22.00, 25],          // ID 10
+        ['Palmeira Real', 'Muda de 1.5m', 'Plantas', 'UN', 120.00, 5],                   // ID 11
+        ['Regador Plástico', '5 Litros verde', 'Ferramentas', 'UN', 15.00, 18]           // ID 12
       ];
       produtos.forEach(p => db.run(`INSERT INTO Produto (nomeProduto, descricao, categoria, unidadeMedida, precoVenda, estoqueAtual) VALUES (?,?,?,?,?,?)`, p));
 
-      // E. Simulação de Movimentação (Compras e Vendas para Relatórios)
-      // Nota: Para não complicar o script com IDs dinâmicos, vamos inserir dados fixos assumindo que os IDs acima começarão em 1.
+      // E. Simulação de Movimentação (Compras, Vendas e Logística)
       
-      // Compra Antiga (Para gerar Despesa)
-      db.run(`INSERT INTO Compras (idFornecedor, valorTotal, dataCompra) VALUES (1, 450.00, '2025-02-10 10:00:00')`); // Compra de Orquídeas
+      // --- COMPRAS (Entradas) ---
       
-      // Venda Antiga (Para gerar Receita e Histórico)
-      db.run(`INSERT INTO Vendas (idCliente, subtotal, desconto, valorTotal, formaPagamento, dataVenda) VALUES (1, 135.00, 0, 135.00, 'Pix', '2025-02-15 14:30:00')`);
-      db.run(`INSERT INTO ItensVenda (idVenda, idProduto, quantidade, precoUnitario, subtotal) VALUES (1, 1, 3, 45.00, 135.00)`); // 3 Orquídeas
+      // Compra 1: Holambra (Jan/25)
+      db.run(`INSERT INTO Compras (idFornecedor, valorTotal, dataCompra) VALUES (1, 450.00, '2025-01-15 10:00:00')`, function() {
+        // Itens da Compra 1
+        db.run(`INSERT INTO ItensCompra (idCompra, idProduto, quantidade, precoCusto, subtotal) VALUES (1, 1, 10, 25.00, 250.00)`); // Orquídeas
+        db.run(`INSERT INTO Distribuicao (idItemCompra, status) VALUES (1, 'ARMAZENADO')`); // Já guardado
 
-      db.run(`INSERT INTO Vendas (idCliente, subtotal, desconto, valorTotal, formaPagamento, dataVenda) VALUES (3, 500.00, 50.00, 450.00, 'Boleto', '2025-02-20 09:00:00')`);
-      db.run(`INSERT INTO ItensVenda (idVenda, idProduto, quantidade, precoUnitario, subtotal) VALUES (2, 5, 40, 12.50, 500.00)`); // 40m² de Grama
+        db.run(`INSERT INTO ItensCompra (idCompra, idProduto, quantidade, precoCusto, subtotal) VALUES (1, 8, 40, 2.50, 100.00)`); // Suculentas
+        db.run(`INSERT INTO Distribuicao (idItemCompra, status) VALUES (2, 'ARMAZENADO')`);
+      });
 
-      console.log("✅ Dados mockados inseridos com sucesso!");
+      // Compra 2: NutriPlan (Fev/25)
+      db.run(`INSERT INTO Compras (idFornecedor, valorTotal, dataCompra) VALUES (2, 300.00, '2025-02-10 14:00:00')`, function() {
+        db.run(`INSERT INTO ItensCompra (idCompra, idProduto, quantidade, precoCusto, subtotal) VALUES (2, 6, 20, 15.00, 300.00)`); // Adubo
+        db.run(`INSERT INTO Distribuicao (idItemCompra, status) VALUES (3, 'PENDENTE')`); // Ainda no pátio (aparecerá na tela de Logística)
+      });
+
+      // Compra 3: Tramontina (Mar/25 - Recente)
+      db.run(`INSERT INTO Compras (idFornecedor, valorTotal, dataCompra) VALUES (3, 850.00, '2025-03-05 09:30:00')`, function() {
+        db.run(`INSERT INTO ItensCompra (idCompra, idProduto, quantidade, precoCusto, subtotal) VALUES (3, 4, 10, 45.00, 450.00)`); // Tesouras
+        db.run(`INSERT INTO Distribuicao (idItemCompra, status) VALUES (4, 'PENDENTE')`);
+
+        db.run(`INSERT INTO ItensCompra (idCompra, idProduto, quantidade, precoCusto, subtotal) VALUES (3, 7, 10, 40.00, 400.00)`); // Mangueiras
+        db.run(`INSERT INTO Distribuicao (idItemCompra, status) VALUES (5, 'PENDENTE')`);
+      });
+
+
+      // --- VENDAS (Saídas) ---
+
+      // Venda 1: João (Jan/25)
+      db.run(`INSERT INTO Vendas (idCliente, subtotal, desconto, valorTotal, formaPagamento, dataVenda) VALUES (1, 135.00, 0, 135.00, 'Pix', '2025-01-20 14:30:00')`, function() {
+        db.run(`INSERT INTO ItensVenda (idVenda, idProduto, quantidade, precoUnitario, subtotal) VALUES (1, 1, 3, 45.00, 135.00)`);
+      });
+
+      // Venda 2: Condomínio Solar (Fev/25 - Venda Grande)
+      db.run(`INSERT INTO Vendas (idCliente, subtotal, desconto, valorTotal, formaPagamento, dataVenda) VALUES (3, 625.00, 25.00, 600.00, 'Boleto', '2025-02-15 09:00:00')`, function() {
+        db.run(`INSERT INTO ItensVenda (idVenda, idProduto, quantidade, precoUnitario, subtotal) VALUES (2, 5, 50, 12.50, 625.00)`); // Grama
+      });
+
+      // Venda 3: Maria (Mar/25)
+      db.run(`INSERT INTO Vendas (idCliente, subtotal, desconto, valorTotal, formaPagamento, dataVenda) VALUES (2, 78.90, 0, 78.90, 'Cartão Crédito', '2025-03-01 16:45:00')`, function() {
+        db.run(`INSERT INTO ItensVenda (idVenda, idProduto, quantidade, precoUnitario, subtotal) VALUES (3, 3, 2, 38.90, 77.80)`); // Vasos
+      });
+
+      // Venda 4: Pedro (Hoje)
+      db.run(`INSERT INTO Vendas (idCliente, subtotal, desconto, valorTotal, formaPagamento, dataVenda) VALUES (5, 45.00, 5.00, 40.00, 'Dinheiro', datetime('now'))`, function() {
+        db.run(`INSERT INTO ItensVenda (idVenda, idProduto, quantidade, precoUnitario, subtotal) VALUES (4, 12, 3, 15.00, 45.00)`); // Regadores
+      });
+
+      console.log("✅ Dados mockados inseridos com sucesso! O sistema está pronto para demonstração.");
     } else {
       console.log("ℹ️ Banco de dados já contém registros. Nenhuma alteração feita.");
     }
