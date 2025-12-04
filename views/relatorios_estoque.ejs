@@ -5,8 +5,10 @@
   <title>Estoque Atual - Plantech</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="/style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  
   <style>
-    /* Estilos para impressão */
+    /* Estilos para impressão nativa (caso precise) */
     @media print {
       .no-print { display: none !important; }
       .card-panel { border: 1px solid #ddd !important; box-shadow: none !important; background: #fff !important; color: #000 !important; }
@@ -14,6 +16,34 @@
       body { background: #fff !important; color: #000 !important; }
       .badge { border: 1px solid #000 !important; }
     }
+
+    /* --- ESTILOS DO RELATÓRIO OCULTO (PDF A4 Profissional) --- */
+    #relatorio-pdf {
+      display: none;
+      background-color: #ffffff;
+      color: #000000;
+      padding: 40px;
+      font-family: 'Helvetica', 'Arial', sans-serif;
+      font-size: 12px;
+    }
+    
+    .pdf-header {
+      border-bottom: 2px solid #2e7d32; padding-bottom: 15px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: flex-end;
+    }
+    .pdf-title h1 { font-size: 24px; font-weight: bold; color: #2e7d32; margin: 0; }
+    .pdf-title h2 { font-size: 14px; color: #555; margin: 5px 0 0 0; text-transform: uppercase; }
+    .pdf-info { text-align: right; font-size: 11px; color: #666; }
+    
+    .pdf-summary { margin-top: 20px; background: #f8f9fa; border: 1px solid #ddd; padding: 15px; border-radius: 5px; }
+    .summary-row { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 13px; }
+    .summary-total { font-weight: bold; font-size: 14px; color: #2e7d32; border-top: 1px solid #ddd; padding-top: 5px; margin-top: 5px; }
+    
+    .pdf-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+    .pdf-table th { background-color: #f0f0f0; color: #333; font-weight: bold; text-transform: uppercase; padding: 8px; border: 1px solid #ccc; font-size: 10px; }
+    .pdf-table td { padding: 8px; border: 1px solid #ddd; color: #333; }
+    .pdf-table tr:nth-child(even) { background-color: #f9f9f9; }
+    
+    .pdf-footer { margin-top: 20px; border-top: 1px solid #ccc; padding-top: 10px; display: flex; justify-content: space-between; font-size: 10px; color: #777; }
   </style>
 </head>
 <body>
@@ -35,7 +65,8 @@
           <a href="/produtos" class="nav-link-custom">Produtos</a>
           <a href="/clientes" class="nav-link-custom">Clientes</a>
           <a href="/fornecedores" class="nav-link-custom">Fornecedores</a>
-          <a href="/relatorios" class="nav-link-custom active">Relatórios</a> </div>
+          <a href="/relatorios" class="nav-link-custom active">Relatórios</a>
+        </div>
       </div>
 
       <div class="d-none d-lg-block">
@@ -61,17 +92,13 @@
     </div>
 
     <div class="row g-4 mb-4 no-print">
-      
       <div class="col-md-4">
         <div class="stat-card bg-grad-blue h-100">
           <div class="d-flex justify-content-between mb-3">
             <span class="badge bg-white bg-opacity-25 backdrop-blur">Catálogo</span>
             <span class="fs-4">📦</span>
           </div>
-          <div>
-            <h2 class="fw-bold mb-0"><%= stats.totalItens %></h2>
-            <p class="mb-0 opacity-75 small">Produtos Cadastrados</p>
-          </div>
+          <div><h2 class="fw-bold mb-0"><%= stats.totalItens %></h2><p class="mb-0 opacity-75 small">Produtos Cadastrados</p></div>
         </div>
       </div>
 
@@ -81,10 +108,7 @@
             <span class="badge bg-white bg-opacity-25 backdrop-blur">Crítico</span>
             <span class="fs-4">⚠️</span>
           </div>
-          <div>
-            <h2 class="fw-bold mb-0"><%= stats.itensZerados %></h2>
-            <p class="mb-0 opacity-75 small">Itens Esgotados</p>
-          </div>
+          <div><h2 class="fw-bold mb-0"><%= stats.itensZerados %></h2><p class="mb-0 opacity-75 small">Itens Esgotados</p></div>
         </div>
       </div>
 
@@ -94,20 +118,16 @@
             <span class="badge bg-white bg-opacity-25 backdrop-blur">Patrimônio</span>
             <span class="fs-4">💲</span>
           </div>
-          <div>
-            <h2 class="fw-bold mb-0">R$ <%= stats.valorPatrimonial.toFixed(2) %></h2>
-            <p class="mb-0 opacity-75 small">Valor de Venda Estimado</p>
-          </div>
+          <div><h2 class="fw-bold mb-0">R$ <%= stats.valorPatrimonial.toFixed(2) %></h2><p class="mb-0 opacity-75 small">Valor de Venda Estimado</p></div>
         </div>
       </div>
-
     </div>
 
     <div class="card-panel h-100 p-0 overflow-hidden">
       <div class="p-4 border-bottom border-secondary border-opacity-10 bg-dark bg-opacity-25 d-flex justify-content-between align-items-center">
         <h5 class="text-white mb-0 fw-bold">📋 Posição de Estoque Físico</h5>
-        <button onclick="window.print()" class="btn btn-sm btn-outline-light rounded-pill px-3 no-print">
-          🖨️ Imprimir
+        <button onclick="baixarPDFEstoque()" class="btn btn-sm btn-outline-light rounded-pill px-3 no-print shadow-lg">
+          📄 Baixar PDF
         </button>
       </div>
       
@@ -126,49 +146,22 @@
           <tbody class="border-top-0">
             <% lista.forEach(p => { %>
               <% 
-                 // Lógica de alerta visual
                  let statusClass = "bg-success bg-opacity-75 text-white";
                  let statusText = "Normal";
-                 
-                 if(p.estoqueAtual === 0) {
-                    statusClass = "bg-danger bg-opacity-75 text-white";
-                    statusText = "ESGOTADO";
-                 } else if(p.estoqueAtual < 10) {
-                    statusClass = "bg-warning bg-opacity-75 text-dark";
-                    statusText = "Baixo";
-                 }
+                 if(p.estoqueAtual === 0) { statusClass = "bg-danger bg-opacity-75 text-white"; statusText = "ESGOTADO"; } 
+                 else if(p.estoqueAtual < 10) { statusClass = "bg-warning bg-opacity-75 text-dark"; statusText = "Baixo"; }
               %>
               <tr>
-                <td class="ps-4">
-                  <strong class="text-white"><%= p.nomeProduto %></strong>
-                </td>
-                <td>
-                  <span class="badge bg-secondary bg-opacity-25 text-white border border-secondary border-opacity-25">
-                    <%= p.categoria %>
-                  </span>
-                </td>
-                <td class="text-center">
-                  <span class="fs-5 text-white fw-bold"><%= p.estoqueAtual %></span> 
-                  <small class="text-white"><%= p.unidadeMedida %></small>
-                </td>
+                <td class="ps-4"><strong class="text-white"><%= p.nomeProduto %></strong></td>
+                <td><span class="badge bg-secondary bg-opacity-25 text-white border border-secondary border-opacity-25"><%= p.categoria %></span></td>
+                <td class="text-center"><span class="fs-5 text-white fw-bold"><%= p.estoqueAtual %></span> <small class="text-white"><%= p.unidadeMedida %></small></td>
                 <td class="text-white">R$ <%= p.precoVenda.toFixed(2) %></td>
-                <td class="text-end fw-bold text-lime">
-                  R$ <%= (p.estoqueAtual * p.precoVenda).toFixed(2) %>
-                </td>
-                <td class="text-center pe-4">
-                  <span class="badge <%= statusClass %> rounded-pill px-3">
-                    <%= statusText %>
-                  </span>
-                </td>
+                <td class="text-end fw-bold text-lime">R$ <%= (p.estoqueAtual * p.precoVenda).toFixed(2) %></td>
+                <td class="text-center pe-4"><span class="badge <%= statusClass %> rounded-pill px-3"><%= statusText %></span></td>
               </tr>
             <% }) %>
-            
             <% if(lista.length === 0) { %>
-              <tr>
-                <td colspan="6" class="text-center py-5 text-muted">
-                  Nenhum produto no inventário.
-                </td>
-              </tr>
+              <tr><td colspan="6" class="text-center py-5 text-muted">Nenhum produto no inventário.</td></tr>
             <% } %>
           </tbody>
         </table>
@@ -181,6 +174,79 @@
 
   </div>
 
+  <div id="relatorio-pdf">
+    <div class="pdf-header">
+      <div class="pdf-title">
+        <h1>Plantech ERP</h1>
+        <h2>Relatório de Posição de Estoque</h2>
+      </div>
+      <div class="pdf-info">
+        <p><strong>Carrapicho Jardinagem</strong></p>
+        <p>CNPJ: 32.665.550/0001-00</p>
+        <p>Emissão: <%= new Date().toLocaleString() %></p>
+      </div>
+    </div>
+
+    <div class="pdf-summary">
+      <div class="summary-row"><span>Total de Itens:</span><strong><%= stats.totalItens %></strong></div>
+      <div class="summary-row"><span>Itens Zerados:</span><strong style="color: #d32f2f;"><%= stats.itensZerados %></strong></div>
+      <div class="summary-row summary-total"><span>Patrimônio Total:</span><span>R$ <%= stats.valorPatrimonial.toFixed(2) %></span></div>
+    </div>
+    <br>
+
+    <table class="pdf-table">
+      <thead>
+        <tr>
+          <th style="width: 30%;">Produto</th>
+          <th style="width: 15%;">Categoria</th>
+          <th style="width: 10%; text-align: center;">Qtd.</th>
+          <th style="width: 10%;">Preço</th>
+          <th style="width: 15%; text-align: right;">Total</th>
+          <th style="width: 10%; text-align: center;">Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% lista.forEach((p) => { %>
+          <tr>
+            <td><strong><%= p.nomeProduto %></strong></td>
+            <td><%= p.categoria %></td>
+            <td style="text-align: center; font-weight: bold;"><%= p.estoqueAtual %> <%= p.unidadeMedida %></td>
+            <td>R$ <%= p.precoVenda.toFixed(2) %></td>
+            <td style="text-align: right;">R$ <%= (p.estoqueAtual * p.precoVenda).toFixed(2) %></td>
+            <td style="text-align: center; font-weight: bold;">
+              <%= p.estoqueAtual === 0 ? 'ESGOTADO' : (p.estoqueAtual < 10 ? 'BAIXO' : 'NORMAL') %>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+
+    <div class="pdf-footer">
+      <span>Sistema Plantech v2.5</span>
+      <span>Inventário físico para conferência.</span>
+    </div>
+  </div>
+
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  
+  <script>
+    function baixarPDFEstoque() {
+      const elemento = document.getElementById('relatorio-pdf');
+      elemento.style.display = 'block'; // Revela para o gerador
+
+      const opt = {
+        margin: [10, 10, 15, 10],
+        filename: 'Inventario_Estoque_Plantech.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      };
+
+      html2pdf().set(opt).from(elemento).save().then(() => {
+        elemento.style.display = 'none'; // Esconde de novo
+      });
+    }
+  </script>
+
 </body>
 </html>
