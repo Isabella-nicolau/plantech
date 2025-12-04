@@ -35,26 +35,13 @@
       font-size: 0.9rem;
     }
     
-    /* Asterisco de Obrigatório */
-    .text-required {
-      color: #ef4444; 
-      font-weight: bold; 
-      margin-left: 3px;
-    }
-
-    ::placeholder {
-      color: rgba(255, 255, 255, 0.3) !important;
-    }
+    .text-required { color: #ef4444; font-weight: bold; margin-left: 3px; }
+    ::placeholder { color: rgba(255, 255, 255, 0.3) !important; }
     
-    /* Scroll na tabela */
-    .table-container {
-      max-height: 70vh;
-      overflow-y: auto;
-    }
+    .table-container { max-height: 65vh; overflow-y: auto; }
     .table-container::-webkit-scrollbar { width: 6px; }
     .table-container::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
 
-    /* Avatar do Produto (Verde) */
     .avatar-prod {
       width: 45px; height: 45px;
       background-color: #2e7d32;
@@ -64,7 +51,6 @@
       font-size: 1.2rem;
     }
 
-    /* Botão de Edição */
     .btn-warning-custom {
       background-color: #f59e0b; color: #000; border: none; border-radius: 50px; font-weight: 700; padding: 10px 25px; transition: 0.3s;
     }
@@ -87,7 +73,8 @@
           <a href="/dashboard" class="nav-link-custom">Dashboard</a>
           <a href="/compras" class="nav-link-custom">Compras</a>
           <a href="/vendas" class="nav-link-custom">Vendas</a>
-          <a href="/produtos" class="nav-link-custom active">Produtos</a> <a href="/clientes" class="nav-link-custom">Clientes</a>
+          <a href="/produtos" class="nav-link-custom active">Produtos</a>
+          <a href="/clientes" class="nav-link-custom">Clientes</a>
           <a href="/fornecedores" class="nav-link-custom">Fornecedores</a>
           <a href="/relatorios" class="nav-link-custom">Relatórios</a>
         </div>
@@ -112,6 +99,16 @@
           Itens: <%= lista.length %>
         </span>
       </div>
+    </div>
+
+    <div class="card-panel mb-4 py-3 px-4" style="background: rgba(255,255,255,0.03);">
+      <form action="/produtos" method="GET" class="d-flex gap-2">
+        <input type="text" name="busca" class="form-control rounded-pill" placeholder="🔍 Buscar produto por nome, categoria ou descrição..." value="<%= typeof busca !== 'undefined' ? busca : '' %>">
+        <button class="btn btn-primary rounded-pill px-4 fw-bold">Buscar</button>
+        <% if (typeof busca !== 'undefined' && busca) { %>
+          <a href="/produtos" class="btn btn-outline-secondary rounded-pill px-3" title="Limpar Filtro">✕</a>
+        <% } %>
+      </form>
     </div>
 
     <% if (locals.erro) { %>
@@ -161,7 +158,7 @@
             <div class="col-6">
               <label class="form-label">Preço Venda (R$) <span class="text-required">*</span></label>
               <input type="number" step="0.01" name="precoVenda" id="inputPreco" class="form-control" required placeholder="0.00">
-              <div class="invalid-feedback text-end small" style="color: #ef4444;">Preço é obrigatório.</div>
+              <div class="invalid-feedback text-end small" style="color: #ef4444;">Preço obrigatório.</div>
             </div>
 
             <div class="col-6">
@@ -190,8 +187,11 @@
 
       <div class="col-lg-8">
         <div class="card-panel h-100 p-0 overflow-hidden">
-          <div class="p-4 border-bottom border-secondary border-opacity-10 bg-dark bg-opacity-25">
+          <div class="p-4 border-bottom border-secondary border-opacity-10 bg-dark bg-opacity-25 d-flex justify-content-between align-items-center">
             <h5 class="text-white mb-0 fw-bold">📋 Estoque Atual</h5>
+            <% if (typeof busca !== 'undefined' && busca) { %>
+              <span class="badge bg-primary bg-opacity-25 border border-primary text-white">Filtrando por: "<%= busca %>"</span>
+            <% } %>
           </div>
           
           <div class="table-container p-0">
@@ -269,7 +269,13 @@
                   <tr>
                     <td colspan="5" class="text-center py-5">
                       <div class="opacity-25 mb-2" style="font-size: 3rem;">🌱</div>
-                      <p class="text-white text-opacity-50">Nenhum produto cadastrado.</p>
+                      <p class="text-white text-opacity-50">
+                        <% if(typeof busca !== 'undefined' && busca) { %>
+                          Nenhum produto encontrado para "<%= busca %>".
+                        <% } else { %>
+                          Nenhum produto cadastrado.
+                        <% } %>
+                      </p>
                     </td>
                   </tr>
                 <% } %>
@@ -300,7 +306,6 @@
       })
     })()
 
-    // Função de Editar
     function editar(btn) {
       const d = btn.dataset;
       
@@ -312,7 +317,6 @@
       document.getElementById('inputDesc').value = d.desc;
 
       const form = document.getElementById('formProd');
-      // Necessário rota de update no backend (ex: /produtos/update/:id)
       form.action = "/produtos/update/" + d.id;
       
       document.getElementById('formTitle').innerText = "✏️ Editando Produto";
@@ -325,7 +329,6 @@
       document.getElementById('btnCancelar').style.display = "block";
     }
 
-    // Limpar Formulário
     function limparForm() {
       const form = document.getElementById('formProd');
       form.reset();

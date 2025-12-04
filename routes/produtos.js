@@ -3,16 +3,33 @@ const router = express.Router();
 const sqlite3 = require("sqlite3").verbose();
 const db = new sqlite3.Database("./database.db");
 
-// LISTAR PRODUTOS
+// LISTAR PRODUTOS (COM BUSCA)
 router.get("/", (req, res) => {
-  db.all("SELECT * FROM Produto ORDER BY nomeProduto ASC", [], (err, produtos) => {
+  const busca = req.query.busca;
+  let sql = "SELECT * FROM Produto";
+  let params = [];
+
+  // Se o usuário digitou algo, filtra
+  if (busca) {
+    sql += " WHERE nomeProduto LIKE ? OR categoria LIKE ? OR descricao LIKE ?";
+    params.push(`%${busca}%`, `%${busca}%`, `%${busca}%`);
+  }
+
+  sql += " ORDER BY nomeProduto ASC";
+
+  db.all(sql, params, (err, produtos) => {
     if (err) {
       return res.render("produtos", { 
         lista: [], 
-        erro: "Erro ao carregar produtos: " + err.message 
+        erro: "Erro ao carregar produtos: " + err.message,
+        busca: busca // Envia o termo para manter no input
       });
     }
-    res.render("produtos", { lista: produtos, erro: null });
+    res.render("produtos", { 
+      lista: produtos, 
+      erro: null,
+      busca: busca // Envia o termo para manter no input
+    });
   });
 });
 
@@ -20,18 +37,16 @@ router.get("/", (req, res) => {
 router.post("/add", (req, res) => {
   const { nomeProduto, descricao, categoria, unidadeMedida, precoVenda, estoqueAtual } = req.body;
 
-  // Validação: Nome, Categoria e Preço são essenciais
   if (!nomeProduto || !categoria || !precoVenda) {
-    // Recarrega a página mostrando o erro se faltar algo crítico
     return db.all("SELECT * FROM Produto ORDER BY nomeProduto ASC", [], (err, produtos) => {
       res.render("produtos", { 
         lista: produtos || [],
-        erro: "Erro: Nome, Categoria e Preço são obrigatórios." 
+        erro: "Erro: Nome, Categoria e Preço são obrigatórios.",
+        busca: null
       });
     });
   }
 
-  // Se o estoque não for informado (opcional), grava 0
   const estoqueFinal = estoqueAtual ? parseInt(estoqueAtual) : 0;
 
   db.run(
@@ -45,7 +60,7 @@ router.post("/add", (req, res) => {
   );
 });
 
-// ATUALIZAR PRODUTO (Rota para Edição)
+// ATUALIZAR PRODUTO
 router.post("/update/:id", (req, res) => {
   const { id } = req.params;
   const { nomeProduto, descricao, categoria, unidadeMedida, precoVenda, estoqueAtual } = req.body;
