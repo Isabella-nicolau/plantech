@@ -148,7 +148,7 @@
                   <tr><th>Produto</th><th class="text-center">Qtd</th><th class="text-end">Unit.</th><th class="text-end">Total</th><th class="text-end"></th></tr>
                 </thead>
                 <tbody id="listaCarrinho" class="border-top-0">
-                  <tr><td colspan="5" class="text-center text-muted py-4 small">Carrinho vazio.</td></tr>
+                  <tr><td colspan="5" class="text-center text-white py-4 small">Carrinho vazio.</td></tr>
                 </tbody>
               </table>
             </div>
@@ -164,7 +164,7 @@
                 <div class="col-md-6 text-end">
                   <span class="text-white small text-uppercase fw-bold opacity-75 d-block">Total a Pagar</span>
                   <h2 class="mb-0 fw-bold text-white" id="totalVendaDisplay">R$ 0.00</h2>
-                  <small class="text-muted" id="subtotalDisplay">Subtotal: R$ 0.00</small>
+                  <small class="text-white" id="subtotalDisplay">Subtotal: R$ 0.00</small>
                 </div>
               </div>
             </div>
@@ -265,7 +265,7 @@
     function renderCarrinho() {
       const tbody = document.getElementById('listaCarrinho');
       tbody.innerHTML = "";
-      if (carrinho.length === 0) tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted py-4 small">Carrinho vazio.</td></tr>';
+      if (carrinho.length === 0) tbody.innerHTML = '<tr><td colspan="5" class="text-center text-white py-4 small">Carrinho vazio.</td></tr>';
 
       carrinho.forEach((item, index) => {
         const subtotal = item.qtd * item.preco;

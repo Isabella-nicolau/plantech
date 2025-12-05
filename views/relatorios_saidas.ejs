@@ -158,12 +158,12 @@
             <div class="stat-card h-100 text-center p-3 border border-secondary border-opacity-25" style="background: var(--bg-card); min-height: auto;">
               <div class="mb-2"><span class="badge bg-grad-orange rounded-circle d-flex align-items-center justify-content-center mx-auto" style="width: 30px; height: 30px;"><%= index + 1 %>º</span></div>
               <h3 class="fw-bold text-white mb-1"><%= item.totalQtd %></h3>
-              <small class="text-muted d-block text-truncate"><%= item.nomeProduto %></small>
+              <small class="text-white d-block text-truncate"><%= item.nomeProduto %></small>
             </div>
           </div>
         <% }) %>
         <% if(ranking.length === 0) { %>
-          <div class="col-12"><div class="p-4 text-center text-muted border border-secondary border-opacity-10 rounded-4">Sem dados de tendência.</div></div>
+          <div class="col-12"><div class="p-4 text-center text-white border border-secondary border-opacity-10 rounded-4">Sem dados de tendência.</div></div>
         <% } %>
       </div>
     </div>
@@ -195,14 +195,14 @@
               </tr>
             <% }) %>
             <% if (lista.length === 0) { %>
-              <tr><td colspan="5" class="text-center py-5 text-muted">Nenhuma saída registrada.</td></tr>
+              <tr><td colspan="5" class="text-center py-5 text-white">Nenhuma saída registrada.</td></tr>
             <% } %>
           </tbody>
         </table>
       </div>
     </div>
     
-    <div class="text-center mt-4 text-muted small opacity-50 no-print">
+    <div class="text-center mt-4 text-white small opacity-50 no-print">
       Relatório gerado em <%= new Date().toLocaleDateString() %> às <%= new Date().toLocaleTimeString() %>
     </div>
 
