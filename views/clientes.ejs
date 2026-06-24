@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <%- include('partials/head', { pageTitle: 'Clientes' }) %>
+</head>
+<body>
+  <div class="app-layout">
+    <%- include('partials/sidebar') %>
+
+    <main class="main-content">
+      <%- include('partials/topbar', { topTitle: 'Clientes', topSubtitle: 'Gerencie consumidores PF e PJ' }) %>
+
+      <div class="page-content">
+        <div class="page-header">
+          <div class="page-header-left">
+            <h2>Carteira de Clientes</h2>
+          </div>
+          <div class="page-header-actions">
+            <button onclick="limparForm()" class="btn btn-primary btn-sm"><i class="bi bi-plus"></i> Novo cliente</button>
+            <span class="badge-count"><%= lista.length %> registros</span>
+          </div>
+        </div>
+
+        <% if (erro) { %>
+          <div class="alert alert-error"><i class="bi bi-exclamation-circle"></i> <%= erro %></div>
+        <% } %>
+
+        <div class="split-layout">
+          <div class="form-panel">
+            <div class="form-panel-header">
+              <i class="bi bi-people"></i>
+              <h3 id="formTitle">Novo cliente</h3>
+            </div>
+            <div class="form-panel-body">
+              <form action="/clientes/add" method="POST" class="needs-validation" id="formCliente" novalidate>
+                <div class="form-group">
+                  <label class="form-label">Tipo de pessoa</label>
+                  <select name="tipo" id="tipoCliente" class="form-select" onchange="alternarTipo()">
+                    <option value="PF">Pessoa Fisica (CPF)</option>
+                    <option value="PJ">Pessoa Juridica (CNPJ)</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" id="labelNome">Nome completo <span class="required">*</span></label>
+                  <input type="text" name="nome" id="inputNome" class="form-control" required placeholder="Ex: Joao da Silva">
+                  <div class="form-error">Nome e obrigatorio.</div>
+                </div>
+
+                <div class="form-group" id="divFantasia" style="display:none;">
+                  <label class="form-label">Nome fantasia</label>
+                  <input type="text" name="nomeFantasia" id="inputFantasia" class="form-control" placeholder="Ex: Mercado Silva">
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" id="labelDocumento">CPF <span class="required">*</span></label>
+                  <input type="text" name="documento" id="inputDoc" class="form-control"
+                         required placeholder="000.000.000-00"
+                         oninput="mascaraDocumento(this)"
+                         minlength="14" maxlength="18">
+                  <div class="form-error">Documento invalido ou vazio.</div>
+                </div>
+
+                <div class="row-2col">
+                  <div class="form-group">
+                    <label class="form-label">Telefone</label>
+                    <input type="text" name="telefone" id="inputTel" class="form-control" placeholder="(00) 00000-0000" oninput="mascaraTelefone(this)" maxlength="15">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input type="email" name="email" id="inputEmail" class="form-control" placeholder="cliente@email.com">
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Endereco completo <span class="required">*</span></label>
+                  <textarea name="endereco" id="inputEnd" class="form-control" rows="2" required placeholder="Rua, Numero, Bairro..."></textarea>
+                  <div class="form-error">Endereco e obrigatorio.</div>
+                </div>
+
+                <div class="d-flex gap-sm" style="margin-top: 20px;">
+                  <button type="submit" class="btn btn-primary btn-block" id="btnSalvar">
+                    <i class="bi bi-check-lg"></i> Salvar
+                  </button>
+                  <button type="button" class="btn btn-secondary btn-block" id="btnCancelar" onclick="limparForm()" style="display:none;">
+                    Cancelar
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <div class="table-wrapper">
+            <div class="card-header">
+              <h3><i class="bi bi-list-ul" style="color: var(--primary);"></i> Base de cadastros</h3>
+            </div>
+            <div class="table-scroll">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Identificacao</th>
+                    <th>Documento</th>
+                    <th>Contato</th>
+                    <th style="text-align: right;">Acao</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% lista.forEach(c => { %>
+                    <tr>
+                      <td>
+                        <div class="d-flex items-center gap-sm">
+                          <div class="avatar <%= c.tipo == 'PJ' ? '' : 'blue' %>"><%= c.tipo %></div>
+                          <div>
+                            <div class="col-primary"><%= c.nome %></div>
+                            <div style="font-size: 0.75rem; color: var(--text-muted); max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                              <% if(c.tipo == 'PJ' && c.nomeFantasia){ %>
+                                <%= c.nomeFantasia %>
+                              <% } else { %>
+                                <%= c.endereco %>
+                              <% } %>
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                      <td><span class="badge badge-default col-mono"><%= c.documento %></span></td>
+                      <td style="font-size: 0.8125rem; color: var(--text-secondary);">
+                        <% if(c.telefone) { %><div><%= c.telefone %></div><% } %>
+                        <% if(c.email) { %><div style="color: var(--text-muted);"><%= c.email %></div><% } %>
+                      </td>
+                      <td class="col-actions">
+                        <button class="btn btn-ghost btn-icon sm" title="Editar"
+                          onclick="editar(this)"
+                          data-id="<%= c.idCliente %>"
+                          data-tipo="<%= c.tipo %>"
+                          data-nome="<%= c.nome %>"
+                          data-fantasia="<%= c.nomeFantasia %>"
+                          data-doc="<%= c.documento %>"
+                          data-tel="<%= c.telefone %>"
+                          data-email="<%= c.email %>"
+                          data-end="<%= c.endereco %>">
+                          <i class="bi bi-pencil"></i>
+                        </button>
+                        <a href="/clientes/delete/<%= c.idCliente %>"
+                           class="btn btn-danger btn-icon sm" title="Excluir"
+                           onclick="return confirm('Tem certeza?');">
+                          <i class="bi bi-trash3"></i>
+                        </a>
+                      </td>
+                    </tr>
+                  <% }) %>
+                  <% if(lista.length === 0) { %>
+                    <tr>
+                      <td colspan="4" class="empty-state">
+                        <div class="empty-state-icon"><i class="bi bi-people"></i></div>
+                        <p>Nenhum cliente cadastrado.</p>
+                      </td>
+                    </tr>
+                  <% } %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="/app.js"></script>
+
+  <script>
+    function alternarTipo() {
+      var tipo = document.getElementById('tipoCliente').value;
+      var labelNome = document.getElementById('labelNome');
+      var labelDoc = document.getElementById('labelDocumento');
+      var divFantasia = document.getElementById('divFantasia');
+      var inputDoc = document.getElementById('inputDoc');
+
+      if (tipo === 'PF') {
+        labelNome.innerHTML = 'Nome completo <span class="required">*</span>';
+        labelDoc.innerHTML = 'CPF <span class="required">*</span>';
+        divFantasia.style.display = "none";
+        inputDoc.setAttribute("maxlength", "14");
+        inputDoc.setAttribute("placeholder", "000.000.000-00");
+      } else {
+        labelNome.innerHTML = 'Razao social <span class="required">*</span>';
+        labelDoc.innerHTML = 'CNPJ <span class="required">*</span>';
+        divFantasia.style.display = "block";
+        inputDoc.setAttribute("maxlength", "18");
+        inputDoc.setAttribute("placeholder", "00.000.000/0000-00");
+      }
+    }
+
+    function mascaraDocumento(input) {
+      var tipo = document.getElementById('tipoCliente').value;
+      var v = input.value.replace(/\D/g, "");
+      if (tipo === 'PF') {
+        if (v.length > 11) v = v.slice(0, 11);
+        v = v.replace(/(\d{3})(\d)/, "$1.$2");
+        v = v.replace(/(\d{3})(\d)/, "$1.$2");
+        v = v.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+      } else {
+        if (v.length > 14) v = v.slice(0, 14);
+        v = v.replace(/^(\d{2})(\d)/, "$1.$2");
+        v = v.replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3");
+        v = v.replace(/\.(\d{3})(\d)/, ".$1/$2");
+        v = v.replace(/(\d{4})(\d)/, "$1-$2");
+      }
+      input.value = v;
+    }
+
+    function mascaraTelefone(input) {
+      var v = input.value.replace(/\D/g, "");
+      if (v.length > 11) v = v.slice(0, 11);
+      v = v.replace(/^(\d{2})(\d)/g, "($1) $2");
+      v = v.replace(/(\d)(\d{4})$/, "$1-$2");
+      input.value = v;
+    }
+
+    function editar(btn) {
+      var d = btn.dataset;
+      document.getElementById('tipoCliente').value = d.tipo;
+      alternarTipo();
+      document.getElementById('inputNome').value = d.nome;
+      document.getElementById('inputFantasia').value = d.fantasia;
+      document.getElementById('inputDoc').value = d.doc;
+      document.getElementById('inputTel').value = d.tel;
+      document.getElementById('inputEmail').value = d.email;
+      document.getElementById('inputEnd').value = d.end;
+
+      document.getElementById('formCliente').action = "/clientes/update/" + d.id;
+      document.getElementById('formTitle').innerText = "Editar cliente";
+      document.getElementById('btnSalvar').innerHTML = '<i class="bi bi-check-lg"></i> Atualizar';
+      document.getElementById('btnCancelar').style.display = "block";
+      document.querySelector('.form-panel').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function limparForm() {
+      var form = document.getElementById('formCliente');
+      form.reset();
+      form.classList.remove('was-validated');
+      form.action = "/clientes/add";
+      document.getElementById('formTitle').innerText = "Novo cliente";
+      document.getElementById('btnSalvar').innerHTML = '<i class="bi bi-check-lg"></i> Salvar';
+      document.getElementById('btnCancelar').style.display = "none";
+      alternarTipo();
+    }
+  </script>
+</body>
+</html>

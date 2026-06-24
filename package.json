@@ -1,0 +1,18 @@
+{
+  "name": "plantech",
+  "version": "1.0.0",
+  "description": "Sistema de Almoxarifado - Plantech (Trabalho de Estágio)",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "initdb": "node db/init.js"
+  },
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "body-parser": "^1.20.2",
+    "ejs": "^3.1.9",
+    "express": "^4.18.2",
+    "express-session": "^1.18.2",
+    "sqlite3": "^5.1.6"
+  }
+}

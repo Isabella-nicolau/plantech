@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install *)",
+      "Bash(npm run *)",
+      "Bash(node app.js)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000/)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000/login)",
+      "Bash(curl -s -c /tmp/plantech_cookies.txt -d \"username=admin&password=admin\" -L -o /dev/null -w \"%{http_code}\" http://localhost:3000/login)",
+      "Bash(curl -s -b /tmp/plantech_cookies.txt http://localhost:3000/dashboard)",
+      "Bash(ls /Applications/ | grep -i -E 'chrome|chromium|google' 2>&1)",
+      "Read(//Applications/**)",
+      "Bash(open http://localhost:3000/)"
+    ]
+  }
+}

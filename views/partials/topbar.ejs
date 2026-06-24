@@ -1,0 +1,16 @@
+<header class="topbar">
+  <div class="topbar-left">
+    <div class="topbar-title">
+      <h2><%= typeof topTitle !== 'undefined' ? topTitle : 'Plantech' %></h2>
+      <% if (typeof topSubtitle !== 'undefined' && topSubtitle) { %>
+        <p><%= topSubtitle %></p>
+      <% } %>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <div class="topbar-status">
+      <span class="status-dot"></span>
+      Operacional
+    </div>
+  </div>
+</header>

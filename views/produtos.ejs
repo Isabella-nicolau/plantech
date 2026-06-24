@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <%- include('partials/head', { pageTitle: 'Produtos' }) %>
+</head>
+<body>
+  <div class="app-layout">
+    <%- include('partials/sidebar') %>
+
+    <main class="main-content">
+      <%- include('partials/topbar', { topTitle: 'Produtos', topSubtitle: 'Gerencie o inventario e precos de venda' }) %>
+
+      <div class="page-content">
+        <div class="page-header">
+          <div class="page-header-left">
+            <h2>Catalogo de Produtos</h2>
+          </div>
+          <div class="page-header-actions">
+            <button onclick="limparForm()" class="btn btn-primary btn-sm"><i class="bi bi-plus"></i> Novo produto</button>
+            <span class="badge-count"><%= lista.length %> itens</span>
+          </div>
+        </div>
+
+        <div class="search-bar" style="max-width: 100%;">
+          <i class="bi bi-search"></i>
+          <form action="/produtos" method="GET" style="display: flex; gap: 8px; width: 100%;">
+            <input type="text" name="busca" class="form-control" placeholder="Buscar produto por nome, categoria ou descricao..." value="<%= typeof busca !== 'undefined' ? busca : '' %>" style="padding-left: 36px;">
+            <button class="btn btn-secondary btn-sm">Buscar</button>
+            <% if (typeof busca !== 'undefined' && busca) { %>
+              <a href="/produtos" class="btn btn-ghost btn-sm"><i class="bi bi-x-lg"></i></a>
+            <% } %>
+          </form>
+        </div>
+
+        <% if (locals.erro) { %>
+          <div class="alert alert-error"><i class="bi bi-exclamation-circle"></i> <%= erro %></div>
+        <% } %>
+
+        <div class="split-layout">
+          <div class="form-panel">
+            <div class="form-panel-header">
+              <i class="bi bi-box-seam"></i>
+              <h3 id="formTitle">Novo produto</h3>
+            </div>
+            <div class="form-panel-body">
+              <form action="/produtos/add" method="POST" class="needs-validation" id="formProd" novalidate>
+                <div class="form-group">
+                  <label class="form-label">Nome do produto <span class="required">*</span></label>
+                  <input type="text" name="nomeProduto" id="inputNome" class="form-control" required placeholder="Ex: Adubo NPK 10-10-10">
+                  <div class="form-error">Nome e obrigatorio.</div>
+                </div>
+
+                <div class="row-2col">
+                  <div class="form-group">
+                    <label class="form-label">Categoria</label>
+                    <select name="categoria" id="selCat" class="form-select">
+                      <option value="" disabled selected>Tipo...</option>
+                      <option value="Plantas">Plantas</option>
+                      <option value="Gramas">Gramas</option>
+                      <option value="Vasos">Vasos</option>
+                      <option value="Insumos">Insumos</option>
+                      <option value="Ferramentas">Ferramentas</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Unidade</label>
+                    <select name="unidadeMedida" id="selUnd" class="form-select">
+                      <option value="UN">Unidade</option>
+                      <option value="M2">m2</option>
+                      <option value="KG">Kg</option>
+                      <option value="LT">Litro</option>
+                      <option value="CX">Caixa</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="row-2col">
+                  <div class="form-group">
+                    <label class="form-label">Preco venda (R$) <span class="required">*</span></label>
+                    <input type="number" step="0.01" name="precoVenda" id="inputPreco" class="form-control" required placeholder="0.00">
+                    <div class="form-error">Preco obrigatorio.</div>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Estoque inicial</label>
+                    <input type="number" name="estoqueAtual" id="inputEstoque" class="form-control" placeholder="0" min="0">
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Descricao</label>
+                  <textarea name="descricao" id="inputDesc" class="form-control" rows="2" placeholder="Detalhes tecnicos, tamanho, cor..."></textarea>
+                </div>
+
+                <div class="d-flex gap-sm" style="margin-top: 20px;">
+                  <button type="submit" class="btn btn-primary btn-block" id="btnSalvar">
+                    <i class="bi bi-check-lg"></i> Adicionar
+                  </button>
+                  <button type="button" class="btn btn-secondary btn-block" id="btnCancelar" onclick="limparForm()" style="display:none;">
+                    Cancelar
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <div class="table-wrapper">
+            <div class="card-header">
+              <h3><i class="bi bi-list-ul" style="color: var(--primary);"></i> Estoque atual</h3>
+              <% if (typeof busca !== 'undefined' && busca) { %>
+                <span class="badge badge-info">Filtrando: "<%= busca %>"</span>
+              <% } %>
+            </div>
+            <div class="table-scroll">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Produto</th>
+                    <th>Categoria</th>
+                    <th>Preco</th>
+                    <th>Saldo</th>
+                    <th style="text-align: right;">Acao</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% lista.forEach(p => { %>
+                    <tr>
+                      <td>
+                        <div class="d-flex items-center gap-sm">
+                          <div class="avatar"><%= p.nomeProduto.charAt(0).toUpperCase() %></div>
+                          <div>
+                            <div class="col-primary"><%= p.nomeProduto %></div>
+                            <div style="font-size: 0.75rem; color: var(--text-muted); max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                              <%= p.descricao || "Sem descricao" %>
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                      <td><span class="badge badge-default"><%= p.categoria %></span></td>
+                      <td><span class="text-primary fw-600">R$ <%= p.precoVenda.toFixed(2) %></span></td>
+                      <td>
+                        <% if(p.estoqueAtual > 10) { %>
+                          <span class="badge badge-success"><%= p.estoqueAtual %> <%= p.unidadeMedida %></span>
+                        <% } else if(p.estoqueAtual > 0) { %>
+                          <span class="badge badge-warning"><%= p.estoqueAtual %> <%= p.unidadeMedida %></span>
+                        <% } else { %>
+                          <span class="badge badge-error">Esgotado</span>
+                        <% } %>
+                      </td>
+                      <td class="col-actions">
+                        <button class="btn btn-ghost btn-icon sm" title="Editar"
+                          onclick="editar(this)"
+                          data-id="<%= p.numProduto %>"
+                          data-nome="<%= p.nomeProduto %>"
+                          data-cat="<%= p.categoria %>"
+                          data-und="<%= p.unidadeMedida %>"
+                          data-preco="<%= p.precoVenda %>"
+                          data-estoque="<%= p.estoqueAtual %>"
+                          data-desc="<%= p.descricao %>">
+                          <i class="bi bi-pencil"></i>
+                        </button>
+                        <a href="/produtos/delete/<%= p.numProduto %>"
+                           class="btn btn-danger btn-icon sm" title="Excluir"
+                           onclick="return confirm('Tem certeza? Isso pode afetar historicos de vendas.');">
+                          <i class="bi bi-trash3"></i>
+                        </a>
+                      </td>
+                    </tr>
+                  <% }) %>
+                  <% if(lista.length === 0) { %>
+                    <tr>
+                      <td colspan="5" class="empty-state">
+                        <div class="empty-state-icon"><i class="bi bi-box-seam"></i></div>
+                        <p>
+                          <% if(typeof busca !== 'undefined' && busca) { %>
+                            Nenhum produto encontrado para "<%= busca %>".
+                          <% } else { %>
+                            Nenhum produto cadastrado.
+                          <% } %>
+                        </p>
+                      </td>
+                    </tr>
+                  <% } %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="/app.js"></script>
+
+  <script>
+    function editar(btn) {
+      var d = btn.dataset;
+      document.getElementById('inputNome').value = d.nome;
+      document.getElementById('selCat').value = d.cat;
+      document.getElementById('selUnd').value = d.und;
+      document.getElementById('inputPreco').value = d.preco;
+      document.getElementById('inputEstoque').value = d.estoque;
+      document.getElementById('inputDesc').value = d.desc;
+
+      document.getElementById('formProd').action = "/produtos/update/" + d.id;
+      document.getElementById('formTitle').innerText = "Editar produto";
+      document.getElementById('btnSalvar').innerHTML = '<i class="bi bi-check-lg"></i> Atualizar';
+      document.getElementById('btnCancelar').style.display = "block";
+      document.querySelector('.form-panel').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function limparForm() {
+      var form = document.getElementById('formProd');
+      form.reset();
+      form.classList.remove('was-validated');
+      form.action = "/produtos/add";
+      document.getElementById('formTitle').innerText = "Novo produto";
+      document.getElementById('btnSalvar').innerHTML = '<i class="bi bi-check-lg"></i> Adicionar';
+      document.getElementById('btnCancelar').style.display = "none";
+    }
+  </script>
+</body>
+</html>

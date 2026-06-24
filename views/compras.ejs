@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <%- include('partials/head', { pageTitle: 'Compras' }) %>
+</head>
+<body>
+  <div class="app-layout">
+    <%- include('partials/sidebar') %>
+
+    <main class="main-content">
+      <%- include('partials/topbar', { topTitle: 'Compras', topSubtitle: 'Lancamento de notas fiscais e entrada de estoque' }) %>
+
+      <div class="page-content">
+        <div class="page-header">
+          <div class="page-header-left">
+            <h2>Registro de Compras</h2>
+          </div>
+          <div class="page-header-actions">
+            <span class="badge-count"><%= historico.length %> notas</span>
+          </div>
+        </div>
+
+        <% if (erro) { %>
+          <div class="alert alert-error"><i class="bi bi-exclamation-circle"></i> <%= erro %></div>
+        <% } %>
+
+        <div class="split-layout">
+          <div class="form-panel">
+            <div class="form-panel-header">
+              <i class="bi bi-box-arrow-in-down"></i>
+              <h3>Dados da nota</h3>
+            </div>
+            <div class="form-panel-body">
+              <form action="/compras/add" method="POST" id="formCompra">
+                <div class="form-group">
+                  <label class="form-label">Fornecedor</label>
+                  <select name="idFornecedor" class="form-select" required>
+                    <option value="" disabled selected>Selecione a origem...</option>
+                    <% fornecedores.forEach(f => { %>
+                      <option value="<%= f.idFornecedor %>"><%= f.nome %></option>
+                    <% }) %>
+                  </select>
+                </div>
+
+                <div class="divider"></div>
+
+                <h6 style="margin-bottom: 12px;">Adicionar itens</h6>
+
+                <div class="form-group">
+                  <label class="form-label">Produto</label>
+                  <select id="selProduto" class="form-select">
+                    <option value="" disabled selected>Escolha o item...</option>
+                    <% produtos.forEach(p => { %>
+                      <option value="<%= p.numProduto %>" data-nome="<%= p.nomeProduto %>">
+                        <%= p.nomeProduto %> (Estoque: <%= p.estoqueAtual %>)
+                      </option>
+                    <% }) %>
+                  </select>
+                </div>
+
+                <div class="row-2col">
+                  <div class="form-group">
+                    <label class="form-label">Qtd.</label>
+                    <input type="number" id="qtdProduto" class="form-control" value="1" min="1">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Custo unit. (R$)</label>
+                    <input type="number" id="custoProduto" class="form-control" placeholder="0.00" step="0.01">
+                  </div>
+                </div>
+
+                <button type="button" class="btn btn-secondary btn-block" onclick="adicionarAoCarrinho()" style="margin-bottom: 16px;">
+                  <i class="bi bi-plus"></i> Incluir na nota
+                </button>
+
+                <input type="hidden" name="itensCarrinho" id="inputItensCarrinho">
+
+                <div class="divider"></div>
+
+                <button class="btn btn-primary btn-block btn-lg">
+                  <i class="bi bi-check-lg"></i> Confirmar entrada
+                </button>
+              </form>
+            </div>
+          </div>
+
+          <div>
+            <div class="table-wrapper" style="margin-bottom: 20px;">
+              <div class="card-header">
+                <h3><i class="bi bi-cart3" style="color: var(--info);"></i> Itens da nota atual</h3>
+              </div>
+              <div class="cart-container">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Produto</th>
+                      <th style="text-align: center;">Qtd</th>
+                      <th style="text-align: right;">Custo</th>
+                      <th style="text-align: right;">Subtotal</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody id="listaCarrinho">
+                    <tr><td colspan="5" class="empty-state"><p>Nenhum item adicionado.</p></td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <div style="padding: 16px 20px; border-top: 1px solid var(--border-color);">
+                <div class="summary-total">
+                  <span class="label">Total da nota</span>
+                  <span class="value" id="totalCompraDisplay">R$ 0.00</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="table-wrapper">
+              <div class="card-header">
+                <h3><i class="bi bi-clock-history" style="color: var(--text-muted);"></i> Ultimas entradas</h3>
+              </div>
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Data</th>
+                    <th>Fornecedor</th>
+                    <th style="text-align: right;">Valor</th>
+                    <th style="text-align: right;">Acao</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% historico.slice(0, 5).forEach(c => { %>
+                    <tr>
+                      <td style="color: var(--text-muted);"><%= new Date(c.dataCompra).toLocaleDateString() %></td>
+                      <td class="col-primary"><%= c.nomeFornecedor %></td>
+                      <td style="text-align: right;"><span class="text-info fw-600">R$ <%= c.valorTotal.toFixed(2) %></span></td>
+                      <td class="col-actions">
+                        <a href="/compras/delete/<%= c.idCompra %>"
+                           class="btn btn-danger btn-sm"
+                           onclick="return confirm('Isso apagara o registro financeiro, mas nao estornara o estoque. Continuar?');">
+                          Excluir
+                        </a>
+                      </td>
+                    </tr>
+                  <% }) %>
+                  <% if(historico.length === 0) { %>
+                    <tr><td colspan="4" class="empty-state"><p>Nenhuma compra registrada.</p></td></tr>
+                  <% } %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="/app.js"></script>
+
+  <script>
+    var carrinho = [];
+
+    function adicionarAoCarrinho() {
+      var sel = document.getElementById('selProduto');
+      var qtdInput = document.getElementById('qtdProduto');
+      var custoInput = document.getElementById('custoProduto');
+      var id = sel.value;
+      var nome = sel.options[sel.selectedIndex] ? sel.options[sel.selectedIndex].getAttribute('data-nome') : '';
+      var qtd = parseInt(qtdInput.value);
+      var custo = parseFloat(custoInput.value);
+
+      if (!id) { alert("Selecione um produto."); return; }
+      if (qtd <= 0 || isNaN(qtd)) { alert("Quantidade invalida."); return; }
+      if (isNaN(custo) || custo < 0) { alert("Informe o custo unitario."); return; }
+
+      carrinho.push({ id: id, nome: nome, qtd: qtd, custo: custo });
+      atualizarTabela();
+      sel.value = ""; qtdInput.value = "1"; custoInput.value = ""; sel.focus();
+    }
+
+    function removerItem(index) {
+      carrinho.splice(index, 1);
+      atualizarTabela();
+    }
+
+    function atualizarTabela() {
+      var tbody = document.getElementById('listaCarrinho');
+      var totalDisplay = document.getElementById('totalCompraDisplay');
+      var inputHidden = document.getElementById('inputItensCarrinho');
+      tbody.innerHTML = "";
+      var totalGeral = 0;
+
+      if (carrinho.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="empty-state"><p>Nenhum item adicionado.</p></td></tr>';
+      }
+
+      carrinho.forEach(function(item, index) {
+        var subtotal = item.qtd * item.custo;
+        totalGeral += subtotal;
+        var tr = document.createElement('tr');
+        tr.innerHTML = '<td class="col-primary">' + item.nome + '</td>' +
+          '<td style="text-align:center;">' + item.qtd + '</td>' +
+          '<td style="text-align:right;">R$ ' + item.custo.toFixed(2) + '</td>' +
+          '<td style="text-align:right;" class="text-info fw-600">R$ ' + subtotal.toFixed(2) + '</td>' +
+          '<td class="col-actions"><button type="button" class="btn btn-danger btn-icon sm" onclick="removerItem(' + index + ')"><i class="bi bi-x-lg"></i></button></td>';
+        tbody.appendChild(tr);
+      });
+
+      totalDisplay.innerText = "R$ " + totalGeral.toFixed(2);
+      inputHidden.value = JSON.stringify(carrinho);
+    }
+
+    document.getElementById('formCompra').onsubmit = function() {
+      if (carrinho.length === 0) { alert("A nota fiscal deve ter pelo menos um item!"); return false; }
+      return true;
+    };
+  </script>
+</body>
+</html>

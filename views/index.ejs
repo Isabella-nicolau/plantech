@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <%- include('partials/head', { pageTitle: 'ERP Inteligente' }) %>
+</head>
+<body class="landing-page">
+
+  <nav class="landing-nav">
+    <div class="container d-flex items-center justify-between">
+      <a href="/" class="sidebar-logo">
+        <div class="sidebar-logo-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M7 20h10"/>
+            <path d="M10 20c5.5-2.5.8-6.4 3-10"/>
+            <path d="M9.5 9.4c1.1.8 1.8 2.2 2.3 3.7-2 .4-3.5.4-4.8-.3-1.2-.6-2.3-1.9-3-4.2 2.8-.5 4.4 0 5.5.8z"/>
+            <path d="M14.1 6a7 7 0 0 0-1.1 4c1.9-.1 3.3-.6 4.3-1.4 1-1 1.6-2.3 1.7-4.6-2.7.1-4 1-4.9 2z"/>
+          </svg>
+        </div>
+        <span class="sidebar-logo-text">Plantech</span>
+      </a>
+
+      <a href="/login" class="btn btn-primary">
+        Acessar Sistema
+        <i class="bi bi-arrow-right"></i>
+      </a>
+    </div>
+  </nav>
+
+  <section class="landing-hero">
+    <div class="container">
+      <div style="max-width: 640px; margin: 0 auto;">
+        <span class="badge badge-success mb-16">v1.0 Disponivel</span>
+        <h1><span class="gradient-text">ERP Inteligente e Integrado</span></h1>
+        <p style="font-size: 1.0625rem; color: var(--text-secondary); margin-bottom: 32px; line-height: 1.7;">
+          Otimize recursos, controle estoques e maximize resultados com um ERP feito sob medida para o seu negocio.
+        </p>
+        <div class="d-flex gap-sm justify-content-center">
+          <a href="/login" class="btn btn-primary btn-lg">
+            Comecar Agora
+            <i class="bi bi-arrow-right"></i>
+          </a>
+          <a href="#recursos" class="btn btn-secondary btn-lg">
+            Saiba Mais
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="landing-features" id="recursos">
+    <div class="container">
+      <div class="row g-4">
+        <div class="col-md-4">
+          <div class="feature-card">
+            <div class="feature-card-icon">
+              <i class="bi bi-box-seam"></i>
+            </div>
+            <h3>Estoque LIFO</h3>
+            <p>Controle inteligente de armazenamento utilizando logica LIFO para otimizacao de inventario.</p>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="feature-card">
+            <div class="feature-card-icon" style="background: var(--info-subtle); color: var(--info); border-color: rgba(59, 130, 246, 0.2);">
+              <i class="bi bi-cart3"></i>
+            </div>
+            <h3>PDV Integrado</h3>
+            <p>Sistema de ponto de venda agil com baixa automatica de estoque e historico financeiro.</p>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="feature-card">
+            <div class="feature-card-icon" style="background: var(--warning-subtle); color: var(--warning); border-color: rgba(245, 158, 11, 0.2);">
+              <i class="bi bi-bar-chart-line"></i>
+            </div>
+            <h3>Relatorios</h3>
+            <p>Relatorios gerenciais completos: financeiro, fluxo de saidas e alertas de reposicao em tempo real.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer style="padding: 40px 0; border-top: 1px solid var(--border-color); margin-top: 40px;">
+    <div class="container text-center">
+      <p style="color: var(--text-muted); font-size: 0.8125rem;">
+        &copy; 2025 Plantech Systems. Desenvolvido para Carrapicho Jardinagem.
+      </p>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
