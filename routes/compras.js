@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const sqlite3 = require("sqlite3").verbose();
 const db = new sqlite3.Database("./database.db");
+const { registrarLog } = require("../helpers/audit");
 
 // TELA DE ENTRADA (Compras)
 router.get("/", (req, res) => {
@@ -78,6 +79,7 @@ router.post("/add", (req, res) => {
         });
       });
 
+      registrarLog(req, "COMPRA_CRIADA", `Compra #${idCompra} R$${valorTotal.toFixed(2)} (${itens.length} itens)`);
       res.redirect("/compras");
     }
   );

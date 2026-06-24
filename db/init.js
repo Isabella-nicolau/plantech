@@ -11,7 +11,19 @@ db.serialize(() => {
   db.run(`CREATE TABLE IF NOT EXISTS Usuario (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     username VARCHAR(50) UNIQUE NOT NULL,
-    password VARCHAR(255) NOT NULL
+    password VARCHAR(255) NOT NULL,
+    perfil VARCHAR(20) NOT NULL DEFAULT 'OPERADOR'
+  )`);
+
+  // Log de Auditoria
+  db.run(`CREATE TABLE IF NOT EXISTS LogAuditoria (
+    idLog INTEGER PRIMARY KEY AUTOINCREMENT,
+    idUsuario INTEGER,
+    usuario VARCHAR(50),
+    acao VARCHAR(50) NOT NULL,
+    detalhe TEXT,
+    ip VARCHAR(45),
+    dataHora DATETIME DEFAULT CURRENT_TIMESTAMP
   )`);
 
   // Clientes (Ajuste: Limites de caracteres definidos)
@@ -106,9 +118,12 @@ db.serialize(() => {
     if (row.qtd === 0) {
       console.log("📦 Banco vazio detectado. Inserindo dados de exemplo...");
 
-      // A. Admin
+      // A. Admin + Vendedor
       bcrypt.hash("admin", 10, (err, hash) => {
-        db.run(`INSERT INTO Usuario (username, password) VALUES (?, ?)`, ["admin", hash]);
+        db.run(`INSERT INTO Usuario (username, password, perfil) VALUES (?, ?, 'ADMIN')`, ["admin", hash]);
+      });
+      bcrypt.hash("vendedor", 10, (err, hash) => {
+        db.run(`INSERT INTO Usuario (username, password, perfil) VALUES (?, ?, 'OPERADOR')`, ["vendedor", hash]);
       });
 
       // B. Clientes (5 registros variados)

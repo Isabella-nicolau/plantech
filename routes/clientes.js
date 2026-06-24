@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const sqlite3 = require("sqlite3").verbose();
 const db = new sqlite3.Database("./database.db");
+const { registrarLog } = require("../helpers/audit");
 
 // LISTAR CLIENTES (COM BUSCA)
 router.get("/", (req, res) => {
@@ -56,6 +57,7 @@ router.post("/add", (req, res) => {
     [tipo, nome, fantasiaFinal, documento, telefone, email, endereco],
     (err) => {
       if (err) return res.send("Erro ao cadastrar: " + err.message);
+      registrarLog(req, "CLIENTE_CRIADO", `Cliente "${nome}" (${documento}) criado`);
       res.redirect("/clientes");
     }
   );
@@ -75,6 +77,7 @@ router.post("/update/:id", (req, res) => {
     [tipo, nome, fantasiaFinal, documento, telefone, email, endereco, id],
     (err) => {
       if (err) return res.send("Erro ao atualizar: " + err.message);
+      registrarLog(req, "CLIENTE_EDITADO", `Cliente #${id} "${nome}" atualizado`);
       res.redirect("/clientes");
     }
   );
@@ -84,6 +87,7 @@ router.post("/update/:id", (req, res) => {
 router.get("/delete/:id", (req, res) => {
   db.run(`DELETE FROM Clientes WHERE idCliente = ?`, [req.params.id], (err) => {
     if (err) return res.send("Erro ao excluir. Verifique se há vendas vinculadas.");
+    registrarLog(req, "CLIENTE_EXCLUIDO", `Cliente #${req.params.id} excluido`);
     res.redirect("/clientes");
   });
 });

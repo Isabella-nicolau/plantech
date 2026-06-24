@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <%- include('partials/head', { pageTitle: 'Auditoria' }) %>
+</head>
+<body>
+  <div class="app-layout">
+    <%- include('partials/sidebar') %>
+
+    <main class="main-content">
+      <%- include('partials/topbar', { topTitle: 'Auditoria', topSubtitle: 'Registro de operacoes do sistema' }) %>
+
+      <div class="page-content">
+        <div class="page-header">
+          <div class="page-header-left">
+            <h2>Log de Auditoria</h2>
+          </div>
+          <div class="page-header-actions">
+            <span class="badge-count"><%= logs.length %> registros</span>
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom: 24px;">
+          <div class="card-body">
+            <form action="/auditoria" method="GET" class="d-flex gap-sm items-center" style="flex-wrap: wrap;">
+              <div style="flex: 1; min-width: 160px;">
+                <label class="form-label">Data inicio</label>
+                <input type="date" name="dataInicio" class="form-control" value="<%= query.dataInicio %>">
+              </div>
+              <div style="flex: 1; min-width: 160px;">
+                <label class="form-label">Data fim</label>
+                <input type="date" name="dataFim" class="form-control" value="<%= query.dataFim %>">
+              </div>
+              <div style="padding-top: 22px;">
+                <button class="btn btn-primary">Filtrar</button>
+              </div>
+              <% if (query.dataInicio || query.dataFim) { %>
+              <div style="padding-top: 22px;">
+                <a href="/auditoria" class="btn btn-ghost">Limpar</a>
+              </div>
+              <% } %>
+            </form>
+          </div>
+        </div>
+
+        <% if (erro) { %>
+          <div class="alert alert-error"><i class="bi bi-exclamation-circle"></i> <%= erro %></div>
+        <% } %>
+
+        <div class="table-wrapper">
+          <div class="card-header">
+            <h3><i class="bi bi-shield-check" style="color: var(--primary);"></i> Eventos registrados</h3>
+          </div>
+          <div class="table-scroll">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Data / Hora</th>
+                  <th>Usuario</th>
+                  <th>Acao</th>
+                  <th>Detalhe</th>
+                  <th>IP</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% logs.forEach(log => { %>
+                  <tr>
+                    <td style="white-space: nowrap; color: var(--text-muted);"><%= new Date(log.dataHora).toLocaleString() %></td>
+                    <td class="col-primary"><%= log.usuario %></td>
+                    <td>
+                      <% if (log.acao.includes('LOGIN_OK') || log.acao.includes('CRIADO') || log.acao.includes('CRIADA')) { %>
+                        <span class="badge badge-success"><%= log.acao %></span>
+                      <% } else if (log.acao.includes('FALHA') || log.acao.includes('EXCLUIDO')) { %>
+                        <span class="badge badge-error"><%= log.acao %></span>
+                      <% } else if (log.acao.includes('EDITADO')) { %>
+                        <span class="badge badge-warning"><%= log.acao %></span>
+                      <% } else { %>
+                        <span class="badge badge-default"><%= log.acao %></span>
+                      <% } %>
+                    </td>
+                    <td style="max-width: 360px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"><%= log.detalhe %></td>
+                    <td style="color: var(--text-muted); font-size: 0.75rem;"><%= log.ip %></td>
+                  </tr>
+                <% }) %>
+                <% if (logs.length === 0) { %>
+                  <tr>
+                    <td colspan="5" class="empty-state">
+                      <div class="empty-state-icon"><i class="bi bi-shield-check"></i></div>
+                      <p>Nenhum evento registrado.</p>
+                    </td>
+                  </tr>
+                <% } %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="/app.js"></script>
+</body>
+</html>

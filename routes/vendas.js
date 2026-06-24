@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const sqlite3 = require("sqlite3").verbose();
 const db = new sqlite3.Database("./database.db");
+const { registrarLog } = require("../helpers/audit");
 
 // TELA DE VENDAS (PDV)
 router.get("/", (req, res) => {
@@ -71,7 +72,7 @@ router.post("/add", (req, res) => {
             [item.qtd, item.id]);
         });
 
-        // REDIRECIONA COM SUCESSO
+        registrarLog(req, "VENDA_CRIADA", `Venda #${idVenda} R$${valorTotalFinal.toFixed(2)} (${itens.length} itens)`);
         res.redirect("/vendas?sucesso=true");
       }
     );

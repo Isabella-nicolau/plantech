@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const sqlite3 = require("sqlite3").verbose();
 const db = new sqlite3.Database("./database.db");
+const { registrarLog } = require("../helpers/audit");
 
 // LISTAR PRODUTOS (COM BUSCA)
 router.get("/", (req, res) => {
@@ -55,6 +56,7 @@ router.post("/add", (req, res) => {
     [nomeProduto, descricao, categoria, unidadeMedida, precoVenda, estoqueFinal], 
     (err) => {
       if (err) return res.send("Erro ao cadastrar produto: " + err.message);
+      registrarLog(req, "PRODUTO_CRIADO", `Produto "${nomeProduto}" criado`);
       res.redirect("/produtos");
     }
   );
@@ -76,6 +78,7 @@ router.post("/update/:id", (req, res) => {
     [nomeProduto, descricao, categoria, unidadeMedida, precoVenda, estoqueAtual, id],
     (err) => {
       if (err) return res.send("Erro ao atualizar: " + err.message);
+      registrarLog(req, "PRODUTO_EDITADO", `Produto #${id} "${nomeProduto}" atualizado`);
       res.redirect("/produtos");
     }
   );
@@ -85,6 +88,7 @@ router.post("/update/:id", (req, res) => {
 router.get("/delete/:id", (req, res) => {
   db.run(`DELETE FROM Produto WHERE numProduto = ?`, [req.params.id], (err) => {
     if (err) return res.send("Erro ao excluir. Verifique se há vendas ou compras vinculadas.");
+    registrarLog(req, "PRODUTO_EXCLUIDO", `Produto #${req.params.id} excluido`);
     res.redirect("/produtos");
   });
 });

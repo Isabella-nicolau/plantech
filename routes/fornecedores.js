@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const sqlite3 = require("sqlite3").verbose();
 const db = new sqlite3.Database("./database.db");
+const { registrarLog } = require("../helpers/audit");
 
 // LISTAR FORNECEDORES
 router.get("/", (req, res) => {
@@ -41,6 +42,7 @@ router.post("/add", (req, res) => {
           res.render("fornecedores", { lista: rows, erro: "Erro no banco: " + err.message });
         });
       }
+      registrarLog(req, "FORNECEDOR_CRIADO", `Fornecedor "${nome}" (${cnpj}) criado`);
       res.redirect("/fornecedores");
     }
   );
@@ -62,6 +64,7 @@ router.post("/update/:id", (req, res) => {
     [nome, cnpj, telefone, email, endereco, id],
     (err) => {
       if (err) return res.send("Erro ao atualizar: " + err.message);
+      registrarLog(req, "FORNECEDOR_EDITADO", `Fornecedor #${id} "${nome}" atualizado`);
       res.redirect("/fornecedores");
     }
   );
@@ -71,6 +74,7 @@ router.post("/update/:id", (req, res) => {
 router.get("/delete/:id", (req, res) => {
   db.run(`DELETE FROM Fornecedores WHERE idFornecedor = ?`, [req.params.id], (err) => {
     if (err) return res.send("Erro ao excluir. Verifique se há compras vinculadas.");
+    registrarLog(req, "FORNECEDOR_EXCLUIDO", `Fornecedor #${req.params.id} excluido`);
     res.redirect("/fornecedores");
   });
 });

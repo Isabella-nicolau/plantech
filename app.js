@@ -30,6 +30,7 @@ app.use("/compras", auth, require("./routes/compras"));
 app.use("/vendas", auth, require("./routes/vendas")); // NOVA ROTA
 app.use("/relatorios", auth, require("./routes/relatorios"));
 app.use("/dashboard", auth, require("./routes/dashboard"));
+app.use("/auditoria", auth, require("./routes/auditoria"));
 
 const port = process.env.PORT || 3000;
 app.listen(port, () => console.log(`Plantech rodando em http://localhost:${port}`));
