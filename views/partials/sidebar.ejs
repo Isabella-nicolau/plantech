@@ -3,6 +3,8 @@
 </button>
 <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
 
+<% var perfil = (typeof sessionUser !== 'undefined' && sessionUser) ? sessionUser.perfil : 'OPERADOR'; %>
+
 <aside class="sidebar">
   <div class="sidebar-header">
     <a href="/dashboard" class="sidebar-logo">
@@ -26,10 +28,12 @@
       <span>Dashboard</span>
     </a>
 
+    <% if (perfil === 'ADMIN') { %>
     <a href="/compras" class="sidebar-nav-link" data-page="compras">
       <i class="bi bi-box-arrow-in-down"></i>
       <span>Compras</span>
     </a>
+    <% } %>
 
     <a href="/vendas" class="sidebar-nav-link" data-page="vendas">
       <i class="bi bi-cart3"></i>
@@ -38,32 +42,38 @@
 
     <div class="sidebar-section-label">Cadastros</div>
 
+    <% if (perfil === 'ADMIN') { %>
     <a href="/produtos" class="sidebar-nav-link" data-page="produtos">
       <i class="bi bi-box-seam"></i>
       <span>Produtos</span>
     </a>
+    <% } %>
 
     <a href="/clientes" class="sidebar-nav-link" data-page="clientes">
       <i class="bi bi-people"></i>
       <span>Clientes</span>
     </a>
 
+    <% if (perfil === 'ADMIN') { %>
     <a href="/fornecedores" class="sidebar-nav-link" data-page="fornecedores">
       <i class="bi bi-truck"></i>
       <span>Fornecedores</span>
     </a>
+    <% } %>
 
-    <div class="sidebar-section-label">Análise</div>
+    <% if (perfil === 'ADMIN') { %>
+    <div class="sidebar-section-label">Analise</div>
 
     <a href="/relatorios" class="sidebar-nav-link" data-page="relatorios">
       <i class="bi bi-bar-chart-line"></i>
-      <span>Relatórios</span>
+      <span>Relatorios</span>
     </a>
 
     <a href="/auditoria" class="sidebar-nav-link" data-page="auditoria">
       <i class="bi bi-shield-check"></i>
       <span>Auditoria</span>
     </a>
+    <% } %>
   </nav>
 
   <div class="sidebar-footer">
