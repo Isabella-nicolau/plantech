@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require("express");
 const bodyParser = require("body-parser");
 const session = require("express-session");
@@ -23,6 +24,7 @@ app.use((req, res, next) => {
 
 // --- Rotas Publicas ---
 app.use("/login", require("./routes/login"));
+app.use("/api", require("./routes/api"));
 app.get("/", (req, res) => {
   res.render("index");
 });

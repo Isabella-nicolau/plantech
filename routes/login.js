@@ -4,6 +4,7 @@ const sqlite3 = require("sqlite3").verbose();
 const bcrypt = require("bcrypt");
 const db = new sqlite3.Database("./database.db");
 const { registrarLog } = require("../helpers/audit");
+const { gerarToken } = require("../middlewares/jwt");
 
 // Tela de Login
 router.get("/", (req, res) => {
@@ -34,6 +35,7 @@ router.post("/", (req, res) => {
       }
 
       req.session.user = user;
+      req.session.token = gerarToken(user);
       registrarLog(req, "LOGIN_OK", `Usuario "${username}" autenticado`);
       res.redirect("/dashboard");
     });
