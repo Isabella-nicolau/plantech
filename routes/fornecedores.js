@@ -70,6 +70,33 @@ router.post("/update/:id", (req, res) => {
   );
 });
 
+// CONSULTA CNPJ VIA BRASILAPI
+router.get("/consulta-cnpj/:cnpj", async (req, res) => {
+  const cnpj = req.params.cnpj.replace(/\D/g, "");
+  if (cnpj.length !== 14) {
+    return res.status(400).json({ erro: "CNPJ deve ter 14 digitos." });
+  }
+  try {
+    const response = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${cnpj}`, {
+      headers: { "User-Agent": "PlanTech-ERP/1.0" }
+    });
+    if (!response.ok) {
+      const status = response.status;
+      if (status === 404) return res.status(404).json({ erro: "CNPJ nao encontrado." });
+      return res.status(502).json({ erro: "Erro ao consultar API externa." });
+    }
+    const data = await response.json();
+    res.json({
+      nome: data.razao_social || "",
+      email: data.email && data.email !== "null" ? data.email : "",
+      telefone: data.ddd_telefone_1 ? `(${data.ddd_telefone_1.substring(0,2)}) ${data.ddd_telefone_1.substring(2)}` : "",
+      endereco: [data.logradouro, data.numero, data.bairro, data.municipio, data.uf].filter(Boolean).join(", ")
+    });
+  } catch (err) {
+    res.status(502).json({ erro: "Falha na comunicacao com a API." });
+  }
+});
+
 // EXCLUIR FORNECEDOR
 router.get("/delete/:id", (req, res) => {
   db.run(`DELETE FROM Fornecedores WHERE idFornecedor = ?`, [req.params.id], (err) => {

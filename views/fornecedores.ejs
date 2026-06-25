@@ -41,10 +41,16 @@
 
                 <div class="form-group">
                   <label class="form-label">CNPJ <span class="required">*</span></label>
-                  <input type="text" name="cnpj" id="inputCnpj" class="form-control"
-                         required placeholder="00.000.000/0000-00"
-                         maxlength="18" oninput="mascaraCNPJ(this)">
+                  <div class="d-flex gap-sm">
+                    <input type="text" name="cnpj" id="inputCnpj" class="form-control"
+                           required placeholder="00.000.000/0000-00"
+                           maxlength="18" oninput="mascaraCNPJ(this)" style="flex:1;">
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="buscarCNPJ()" id="btnBuscarCnpj" style="white-space:nowrap;">
+                      <i class="bi bi-search"></i> Buscar
+                    </button>
+                  </div>
                   <div class="form-error">CNPJ e obrigatorio.</div>
+                  <div id="cnpjFeedback" class="form-hint" style="display:none;"></div>
                 </div>
 
                 <div class="form-group">
@@ -190,6 +196,49 @@
       document.getElementById('formTitle').innerText = "Novo fornecedor";
       document.getElementById('btnSalvar').innerHTML = '<i class="bi bi-check-lg"></i> Salvar';
       document.getElementById('btnCancelar').style.display = "none";
+      document.getElementById('cnpjFeedback').style.display = "none";
+    }
+
+    async function buscarCNPJ() {
+      var cnpj = document.getElementById('inputCnpj').value.replace(/\D/g, "");
+      var feedback = document.getElementById('cnpjFeedback');
+      var btn = document.getElementById('btnBuscarCnpj');
+
+      if (cnpj.length !== 14) {
+        feedback.textContent = "Digite um CNPJ completo (14 digitos).";
+        feedback.style.display = "block";
+        feedback.style.color = "var(--error)";
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Buscando...';
+      feedback.textContent = "Consultando BrasilAPI...";
+      feedback.style.display = "block";
+      feedback.style.color = "var(--text-muted)";
+
+      try {
+        var response = await fetch("/fornecedores/consulta-cnpj/" + cnpj);
+        var data = await response.json();
+
+        if (data.erro) {
+          feedback.textContent = data.erro;
+          feedback.style.color = "var(--error)";
+        } else {
+          if (data.nome) document.getElementById('inputNome').value = data.nome;
+          if (data.telefone) document.getElementById('inputTel').value = data.telefone;
+          if (data.email) document.getElementById('inputEmail').value = data.email;
+          if (data.endereco) document.getElementById('inputEnd').value = data.endereco;
+          feedback.textContent = "Dados preenchidos automaticamente.";
+          feedback.style.color = "var(--success)";
+        }
+      } catch (err) {
+        feedback.textContent = "Erro de conexao ao buscar CNPJ.";
+        feedback.style.color = "var(--error)";
+      }
+
+      btn.disabled = false;
+      btn.innerHTML = '<i class="bi bi-search"></i> Buscar';
     }
   </script>
 </body>
