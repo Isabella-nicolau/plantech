@@ -1,106 +1,144 @@
-# 🌱 Plantech ERP - Carrapicho Jardinagem
+# Plantech ERP
 
-![Badge Finalizado](http://img.shields.io/static/v1?label=STATUS&message=FINALIZADO&color=GREEN&style=for-the-badge)
-![Node.js](https://img.shields.io/badge/Node.js-43853D?style=for-the-badge&logo=node.js&logoColor=white)
-![Express](https://img.shields.io/badge/Express.js-404D59?style=for-the-badge)
-![SQLite](https://img.shields.io/badge/SQLite-07405E?style=for-the-badge&logo=sqlite&logoColor=white)
-![Bootstrap](https://img.shields.io/badge/Bootstrap-563D7C?style=for-the-badge&logo=bootstrap&logoColor=white)
+Sistema ERP para gestao de estoque, vendas e financeiro da empresa Carrapicho Jardinagem.
+Desenvolvido como trabalho de Estagio Supervisionado.
 
-> **Projeto de Estágio Supervisionado I** | Curso Superior de Tecnologia em Análise e Desenvolvimento de Sistemas - UMFG.
+## Stack
 
----
+- **Back-end:** Node.js + Express
+- **Views:** EJS + CSS (tema dark premium com Bootstrap 5)
+- **Banco:** SQLite 3
+- **Auth:** express-session + bcrypt + JWT
+- **Testes:** Jest + Supertest (unitario/integracao) + Playwright (E2E)
+- **Upload:** Multer + Supabase Storage (opcional)
+- **API externa:** BrasilAPI (consulta CNPJ)
 
-## 📌 Sobre o Projeto
+## Como rodar
 
-O **Plantech** é um sistema ERP (Enterprise Resource Planning) desenvolvido sob medida para atender às necessidades de gestão da **Carrapicho Jardinagem**.
+```bash
+# 1. Clonar e instalar
+git clone <url-do-repo>
+cd plantech-main
+npm install
 
-O objetivo foi informatizar os processos de almoxarifado, vendas e compras que antes eram manuais, garantindo controle de estoque em tempo real, rastreabilidade de produtos e inteligência financeira. O sistema conta com uma interface moderna (Dark Premium) e algoritmos de logística interna.
+# 2. Configurar variaveis de ambiente
+cp .env.example .env
+# Edite o .env com seus segredos
 
-### 🎯 Soluções Implementadas (Requisitos Funcionais)
+# 3. Criar o banco de dados
+npm run initdb
 
-* **RF1 - Gestão de Clientes:** Cadastro completo de Pessoa Física e Jurídica.
-* **RF2 - Gestão de Fornecedores:** Controle de parceiros para abastecimento.
-* **RF3 - Catálogo de Produtos:** Registro detalhado com categorias, unidades e controle de estoque.
-* **RF4 - PDV (Ponto de Venda):** Sistema de caixa com carrinho de compras, cálculo automático e baixa imediata de estoque.
-* **RF5 - Registro de Compras:** Entrada de Notas Fiscais com atualização automática de saldo e geração de tarefas logísticas.
-* **RF6, RF8, RF9 - Business Intelligence:** Relatórios gerenciais de Vendas, Fluxo de Saídas e Balanço Financeiro (DRE Simplificado).
-* **RF7 - Controle de Estoque:** Monitoramento visual de níveis de estoque com alertas de reposição.
+# 4. Iniciar o servidor
+npm start
+# Acesse http://localhost:3000
+```
 
----
+## Variaveis de ambiente (.env)
 
-## 🛠 Tecnologias Utilizadas
+| Variavel | Descricao | Obrigatoria |
+|---|---|---|
+| `SESSION_SECRET` | Segredo para cookies de sessao | Sim |
+| `JWT_SECRET` | Segredo para tokens JWT | Sim |
+| `PORT` | Porta do servidor (padrao: 3000) | Nao |
+| `SUPABASE_URL` | URL do projeto Supabase | Nao* |
+| `SUPABASE_KEY` | Anon key do Supabase | Nao* |
+| `SUPABASE_BUCKET` | Nome do bucket (padrao: produtos) | Nao* |
 
-* **Backend:** Node.js + Express
-* **Banco de Dados:** SQLite3 (Relacional com Foreign Keys)
-* **Frontend:** EJS (Engine de Visualização) + Bootstrap 5 (Customizado - Dark Mode)
-* **Segurança:** Autenticação de usuários com Hash de senha (Bcrypt)
-* **Design:** Interface responsiva e intuitiva focada em UX.
+*Sem Supabase, imagens ficam em `public/uploads/` (local).
 
----
+## Usuarios de teste
 
+| Usuario | Senha | Perfil | Acesso |
+|---|---|---|---|
+| `admin` | `admin` | ADMIN | Acesso total |
+| `vendedor` | `vendedor` | OPERADOR | Dashboard, Clientes, Vendas |
 
+## Rodar os testes
 
-## 📦 Como Rodar o Projeto
+```bash
+# Unitario + Integracao (Jest)
+npm test
 
-Pré-requisitos: Ter o **Node.js** instalado na máquina.
+# E2E (Playwright — requer servidor rodando)
+npm start &
+npm run test:e2e
+```
 
-1.  **Clone o repositório:**
-    ```bash
-    git clone [https://github.com/Isabella-nicolau/plantech.git](https://github.com/Isabella-nicolau/plantech.git)
-    cd plantech
-    ```
+## Rotas da API (JWT)
 
-2.  **Instale as dependências:**
-    ```bash
-    npm install
-    ```
+```bash
+# Obter token
+curl -X POST http://localhost:3000/api/login \
+  -H "Content-Type: application/json" \
+  -d '{"username":"admin","password":"admin"}'
 
-3.  **Inicialize o Banco de Dados:**
-    *Este passo cria as tabelas e o usuário administrador.*
-    ```bash
-    node db/init.js
-    ```
+# Listar produtos (autenticado)
+curl -H "Authorization: Bearer <token>" http://localhost:3000/api/produtos
+```
 
-4.  **Rode o Servidor:**
-    ```bash
-    npm start
-    ```
+## Estrutura do projeto
 
-5.  **Acesse:**
-    Abra seu navegador em: `http://localhost:3000`
+```
+plantech-main/
+├── app.js                 # Entrada principal (Express)
+├── db/init.js             # Criacao e seed do banco SQLite
+├── helpers/
+│   ├── audit.js           # registrarLog() para auditoria
+│   └── upload.js          # Multer + Supabase Storage
+├── middlewares/
+│   ├── auth.js            # autenticado(), permitir(...perfis)
+│   └── jwt.js             # gerarToken(), validarToken()
+├── routes/
+│   ├── api.js             # POST /api/login, GET /api/produtos
+│   ├── auditoria.js       # Tela de auditoria (ADMIN)
+│   ├── clientes.js
+│   ├── compras.js
+│   ├── dashboard.js       # Dashboard com KPIs reais
+│   ├── fornecedores.js    # Inclui consulta CNPJ (BrasilAPI)
+│   ├── login.js
+│   ├── produtos.js        # Inclui upload de imagem
+│   ├── relatorios.js
+│   └── vendas.js          # Validacao de estoque
+├── views/
+│   ├── partials/          # sidebar, topbar, head (EJS)
+│   ├── auditoria.ejs
+│   ├── erro403.ejs
+│   └── ...demais views
+├── public/
+│   ├── style.css          # Design system premium
+│   └── app.js             # JS client-side (theme, sidebar, validacao)
+├── tests/
+│   ├── calculo.test.js    # Teste unitario
+│   ├── integration.test.js # Teste integracao (Jest+Supertest)
+│   └── e2e.spec.js        # Teste E2E (Playwright)
+├── .env.example
+├── .gitignore
+└── playwright.config.js
+```
 
-🔐 **Login Padrão:**
-* **Usuário:** `admin`
-* **Senha:** `admin`
+## Heuristicas de Nielsen aplicadas
 
----
+1. **Visibilidade do status** — Feedback de sucesso/erro com alertas visuais auto-dismiss
+2. **Correspondencia com o mundo real** — Linguagem clara em portugues
+3. **Controle e liberdade** — Botao Cancelar em todos os formularios
+4. **Consistencia e padroes** — Mesmo padrao de botoes/cores/layout em todas as telas
+5. **Prevencao de erros** — Validacao de estoque no PDV (client e server-side)
+6. **Reconhecimento em vez de lembranca** — Sidebar com icones e labels sempre visivel
+7. **Flexibilidade e eficiencia** — Atalhos (busca, filtros, consulta CNPJ)
+8. **Design estetico e minimalista** — Interface dark premium sem poluicao
+9. **Ajudar a reconhecer e recuperar erros** — Mensagens claras ("Estoque insuficiente para X")
+10. **Ajuda e documentacao** — Placeholders, hints, empty states orientativos
 
-## 👨‍💻 Autores
+## Deploy
 
-Projeto desenvolvido pela equipe técnica para a disciplina de Estágio Supervisionado I.
+Para deploy no Render:
+- Build command: `npm install && node db/init.js`
+- Start command: `npm start`
+- Variaveis de ambiente: configurar no painel do Render
+- **Nota:** SQLite usa disco efemero no Render free tier. Para producao,
+  migrar para PostgreSQL ou usar disco persistente.
 
-<table align="center">
-  <tr>
-    <td align="center">
-      <a href="https://github.com/Isabella-nicolau">
-        <img src="https://ui-avatars.com/api/?name=Isabella+Nicolau&background=2e7d32&color=fff&size=100" width="100px;" alt="Foto da Isabella"/><br>
-        <sub><b>Isabella Maria Nicolau da Silva</b></sub>
-      </a><br>
-      <span>RA: 1896</span>
-    </td>
-    <td align="center">
-      <a href="#">
-        <img src="https://ui-avatars.com/api/?name=Gabriel+Andrade&background=1b5e20&color=fff&size=100" width="100px;" alt="Foto do Gabriel"/><br>
-        <sub><b>Gabriel Figueiredo Andrade</b></sub>
-      </a><br>
-      <span>RA: 1766</span>
-    </td>
-  </tr>
-</table>
+## Tabelas do banco
 
-**Instituição:** UMFG - Centro Universitário  
-**Ano:** 2025  
-**Orientador:** Prof. Me. Guilherme Dias Vicentini
-
----
-*Desenvolvido com 💚 para a Carrapicho Jardinagem.*
+Usuario, Clientes, Fornecedores, Produto, Compras, ItensCompra,
+Distribuicao, Vendas, ItensVenda, LogAuditoria (10 tabelas).
