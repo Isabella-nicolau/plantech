@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node app.js",
     "initdb": "node db/init.js",
-    "test": "jest --forceExit --detectOpenHandles",
+    "test": "jest --forceExit --detectOpenHandles --testPathIgnorePatterns='e2e'",
     "test:e2e": "npx playwright test"
   },
   "dependencies": {
