@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: plantech-erp
+    runtime: node
+    buildCommand: npm install && node db/init.js
+    startCommand: npm start
+    envVars:
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: JWT_SECRET
+        generateValue: true
+      - key: PORT
+        value: 3000
+      - key: NODE_ENV
+        value: production
