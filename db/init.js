@@ -56,7 +56,8 @@ db.serialize(() => {
     categoria VARCHAR(50),
     unidadeMedida VARCHAR(5),         -- Ex: UN, KG, M2
     precoVenda REAL DEFAULT 0,
-    estoqueAtual INTEGER DEFAULT 0
+    estoqueAtual INTEGER DEFAULT 0,
+    imagemUrl VARCHAR(255)
   )`);
 
   // Compras - Cabeçalho

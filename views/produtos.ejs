@@ -43,7 +43,7 @@
               <h3 id="formTitle">Novo produto</h3>
             </div>
             <div class="form-panel-body">
-              <form action="/produtos/add" method="POST" class="needs-validation" id="formProd" novalidate>
+              <form action="/produtos/add" method="POST" class="needs-validation" id="formProd" novalidate enctype="multipart/form-data">
                 <div class="form-group">
                   <label class="form-label">Nome do produto <span class="required">*</span></label>
                   <input type="text" name="nomeProduto" id="inputNome" class="form-control" required placeholder="Ex: Adubo NPK 10-10-10">
@@ -91,6 +91,12 @@
                   <textarea name="descricao" id="inputDesc" class="form-control" rows="2" placeholder="Detalhes tecnicos, tamanho, cor..."></textarea>
                 </div>
 
+                <div class="form-group">
+                  <label class="form-label">Imagem do produto</label>
+                  <input type="file" name="imagem" id="inputImagem" class="form-control" accept="image/*">
+                  <div class="form-hint">JPG, PNG ou WebP. Max 5MB.</div>
+                </div>
+
                 <div class="d-flex gap-sm" style="margin-top: 20px;">
                   <button type="submit" class="btn btn-primary btn-block" id="btnSalvar">
                     <i class="bi bi-check-lg"></i> Adicionar
@@ -126,7 +132,11 @@
                     <tr>
                       <td>
                         <div class="d-flex items-center gap-sm">
-                          <div class="avatar"><%= p.nomeProduto.charAt(0).toUpperCase() %></div>
+                          <% if (p.imagemUrl) { %>
+                            <img src="<%= p.imagemUrl %>" alt="<%= p.nomeProduto %>" style="width:36px;height:36px;border-radius:var(--radius-sm);object-fit:cover;flex-shrink:0;">
+                          <% } else { %>
+                            <div class="avatar"><%= p.nomeProduto.charAt(0).toUpperCase() %></div>
+                          <% } %>
                           <div>
                             <div class="col-primary"><%= p.nomeProduto %></div>
                             <div style="font-size: 0.75rem; color: var(--text-muted); max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">

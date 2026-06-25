@@ -3,3 +3,6 @@ database.db
 .env
 .DS_Store
 npm-debug.log
+public/uploads/
+test-results/
+playwright-report/

@@ -1,8 +1,11 @@
 const express = require("express");
 const router = express.Router();
 const sqlite3 = require("sqlite3").verbose();
+const path = require("path");
+const fs = require("fs");
 const db = new sqlite3.Database("./database.db");
 const { registrarLog } = require("../helpers/audit");
+const { upload, enviarParaSupabase } = require("../helpers/upload");
 
 // LISTAR PRODUTOS (COM BUSCA)
 router.get("/", (req, res) => {
@@ -10,7 +13,6 @@ router.get("/", (req, res) => {
   let sql = "SELECT * FROM Produto";
   let params = [];
 
-  // Se o usuário digitou algo, filtra
   if (busca) {
     sql += " WHERE nomeProduto LIKE ? OR categoria LIKE ? OR descricao LIKE ?";
     params.push(`%${busca}%`, `%${busca}%`, `%${busca}%`);
@@ -20,40 +22,46 @@ router.get("/", (req, res) => {
 
   db.all(sql, params, (err, produtos) => {
     if (err) {
-      return res.render("produtos", { 
-        lista: [], 
+      return res.render("produtos", {
+        lista: [],
         erro: "Erro ao carregar produtos: " + err.message,
-        busca: busca // Envia o termo para manter no input
+        busca: busca
       });
     }
-    res.render("produtos", { 
-      lista: produtos, 
+    res.render("produtos", {
+      lista: produtos,
       erro: null,
-      busca: busca // Envia o termo para manter no input
+      busca: busca
     });
   });
 });
 
 // ADICIONAR PRODUTO
-router.post("/add", (req, res) => {
+router.post("/add", upload.single("imagem"), async (req, res) => {
   const { nomeProduto, descricao, categoria, unidadeMedida, precoVenda, estoqueAtual } = req.body;
 
   if (!nomeProduto || !categoria || !precoVenda) {
     return db.all("SELECT * FROM Produto ORDER BY nomeProduto ASC", [], (err, produtos) => {
-      res.render("produtos", { 
+      res.render("produtos", {
         lista: produtos || [],
-        erro: "Erro: Nome, Categoria e Preço são obrigatórios.",
+        erro: "Erro: Nome, Categoria e Preco sao obrigatorios.",
         busca: null
       });
     });
   }
 
   const estoqueFinal = estoqueAtual ? parseInt(estoqueAtual) : 0;
+  let imagemUrl = null;
+
+  if (req.file) {
+    const cloudUrl = await enviarParaSupabase(req.file.path, req.file.filename);
+    imagemUrl = cloudUrl || "/uploads/" + req.file.filename;
+  }
 
   db.run(
-    `INSERT INTO Produto (nomeProduto, descricao, categoria, unidadeMedida, precoVenda, estoqueAtual) 
-     VALUES (?, ?, ?, ?, ?, ?)`, 
-    [nomeProduto, descricao, categoria, unidadeMedida, precoVenda, estoqueFinal], 
+    `INSERT INTO Produto (nomeProduto, descricao, categoria, unidadeMedida, precoVenda, estoqueAtual, imagemUrl)
+     VALUES (?, ?, ?, ?, ?, ?, ?)`,
+    [nomeProduto, descricao, categoria, unidadeMedida, precoVenda, estoqueFinal, imagemUrl],
     (err) => {
       if (err) return res.send("Erro ao cadastrar produto: " + err.message);
       registrarLog(req, "PRODUTO_CRIADO", `Produto "${nomeProduto}" criado`);
@@ -63,19 +71,31 @@ router.post("/add", (req, res) => {
 });
 
 // ATUALIZAR PRODUTO
-router.post("/update/:id", (req, res) => {
+router.post("/update/:id", upload.single("imagem"), async (req, res) => {
   const { id } = req.params;
   const { nomeProduto, descricao, categoria, unidadeMedida, precoVenda, estoqueAtual } = req.body;
 
   if (!nomeProduto || !precoVenda) {
-    return res.send("Erro: Nome e Preço não podem ficar vazios na edição.");
+    return res.send("Erro: Nome e Preco nao podem ficar vazios.");
   }
 
+  let imagemSql = "";
+  const params = [nomeProduto, descricao, categoria, unidadeMedida, precoVenda, estoqueAtual];
+
+  if (req.file) {
+    const cloudUrl = await enviarParaSupabase(req.file.path, req.file.filename);
+    const imagemUrl = cloudUrl || "/uploads/" + req.file.filename;
+    imagemSql = ", imagemUrl = ?";
+    params.push(imagemUrl);
+  }
+
+  params.push(id);
+
   db.run(
-    `UPDATE Produto 
-     SET nomeProduto = ?, descricao = ?, categoria = ?, unidadeMedida = ?, precoVenda = ?, estoqueAtual = ? 
+    `UPDATE Produto
+     SET nomeProduto = ?, descricao = ?, categoria = ?, unidadeMedida = ?, precoVenda = ?, estoqueAtual = ?${imagemSql}
      WHERE numProduto = ?`,
-    [nomeProduto, descricao, categoria, unidadeMedida, precoVenda, estoqueAtual, id],
+    params,
     (err) => {
       if (err) return res.send("Erro ao atualizar: " + err.message);
       registrarLog(req, "PRODUTO_EDITADO", `Produto #${id} "${nomeProduto}" atualizado`);
@@ -87,7 +107,7 @@ router.post("/update/:id", (req, res) => {
 // EXCLUIR PRODUTO
 router.get("/delete/:id", (req, res) => {
   db.run(`DELETE FROM Produto WHERE numProduto = ?`, [req.params.id], (err) => {
-    if (err) return res.send("Erro ao excluir. Verifique se há vendas ou compras vinculadas.");
+    if (err) return res.send("Erro ao excluir. Verifique se ha vendas ou compras vinculadas.");
     registrarLog(req, "PRODUTO_EXCLUIDO", `Produto #${req.params.id} excluido`);
     res.redirect("/produtos");
   });
