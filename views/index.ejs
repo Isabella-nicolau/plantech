@@ -1,11 +1,82 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <%- include('partials/head', { pageTitle: 'ERP Inteligente' }) %>
+  <%- include('partials/head', { pageTitle: 'ERP para Jardinagem' }) %>
+  <style>
+    .landing-hero {
+      padding: 100px 0 80px;
+      text-align: center;
+      position: relative;
+    }
+    .landing-hero::before {
+      content: '';
+      position: absolute;
+      top: -40%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 700px;
+      height: 500px;
+      background: radial-gradient(ellipse, rgba(107, 181, 54, 0.06) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .landing-hero h1 {
+      font-family: var(--font-display);
+      font-size: var(--text-3xl);
+      font-weight: 700;
+      letter-spacing: -0.04em;
+      line-height: 1.08;
+      margin-bottom: var(--space-4);
+      color: var(--text);
+    }
+    .landing-hero h1 em {
+      font-style: normal;
+      color: var(--accent);
+    }
+    .landing-features { padding: 60px 0 80px; }
+    .landing-feature-card {
+      background: var(--surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: var(--space-7);
+      transition: border-color var(--dur-base) var(--ease-out),
+                  transform   var(--dur-base) var(--ease-out),
+                  box-shadow  var(--dur-base) var(--ease-out);
+      height: 100%;
+    }
+    .landing-feature-card:hover {
+      border-color: var(--border-hover);
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-lg);
+    }
+    .landing-feature-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.125rem;
+      margin-bottom: var(--space-5);
+    }
+    .landing-feature-card h3 {
+      font-family: var(--font-display);
+      font-size: var(--text-md);
+      margin-bottom: var(--space-2);
+    }
+    .landing-feature-card p {
+      font-size: var(--text-base);
+      color: var(--text-muted);
+      line-height: var(--leading-loose);
+    }
+    @media (max-width: 768px) {
+      .landing-hero { padding: 64px 0 48px; }
+      .landing-hero h1 { font-size: var(--text-2xl); }
+    }
+  </style>
 </head>
-<body class="landing-page">
+<body style="background: var(--bg);">
 
-  <nav class="landing-nav">
+  <nav style="padding: var(--space-5) 0; border-bottom: 1px solid var(--border-color);">
     <div class="container d-flex items-center justify-between">
       <a href="/" class="sidebar-logo">
         <div class="sidebar-logo-icon">
@@ -18,7 +89,6 @@
         </div>
         <span class="sidebar-logo-text">Plantech</span>
       </a>
-
       <a href="/login" class="btn btn-primary">
         Acessar Sistema
         <i class="bi bi-arrow-right"></i>
@@ -27,20 +97,20 @@
   </nav>
 
   <section class="landing-hero">
-    <div class="container">
-      <div style="max-width: 640px; margin: 0 auto;">
-        <span class="badge badge-success mb-16">v1.0 Disponivel</span>
-        <h1><span class="gradient-text">ERP Inteligente e Integrado</span></h1>
-        <p style="font-size: 1.0625rem; color: var(--text-secondary); margin-bottom: 32px; line-height: 1.7;">
-          Otimize recursos, controle estoques e maximize resultados com um ERP feito sob medida para o seu negocio.
+    <div class="container" style="position: relative; z-index: 1;">
+      <div style="max-width: 580px; margin: 0 auto;">
+        <p style="font-size: var(--text-sm); color: var(--accent); font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; margin-bottom: var(--space-4);">Carrapicho Jardinagem</p>
+        <h1>Gestao que <em>cultiva</em> resultados</h1>
+        <p style="font-size: var(--text-md); color: var(--text-secondary); margin-bottom: var(--space-7); line-height: var(--leading-loose);">
+          Estoque, vendas e financeiro integrados em um ERP feito para quem trabalha com a terra.
         </p>
-        <div class="d-flex gap-sm justify-content-center">
+        <div class="d-flex gap-sm justify-content-center" style="flex-wrap: wrap;">
           <a href="/login" class="btn btn-primary btn-lg">
-            Comecar Agora
+            Comecar agora
             <i class="bi bi-arrow-right"></i>
           </a>
           <a href="#recursos" class="btn btn-secondary btn-lg">
-            Saiba Mais
+            Conhecer recursos
           </a>
         </div>
       </div>
@@ -51,42 +121,40 @@
     <div class="container">
       <div class="row g-4">
         <div class="col-md-4">
-          <div class="feature-card">
-            <div class="feature-card-icon">
+          <div class="landing-feature-card">
+            <div class="landing-feature-icon" style="background: var(--accent-subtle); color: var(--accent); border: 1px solid var(--accent-border);">
               <i class="bi bi-box-seam"></i>
             </div>
-            <h3>Estoque LIFO</h3>
-            <p>Controle inteligente de armazenamento utilizando logica LIFO para otimizacao de inventario.</p>
+            <h3>Estoque inteligente</h3>
+            <p>Controle LIFO com entrada e saida automatica, alertas de reposicao e rastreio por categoria.</p>
           </div>
         </div>
-
         <div class="col-md-4">
-          <div class="feature-card">
-            <div class="feature-card-icon" style="background: var(--info-subtle); color: var(--info); border-color: rgba(59, 130, 246, 0.2);">
+          <div class="landing-feature-card">
+            <div class="landing-feature-icon" style="background: var(--earth-subtle); color: var(--earth); border: 1px solid var(--earth-border);">
               <i class="bi bi-cart3"></i>
             </div>
-            <h3>PDV Integrado</h3>
-            <p>Sistema de ponto de venda agil com baixa automatica de estoque e historico financeiro.</p>
+            <h3>PDV integrado</h3>
+            <p>Ponto de venda agil com baixa automatica, desconto, multiplas formas de pagamento e cupom fiscal.</p>
           </div>
         </div>
-
         <div class="col-md-4">
-          <div class="feature-card">
-            <div class="feature-card-icon" style="background: var(--warning-subtle); color: var(--warning); border-color: rgba(245, 158, 11, 0.2);">
+          <div class="landing-feature-card">
+            <div class="landing-feature-icon" style="background: var(--info-subtle); color: var(--info); border: 1px solid rgba(74, 144, 217, 0.2);">
               <i class="bi bi-bar-chart-line"></i>
             </div>
-            <h3>Relatorios</h3>
-            <p>Relatorios gerenciais completos: financeiro, fluxo de saidas e alertas de reposicao em tempo real.</p>
+            <h3>Relatorios e DRE</h3>
+            <p>Vendas, saidas, estoque e financeiro com export PDF. Visao gerencial em tempo real.</p>
           </div>
         </div>
       </div>
     </div>
   </section>
 
-  <footer style="padding: 40px 0; border-top: 1px solid var(--border-color); margin-top: 40px;">
+  <footer style="padding: var(--space-7) 0; border-top: 1px solid var(--border-color);">
     <div class="container text-center">
-      <p style="color: var(--text-muted); font-size: 0.8125rem;">
-        &copy; 2025 Plantech Systems. Desenvolvido para Carrapicho Jardinagem.
+      <p style="color: var(--text-muted); font-size: var(--text-sm);">
+        &copy; 2025 Plantech Systems &middot; Carrapicho Jardinagem &middot; Rondon, PR
       </p>
     </div>
   </footer>

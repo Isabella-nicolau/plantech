@@ -2,6 +2,7 @@ document.addEventListener('DOMContentLoaded', function() {
   setActiveNav();
   initTheme();
   initValidation();
+  initCountUp();
 });
 
 function setActiveNav() {
@@ -54,5 +55,33 @@ function initValidation() {
       }
       form.classList.add('was-validated');
     });
+  });
+}
+
+function initCountUp() {
+  var prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (prefersReducedMotion) return;
+
+  document.querySelectorAll('[data-countup]').forEach(function(el) {
+    var target = parseFloat(el.getAttribute('data-countup'));
+    var prefix = el.getAttribute('data-prefix') || '';
+    var isDecimal = String(target).indexOf('.') !== -1;
+    var duration = 600;
+    var start = performance.now();
+
+    function step(now) {
+      var elapsed = now - start;
+      var progress = Math.min(elapsed / duration, 1);
+      var eased = 1 - Math.pow(1 - progress, 3);
+      var current = target * eased;
+
+      el.textContent = prefix + (isDecimal ? current.toFixed(2) : Math.round(current));
+
+      if (progress < 1) {
+        requestAnimationFrame(step);
+      }
+    }
+
+    requestAnimationFrame(step);
   });
 }

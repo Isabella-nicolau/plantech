@@ -1,11 +1,12 @@
-<button class="sidebar-toggle" onclick="toggleSidebar()" aria-label="Menu">
+<button class="sidebar-toggle" onclick="toggleSidebar()" aria-label="Abrir menu">
   <i class="bi bi-list"></i>
 </button>
 <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
 
 <% var perfil = (typeof sessionUser !== 'undefined' && sessionUser) ? sessionUser.perfil : 'OPERADOR'; %>
+<% var userName = (typeof sessionUser !== 'undefined' && sessionUser) ? sessionUser.username : ''; %>
 
-<aside class="sidebar">
+<aside class="sidebar" role="navigation" aria-label="Menu principal">
   <div class="sidebar-header">
     <a href="/dashboard" class="sidebar-logo">
       <div class="sidebar-logo-icon">
@@ -77,6 +78,15 @@
   </nav>
 
   <div class="sidebar-footer">
+    <% if (userName) { %>
+    <div class="sidebar-user-info">
+      <div class="sidebar-user-avatar"><%= userName.charAt(0).toUpperCase() %></div>
+      <div class="sidebar-user-meta">
+        <span class="sidebar-user-name"><%= userName %></span>
+        <span class="sidebar-user-role"><%= perfil %></span>
+      </div>
+    </div>
+    <% } %>
     <a href="#" class="sidebar-nav-link" onclick="toggleTheme(); return false;">
       <i class="bi bi-moon" id="themeIcon"></i>
       <span id="themeLabel">Modo claro</span>
