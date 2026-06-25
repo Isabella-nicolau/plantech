@@ -5,7 +5,9 @@
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
-    "initdb": "node db/init.js"
+    "initdb": "node db/init.js",
+    "test": "jest --forceExit --detectOpenHandles",
+    "test:e2e": "npx playwright test"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",
@@ -16,5 +18,10 @@
     "express-session": "^1.18.2",
     "jsonwebtoken": "^9.0.3",
     "sqlite3": "^5.1.6"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.61.1",
+    "jest": "^30.4.2",
+    "supertest": "^7.2.2"
   }
 }
