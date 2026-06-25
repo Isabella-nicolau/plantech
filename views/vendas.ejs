@@ -64,8 +64,8 @@
                   <select id="selProduto" class="form-select">
                     <option value="" disabled selected>Pesquisar item...</option>
                     <% produtos.forEach(p => { %>
-                      <option value="<%= p.numProduto %>" data-preco="<%= p.precoVenda %>" data-nome="<%= p.nomeProduto %>">
-                        <%= p.nomeProduto %> (R$ <%= p.precoVenda.toFixed(2) %>)
+                      <option value="<%= p.numProduto %>" data-preco="<%= p.precoVenda %>" data-nome="<%= p.nomeProduto %>" data-estoque="<%= p.estoqueAtual %>">
+                        <%= p.nomeProduto %> (R$ <%= p.precoVenda.toFixed(2) %> — Est: <%= p.estoqueAtual %>)
                       </option>
                     <% }) %>
                   </select>
@@ -200,16 +200,44 @@
   <script>
     var carrinho = [];
 
+    function mostrarAlerta(msg, tipo) {
+      var container = document.getElementById('alertaVenda');
+      if (!container) {
+        container = document.createElement('div');
+        container.id = 'alertaVenda';
+        document.querySelector('.page-content').prepend(container);
+      }
+      var cls = tipo === 'error' ? 'alert-error' : 'alert-success';
+      var icon = tipo === 'error' ? 'bi-exclamation-circle' : 'bi-check-circle';
+      container.innerHTML = '<div class="alert ' + cls + '"><i class="bi ' + icon + '"></i> ' + msg + '</div>';
+      setTimeout(function() { container.innerHTML = ''; }, 5000);
+    }
+
+    function estoqueDisponivelParaProduto(idProduto) {
+      var opt = document.querySelector('#selProduto option[value="' + idProduto + '"]');
+      var estoqueOriginal = opt ? parseInt(opt.getAttribute('data-estoque')) : 0;
+      var jaNoCarrinho = carrinho.filter(function(i) { return i.id === idProduto; })
+        .reduce(function(acc, i) { return acc + i.qtd; }, 0);
+      return estoqueOriginal - jaNoCarrinho;
+    }
+
     function adicionarAoCarrinho() {
       var sel = document.getElementById('selProduto');
       var qtdInput = document.getElementById('qtdProduto');
       var id = sel.value;
-      var nome = sel.options[sel.selectedIndex] ? sel.options[sel.selectedIndex].getAttribute('data-nome') : '';
-      var preco = parseFloat(sel.options[sel.selectedIndex] ? sel.options[sel.selectedIndex].getAttribute('data-preco') : 0);
+      var opt = sel.options[sel.selectedIndex];
+      var nome = opt ? opt.getAttribute('data-nome') : '';
+      var preco = parseFloat(opt ? opt.getAttribute('data-preco') : 0);
       var qtd = parseInt(qtdInput.value);
 
-      if (!id) { alert("Selecione um produto."); return; }
-      if (qtd <= 0 || isNaN(qtd)) { alert("Quantidade invalida."); return; }
+      if (!id) { mostrarAlerta("Selecione um produto.", "error"); return; }
+      if (qtd <= 0 || isNaN(qtd)) { mostrarAlerta("Quantidade invalida.", "error"); return; }
+
+      var disponivel = estoqueDisponivelParaProduto(id);
+      if (qtd > disponivel) {
+        mostrarAlerta('Estoque insuficiente para "' + nome + '". Disponivel: ' + disponivel + ' unidade(s).', "error");
+        return;
+      }
 
       carrinho.push({ id: id, nome: nome, qtd: qtd, preco: preco });
       renderCarrinho();

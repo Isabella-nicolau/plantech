@@ -657,6 +657,8 @@ p {
 .table-scroll {
   max-height: 60vh;
   overflow-y: auto;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* ===== FORMS ===== */

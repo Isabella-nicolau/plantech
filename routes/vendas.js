@@ -6,8 +6,8 @@ const { registrarLog } = require("../helpers/audit");
 
 // TELA DE VENDAS (PDV)
 router.get("/", (req, res) => {
-  // Captura mensagem de sucesso da URL (se houver)
   const msgSucesso = req.query.sucesso ? "Venda registrada com sucesso!" : null;
+  const msgErro = req.query.erro || null;
 
   db.all("SELECT * FROM Clientes ORDER BY nome ASC", (err, clientes) => {
     db.all("SELECT * FROM Produto WHERE estoqueAtual > 0 ORDER BY nomeProduto ASC", (err, produtos) => {
@@ -24,8 +24,8 @@ router.get("/", (req, res) => {
           clientes: clientes || [], 
           produtos: produtos || [], 
           historico: historico || [],
-          erro: null,
-          sucesso: msgSucesso // Envia a mensagem para a view
+          erro: msgErro,
+          sucesso: msgSucesso
         });
       });
     });
@@ -51,9 +51,24 @@ router.post("/add", (req, res) => {
   const subtotalGeral = itens.reduce((acc, item) => acc + (item.qtd * item.preco), 0);
   const valorTotalFinal = Math.max(0, subtotalGeral - valorDesconto);
 
-  db.serialize(() => {
-    // 1. Cria a Venda
-    db.run(
+  // Validar estoque antes de processar
+  const ids = itens.map(i => i.id);
+  const placeholders = ids.map(() => "?").join(",");
+  db.all(`SELECT numProduto, nomeProduto, estoqueAtual FROM Produto WHERE numProduto IN (${placeholders})`, ids, (err, produtos) => {
+    if (err) return res.send("Erro ao verificar estoque.");
+    const estoqueMap = {};
+    produtos.forEach(p => { estoqueMap[p.numProduto] = p; });
+
+    for (const item of itens) {
+      const prod = estoqueMap[item.id];
+      if (!prod) return res.send("Produto nao encontrado.");
+      if (item.qtd > prod.estoqueAtual) {
+        return res.redirect("/vendas?erro=Estoque insuficiente para \"" + encodeURIComponent(prod.nomeProduto) + "\". Disponivel: " + prod.estoqueAtual);
+      }
+    }
+
+    db.serialize(() => {
+      db.run(
       `INSERT INTO Vendas (idCliente, subtotal, desconto, valorTotal, formaPagamento) VALUES (?, ?, ?, ?, ?)`,
       [idCliente, subtotalGeral, valorDesconto, valorTotalFinal, formaPagamento],
       function(err) {
@@ -76,6 +91,7 @@ router.post("/add", (req, res) => {
         res.redirect("/vendas?sucesso=true");
       }
     );
+    });
   });
 });
 
