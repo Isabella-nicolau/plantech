@@ -1,9 +1,8 @@
 const express = require("express");
 const router = express.Router();
-const sqlite3 = require("sqlite3").verbose();
 const path = require("path");
 const fs = require("fs");
-const db = new sqlite3.Database("./database.db");
+const db = require("../db/database");
 const { registrarLog } = require("../helpers/audit");
 const { upload, enviarParaSupabase } = require("../helpers/upload");
 

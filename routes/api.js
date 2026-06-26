@@ -1,8 +1,7 @@
 const express = require("express");
 const router = express.Router();
-const sqlite3 = require("sqlite3").verbose();
 const bcrypt = require("bcrypt");
-const db = new sqlite3.Database("./database.db");
+const db = require("../db/database");
 const { gerarToken, validarToken } = require("../middlewares/jwt");
 const { registrarLog } = require("../helpers/audit");
 
