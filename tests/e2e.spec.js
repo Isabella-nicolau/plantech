@@ -31,6 +31,6 @@ test.describe("E2E: Login e Dashboard", () => {
     await page.goto("http://localhost:3000/relatorios");
     await page.waitForLoadState("networkidle");
     const body = await page.textContent("body");
-    expect(body).toContain("Acesso negado");
+    expect(body).toContain("Acesso Negado");
   });
 });
