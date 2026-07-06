@@ -76,6 +76,31 @@ curl -X POST http://localhost:3000/api/login \
 curl -H "Authorization: Bearer <token>" http://localhost:3000/api/produtos
 ```
 
+## Incremento Estagio II (RF13-RF20)
+
+Novos cadastros, movimento e relatorios adicionados ao sistema:
+
+| RF | Recurso | Rota | Acesso |
+|---|---|---|---|
+| RF13 | Categorias de produto | `/categorias` | Leitura ADMIN/OPERADOR, escrita ADMIN |
+| RF14 | Servicos prestados | `/servicos` | Leitura ADMIN/OPERADOR, escrita ADMIN |
+| RF15 | Funcionarios | `/funcionarios` | ADMIN |
+| RF16 | Usuarios do sistema | `/usuarios` | ADMIN |
+| RF17 | Ordem de Servico (movimento) | `/ordens` | ADMIN/OPERADOR |
+| RF18 | Relatorio de Compras por periodo | `/relatorios/compras` | ADMIN/OPERADOR |
+| RF19 | Relatorio de Ordens de Servico | `/relatorios/servicos` | ADMIN/OPERADOR |
+| RF20 | Relatorio de Clientes por faturamento | `/relatorios/clientes` | ADMIN/OPERADOR |
+
+O cadastro de Produto passou a usar um select de Categoria (grava
+`idCategoria`); o campo texto legado `categoria` continua sendo
+preenchido automaticamente para não quebrar buscas e relatórios
+existentes que dependem dele.
+
+A Ordem de Servico segue o ciclo de status `ABERTA -> EM_EXECUCAO ->
+CONCLUIDA`, podendo ser `CANCELADA` a qualquer momento antes da
+conclusao. Nao e permitido abrir uma OS sem cliente ou sem servicos, nem
+iniciar/concluir uma OS ja cancelada ou ja concluida.
+
 ## Estrutura do projeto
 
 ```
@@ -91,13 +116,18 @@ plantech-main/
 ├── routes/
 │   ├── api.js             # POST /api/login, GET /api/produtos
 │   ├── auditoria.js       # Tela de auditoria (ADMIN)
+│   ├── categorias.js      # RF13 - Categorias de produto
 │   ├── clientes.js
 │   ├── compras.js
 │   ├── dashboard.js       # Dashboard com KPIs reais
 │   ├── fornecedores.js    # Inclui consulta CNPJ (BrasilAPI)
+│   ├── funcionarios.js    # RF15 - Equipe (ADMIN)
 │   ├── login.js
+│   ├── ordens.js          # RF17 - Ordem de Servico (movimento)
 │   ├── produtos.js        # Inclui upload de imagem
-│   ├── relatorios.js
+│   ├── relatorios.js      # Inclui RF18-RF20
+│   ├── servicos.js        # RF14 - Servicos prestados
+│   ├── usuarios.js        # RF16 - Usuarios do sistema (ADMIN)
 │   └── vendas.js          # Validacao de estoque
 ├── views/
 │   ├── partials/          # sidebar, topbar, head (EJS)
@@ -141,4 +171,12 @@ Para deploy no Render:
 ## Tabelas do banco
 
 Usuario, Clientes, Fornecedores, Produto, Compras, ItensCompra,
-Distribuicao, Vendas, ItensVenda, LogAuditoria (10 tabelas).
+Distribuicao, Vendas, ItensVenda, LogAuditoria, Categoria, Servico,
+Funcionario, OrdemServico, ItensOrdemServico (15 tabelas).
+
+Colunas adicionadas no incremento: `Produto.idCategoria` (FK para
+Categoria), `Usuario.nome` e `Usuario.ativo`.
+
+Script de referencia do schema completo: [`db/schema.sql`](db/schema.sql)
+(mantido em sincronia com `db/init.js`, que e a fonte de verdade
+executada no boot).
