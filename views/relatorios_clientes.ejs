@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <%- include('partials/head', { pageTitle: 'Relatorios' }) %>
+  <%- include('partials/head', { pageTitle: 'Relatorio de Clientes' }) %>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body>
@@ -9,30 +9,30 @@
     <%- include('partials/sidebar') %>
 
     <main class="main-content">
-      <%- include('partials/topbar', { topTitle: 'Relatorios', topSubtitle: 'Visao geral de vendas realizadas' }) %>
+      <%- include('partials/topbar', { topTitle: 'Relatorios', topSubtitle: 'Ranking de clientes por faturamento' }) %>
 
       <div class="page-content">
         <div class="page-header">
           <div class="page-header-left">
-            <h2>Relatorios Gerenciais</h2>
+            <h2>Clientes por Faturamento</h2>
           </div>
           <% var podeAdmin = (typeof sessionUser !== 'undefined' && sessionUser && sessionUser.perfil === 'ADMIN'); %>
           <div class="quick-nav">
             <% if (podeAdmin) { %>
-              <a href="/relatorios" class="active">Vendas</a>
+              <a href="/relatorios">Vendas</a>
               <a href="/relatorios/saidas">Saidas</a>
               <a href="/relatorios/estoque">Estoque</a>
               <a href="/relatorios/financeiro">Financeiro</a>
             <% } %>
             <a href="/relatorios/compras">Compras</a>
             <a href="/relatorios/servicos">Servicos</a>
-            <a href="/relatorios/clientes">Clientes</a>
+            <a href="/relatorios/clientes" class="active">Clientes</a>
           </div>
         </div>
 
         <div class="card" style="margin-bottom: 24px;">
           <div class="card-body">
-            <form action="/relatorios" method="GET" class="d-flex gap-sm items-center" style="flex-wrap: wrap;">
+            <form action="/relatorios/clientes" method="GET" class="d-flex gap-sm items-center" style="flex-wrap: wrap;">
               <div style="flex: 1; min-width: 160px;">
                 <label class="form-label">Data inicio</label>
                 <input type="date" name="dataInicio" class="form-control" value="<%= query.dataInicio %>">
@@ -52,46 +52,40 @@
           <div class="alert alert-error"><i class="bi bi-exclamation-circle"></i> <%= erro %></div>
         <% } %>
 
-        <% if (lista.length > 0 || query.dataInicio) { %>
-          <div class="kpi-grid" style="grid-template-columns: 1fr; margin-bottom: 24px;">
-            <div class="kpi-card" style="text-align: center; padding: 32px;">
-              <div class="kpi-card-label" style="margin-bottom: 8px;">Faturamento total no periodo</div>
-              <div class="kpi-card-value" style="font-size: 2rem;">R$ <%= totalGeral.toFixed(2) %></div>
-              <div style="margin-top: 8px;"><span class="badge badge-success"><%= lista.length %> vendas registradas</span></div>
-            </div>
-          </div>
-        <% } %>
-
         <div class="table-wrapper">
           <div class="card-header">
-            <h3><i class="bi bi-list-ul" style="color: var(--primary);"></i> Historico de vendas</h3>
-            <button onclick="baixarPDFVendas()" class="btn btn-secondary btn-sm no-print">
+            <h3><i class="bi bi-trophy" style="color: var(--warning);"></i> Ranking de clientes</h3>
+            <button onclick="baixarPDFClientes()" class="btn btn-secondary btn-sm no-print">
               <i class="bi bi-download"></i> Baixar PDF
             </button>
           </div>
           <table class="data-table">
             <thead>
               <tr>
-                <th>Data</th>
                 <th>Cliente</th>
-                <th>Produtos</th>
-                <th style="text-align: right;">Valor total</th>
+                <th style="text-align: right;">Vendas (PDV)</th>
+                <th style="text-align: right;">Servicos concluidos</th>
+                <th style="text-align: right;">Faturamento total</th>
               </tr>
             </thead>
             <tbody>
-              <% lista.forEach(item => { %>
+              <% lista.forEach((c, index) => { %>
                 <tr>
                   <td>
-                    <div class="col-primary"><%= new Date(item.dataVenda).toLocaleDateString() %></div>
-                    <div style="font-size: 0.75rem; color: var(--text-muted);"><%= new Date(item.dataVenda).toLocaleTimeString() %></div>
+                    <div class="d-flex items-center gap-sm">
+                      <% if (index < 3 && c.totalFaturamento > 0) { %>
+                        <span class="badge badge-warning"><%= index + 1 %>o</span>
+                      <% } %>
+                      <span class="col-primary"><%= c.nome %></span>
+                    </div>
                   </td>
-                  <td class="col-primary"><%= item.nomeCliente %></td>
-                  <td style="font-size: 0.8125rem; color: var(--text-muted); max-width: 300px; line-height: 1.4;"><%= item.listaProdutos %></td>
-                  <td style="text-align: right;"><span class="badge badge-success">R$ <%= item.valorTotal.toFixed(2) %></span></td>
+                  <td style="text-align: right;">R$ <%= c.totalVendas.toFixed(2) %></td>
+                  <td style="text-align: right;">R$ <%= c.totalOS.toFixed(2) %></td>
+                  <td style="text-align: right;"><span class="badge badge-success">R$ <%= c.totalFaturamento.toFixed(2) %></span></td>
                 </tr>
               <% }) %>
               <% if (lista.length === 0) { %>
-                <tr><td colspan="4" class="empty-state"><p>Nenhum registro encontrado.</p></td></tr>
+                <tr><td colspan="4" class="empty-state"><p>Nenhum cliente cadastrado.</p></td></tr>
               <% } %>
             </tbody>
           </table>
@@ -108,7 +102,7 @@
     <div class="report-header">
       <div>
         <h1>Plantech ERP</h1>
-        <h2>Relatorio de Vendas por Periodo</h2>
+        <h2>Relatorio de Clientes por Faturamento</h2>
       </div>
       <div class="report-info">
         <p><strong>Carrapicho Jardinagem</strong></p>
@@ -117,38 +111,34 @@
         <p>Emissao: <%= new Date().toLocaleString() %></p>
       </div>
     </div>
-    <div class="report-summary" style="display: flex; justify-content: space-between; align-items: center;">
-      <div><span>Total de Vendas:</span> <strong><%= lista.length %></strong></div>
-      <div style="font-weight: bold; font-size: 14px; color: #1A7A3A;"><span>Faturamento:</span> R$ <%= totalGeral.toFixed(2) %></div>
-    </div>
     <br>
     <table class="report-table">
       <thead>
         <tr>
-          <th style="width: 15%;">Data</th>
-          <th style="width: 25%;">Cliente</th>
-          <th style="width: 40%;">Produtos</th>
+          <th style="width: 40%;">Cliente</th>
+          <th style="width: 20%; text-align: right;">Vendas</th>
+          <th style="width: 20%; text-align: right;">Servicos</th>
           <th style="width: 20%; text-align: right;">Total</th>
         </tr>
       </thead>
       <tbody>
         <% if (lista && lista.length > 0) { %>
-          <% lista.forEach(item => { %>
+          <% lista.forEach(c => { %>
             <tr>
-              <td><%= new Date(item.dataVenda).toLocaleDateString() %><br><span style="font-size:9px; color:#666;"><%= new Date(item.dataVenda).toLocaleTimeString() %></span></td>
-              <td><strong><%= item.nomeCliente %></strong></td>
-              <td style="font-size: 10px; line-height: 1.2;"><%= item.listaProdutos %></td>
-              <td style="text-align: right; font-weight: bold;">R$ <%= item.valorTotal.toFixed(2) %></td>
+              <td><strong><%= c.nome %></strong></td>
+              <td style="text-align: right;">R$ <%= c.totalVendas.toFixed(2) %></td>
+              <td style="text-align: right;">R$ <%= c.totalOS.toFixed(2) %></td>
+              <td style="text-align: right; font-weight: bold;">R$ <%= c.totalFaturamento.toFixed(2) %></td>
             </tr>
           <% }) %>
         <% } else { %>
-          <tr><td colspan="4" style="text-align:center; padding: 20px; color:#777;">Nenhuma venda registrada neste periodo.</td></tr>
+          <tr><td colspan="4" style="text-align:center; padding: 20px; color:#777;">Nenhum cliente cadastrado.</td></tr>
         <% } %>
       </tbody>
     </table>
     <div class="report-footer">
       <span>Sistema Plantech v2.5</span>
-      <span>Relatorio gerencial de faturamento.</span>
+      <span>Ranking gerencial de clientes.</span>
     </div>
   </div>
 
@@ -156,12 +146,12 @@
   <script src="/app.js"></script>
 
   <script>
-    function baixarPDFVendas() {
+    function baixarPDFClientes() {
       var elemento = document.getElementById('relatorio-pdf');
       elemento.style.display = 'block';
       var opt = {
         margin: [10, 10, 15, 10],
-        filename: 'Relatorio_Vendas_Plantech.pdf',
+        filename: 'Relatorio_Clientes_Plantech.pdf',
         image: { type: 'jpeg', quality: 0.98 },
         html2canvas: { scale: 2, scrollY: 0 },
         pagebreak: { mode: ['avoid-all', 'css', 'legacy'] },

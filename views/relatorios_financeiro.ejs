@@ -16,11 +16,17 @@
           <div class="page-header-left">
             <h2>Financeiro</h2>
           </div>
+          <% var podeAdmin = (typeof sessionUser !== 'undefined' && sessionUser && sessionUser.perfil === 'ADMIN'); %>
           <div class="quick-nav">
-            <a href="/relatorios">Vendas</a>
-            <a href="/relatorios/saidas">Saidas</a>
-            <a href="/relatorios/estoque">Estoque</a>
-            <a href="/relatorios/financeiro" class="active">Financeiro</a>
+            <% if (podeAdmin) { %>
+              <a href="/relatorios">Vendas</a>
+              <a href="/relatorios/saidas">Saidas</a>
+              <a href="/relatorios/estoque">Estoque</a>
+              <a href="/relatorios/financeiro" class="active">Financeiro</a>
+            <% } %>
+            <a href="/relatorios/compras">Compras</a>
+            <a href="/relatorios/servicos">Servicos</a>
+            <a href="/relatorios/clientes">Clientes</a>
           </div>
         </div>
 

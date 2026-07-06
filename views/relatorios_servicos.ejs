@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <%- include('partials/head', { pageTitle: 'Relatorio de Ordens de Servico' }) %>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</head>
+<body>
+  <div class="app-layout">
+    <%- include('partials/sidebar') %>
+
+    <main class="main-content">
+      <%- include('partials/topbar', { topTitle: 'Relatorios', topSubtitle: 'Ordens de servico por periodo' }) %>
+
+      <div class="page-content">
+        <div class="page-header">
+          <div class="page-header-left">
+            <h2>Ordens de Servico</h2>
+          </div>
+          <% var podeAdmin = (typeof sessionUser !== 'undefined' && sessionUser && sessionUser.perfil === 'ADMIN'); %>
+          <div class="quick-nav">
+            <% if (podeAdmin) { %>
+              <a href="/relatorios">Vendas</a>
+              <a href="/relatorios/saidas">Saidas</a>
+              <a href="/relatorios/estoque">Estoque</a>
+              <a href="/relatorios/financeiro">Financeiro</a>
+            <% } %>
+            <a href="/relatorios/compras">Compras</a>
+            <a href="/relatorios/servicos" class="active">Servicos</a>
+            <a href="/relatorios/clientes">Clientes</a>
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom: 24px;">
+          <div class="card-body">
+            <form action="/relatorios/servicos" method="GET" class="d-flex gap-sm items-center" style="flex-wrap: wrap;">
+              <div style="flex: 1; min-width: 160px;">
+                <label class="form-label">Data inicio</label>
+                <input type="date" name="dataInicio" class="form-control" value="<%= query.dataInicio %>">
+              </div>
+              <div style="flex: 1; min-width: 160px;">
+                <label class="form-label">Data fim</label>
+                <input type="date" name="dataFim" class="form-control" value="<%= query.dataFim %>">
+              </div>
+              <div style="flex: 1; min-width: 160px;">
+                <label class="form-label">Status</label>
+                <select name="status" class="form-select">
+                  <option value="" <%= statusFiltro === '' ? 'selected' : '' %>>Todos</option>
+                  <option value="ABERTA" <%= statusFiltro === 'ABERTA' ? 'selected' : '' %>>Aberta</option>
+                  <option value="EM_EXECUCAO" <%= statusFiltro === 'EM_EXECUCAO' ? 'selected' : '' %>>Em execucao</option>
+                  <option value="CONCLUIDA" <%= statusFiltro === 'CONCLUIDA' ? 'selected' : '' %>>Concluida</option>
+                  <option value="CANCELADA" <%= statusFiltro === 'CANCELADA' ? 'selected' : '' %>>Cancelada</option>
+                </select>
+              </div>
+              <div style="padding-top: 22px;">
+                <button class="btn btn-primary">Filtrar</button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <% if (erro) { %>
+          <div class="alert alert-error"><i class="bi bi-exclamation-circle"></i> <%= erro %></div>
+        <% } %>
+
+        <div class="kpi-grid" style="grid-template-columns: 1fr; margin-bottom: 24px;">
+          <div class="kpi-card" style="text-align: center; padding: 32px;">
+            <div class="kpi-card-label" style="margin-bottom: 8px;">Faturamento de servicos concluidos</div>
+            <div class="kpi-card-value" style="font-size: 2rem;">R$ <%= faturamento.toFixed(2) %></div>
+            <div style="margin-top: 8px;"><span class="badge badge-success"><%= lista.length %> ordens no periodo</span></div>
+          </div>
+        </div>
+
+        <% if (rankingFuncionarios.length > 0 || rankingServicos.length > 0) { %>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-5); margin-bottom: 24px;">
+          <div class="table-wrapper">
+            <div class="card-header"><h3>Ranking por funcionario</h3></div>
+            <table class="data-table">
+              <thead><tr><th>Funcionario</th><th style="text-align:center;">OS concluidas</th><th style="text-align:right;">Faturado</th></tr></thead>
+              <tbody>
+                <% rankingFuncionarios.forEach(r => { %>
+                  <tr>
+                    <td class="col-primary"><%= r.funcionario %></td>
+                    <td style="text-align:center;"><%= r.totalOS %></td>
+                    <td style="text-align:right;">R$ <%= r.totalFaturado.toFixed(2) %></td>
+                  </tr>
+                <% }) %>
+                <% if (rankingFuncionarios.length === 0) { %>
+                  <tr><td colspan="3" class="empty-state"><p>Sem dados no periodo.</p></td></tr>
+                <% } %>
+              </tbody>
+            </table>
+          </div>
+          <div class="table-wrapper">
+            <div class="card-header"><h3>Servico mais executado</h3></div>
+            <table class="data-table">
+              <thead><tr><th>Servico</th><th style="text-align:right;">Qtd. executada</th></tr></thead>
+              <tbody>
+                <% rankingServicos.forEach(r => { %>
+                  <tr>
+                    <td class="col-primary"><%= r.nome %></td>
+                    <td style="text-align:right;"><%= r.totalQtd %></td>
+                  </tr>
+                <% }) %>
+                <% if (rankingServicos.length === 0) { %>
+                  <tr><td colspan="2" class="empty-state"><p>Sem dados no periodo.</p></td></tr>
+                <% } %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <% } %>
+
+        <div class="table-wrapper">
+          <div class="card-header">
+            <h3><i class="bi bi-list-ul" style="color: var(--primary);"></i> Ordens de servico no periodo</h3>
+            <button onclick="baixarPDFServicos()" class="btn btn-secondary btn-sm no-print">
+              <i class="bi bi-download"></i> Baixar PDF
+            </button>
+          </div>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Abertura</th>
+                <th>Cliente</th>
+                <th>Funcionario</th>
+                <th style="text-align: center;">Status</th>
+                <th style="text-align: right;">Valor</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% lista.forEach(os => { %>
+                <tr>
+                  <td style="color: var(--text-muted);"><%= new Date(os.dataAbertura).toLocaleDateString() %></td>
+                  <td class="col-primary"><%= os.cliente %></td>
+                  <td><%= os.funcionario || "-" %></td>
+                  <td style="text-align: center;"><span class="badge badge-default"><%= os.status %></span></td>
+                  <td style="text-align: right;"><span class="badge badge-success">R$ <%= os.valorTotal.toFixed(2) %></span></td>
+                </tr>
+              <% }) %>
+              <% if (lista.length === 0) { %>
+                <tr><td colspan="5" class="empty-state"><p>Nenhuma ordem de servico no periodo.</p></td></tr>
+              <% } %>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="text-center mt-24" style="font-size: 0.75rem; color: var(--text-muted);">
+          Relatorio gerado em <%= new Date().toLocaleDateString() %> as <%= new Date().toLocaleTimeString() %>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div id="relatorio-pdf" class="report-pdf">
+    <div class="report-header">
+      <div>
+        <h1>Plantech ERP</h1>
+        <h2>Relatorio de Ordens de Servico</h2>
+      </div>
+      <div class="report-info">
+        <p><strong>Carrapicho Jardinagem</strong></p>
+        <p>CNPJ: 32.665.550/0001-00</p>
+        <p>Periodo: <%= query.dataInicio || 'Inicio' %> a <%= query.dataFim || 'Hoje' %></p>
+        <p>Emissao: <%= new Date().toLocaleString() %></p>
+      </div>
+    </div>
+    <div class="report-summary" style="display: flex; justify-content: space-between; align-items: center;">
+      <div><span>Total de OS:</span> <strong><%= lista.length %></strong></div>
+      <div style="font-weight: bold; font-size: 14px; color: #1A7A3A;"><span>Faturamento concluido:</span> R$ <%= faturamento.toFixed(2) %></div>
+    </div>
+    <br>
+    <table class="report-table">
+      <thead>
+        <tr>
+          <th style="width: 15%;">Abertura</th>
+          <th style="width: 25%;">Cliente</th>
+          <th style="width: 25%;">Funcionario</th>
+          <th style="width: 15%; text-align: center;">Status</th>
+          <th style="width: 20%; text-align: right;">Valor</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (lista && lista.length > 0) { %>
+          <% lista.forEach(os => { %>
+            <tr>
+              <td><%= new Date(os.dataAbertura).toLocaleDateString() %></td>
+              <td><strong><%= os.cliente %></strong></td>
+              <td><%= os.funcionario || "-" %></td>
+              <td style="text-align: center;"><%= os.status %></td>
+              <td style="text-align: right; font-weight: bold;">R$ <%= os.valorTotal.toFixed(2) %></td>
+            </tr>
+          <% }) %>
+        <% } else { %>
+          <tr><td colspan="5" style="text-align:center; padding: 20px; color:#777;">Nenhuma ordem de servico registrada neste periodo.</td></tr>
+        <% } %>
+      </tbody>
+    </table>
+    <div class="report-footer">
+      <span>Sistema Plantech v2.5</span>
+      <span>Relatorio gerencial de servicos executados.</span>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="/app.js"></script>
+
+  <script>
+    function baixarPDFServicos() {
+      var elemento = document.getElementById('relatorio-pdf');
+      elemento.style.display = 'block';
+      var opt = {
+        margin: [10, 10, 15, 10],
+        filename: 'Relatorio_Servicos_Plantech.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, scrollY: 0 },
+        pagebreak: { mode: ['avoid-all', 'css', 'legacy'] },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      };
+      html2pdf().set(opt).from(elemento).save().then(function() { elemento.style.display = 'none'; });
+    }
+  </script>
+</body>
+</html>

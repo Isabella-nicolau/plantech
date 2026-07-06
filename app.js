@@ -42,7 +42,7 @@ app.use("/usuarios", autenticado, permitir("ADMIN"), require("./routes/usuarios"
 app.use("/produtos", autenticado, permitir("ADMIN"), require("./routes/produtos"));
 app.use("/fornecedores", autenticado, permitir("ADMIN"), require("./routes/fornecedores"));
 app.use("/compras", autenticado, permitir("ADMIN"), require("./routes/compras"));
-app.use("/relatorios", autenticado, permitir("ADMIN"), require("./routes/relatorios"));
+app.use("/relatorios", autenticado, require("./routes/relatorios"));
 app.use("/auditoria", autenticado, permitir("ADMIN"), require("./routes/auditoria"));
 
 const port = process.env.PORT || 3000;
