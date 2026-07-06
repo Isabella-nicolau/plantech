@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <%- include('partials/head', { pageTitle: 'Ordens de Servico' }) %>
+</head>
+<body>
+  <div class="app-layout">
+    <%- include('partials/sidebar') %>
+
+    <main class="main-content">
+      <%- include('partials/topbar', { topTitle: 'Ordens de Servico', topSubtitle: 'Abertura e acompanhamento de servicos executados' }) %>
+
+      <div class="page-content">
+        <div class="page-header">
+          <div class="page-header-left">
+            <h2>Ordens de Servico</h2>
+          </div>
+          <div class="page-header-actions">
+            <span class="badge-count"><%= historico.length %> ordens</span>
+          </div>
+        </div>
+
+        <% if (erro) { %>
+          <div class="alert alert-error"><i class="bi bi-exclamation-circle"></i> <%= erro %></div>
+        <% } %>
+
+        <div class="split-layout">
+          <div class="form-panel">
+            <div class="form-panel-header">
+              <i class="bi bi-clipboard-check"></i>
+              <h3>Nova ordem de servico</h3>
+            </div>
+            <div class="form-panel-body">
+              <form action="/ordens/add" method="POST" id="formOrdem">
+                <div class="form-group">
+                  <label class="form-label">Cliente <span class="required">*</span></label>
+                  <select name="idCliente" class="form-select" required>
+                    <option value="" disabled selected>Selecione...</option>
+                    <% clientes.forEach(c => { %>
+                      <option value="<%= c.idCliente %>"><%= c.nome %></option>
+                    <% }) %>
+                  </select>
+                </div>
+
+                <div class="row-2col">
+                  <div class="form-group">
+                    <label class="form-label">Funcionario responsavel</label>
+                    <select name="idFuncionario" class="form-select">
+                      <option value="">Sem responsavel definido</option>
+                      <% funcionarios.forEach(f => { %>
+                        <option value="<%= f.idFuncionario %>"><%= f.nome %></option>
+                      <% }) %>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Data agendada</label>
+                    <input type="date" name="dataAgendada" class="form-control">
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Observacao</label>
+                  <textarea name="observacao" class="form-control" rows="2" placeholder="Detalhes do atendimento..."></textarea>
+                </div>
+
+                <div class="divider"></div>
+
+                <h6 style="margin-bottom: 12px;">Adicionar servicos</h6>
+
+                <div class="form-group">
+                  <label class="form-label">Servico</label>
+                  <select id="selServico" class="form-select">
+                    <option value="" disabled selected>Escolha o servico...</option>
+                    <% servicos.forEach(s => { %>
+                      <option value="<%= s.idServico %>" data-nome="<%= s.nome %>" data-preco="<%= s.preco %>">
+                        <%= s.nome %> (R$ <%= s.preco.toFixed(2) %>)
+                      </option>
+                    <% }) %>
+                  </select>
+                </div>
+
+                <div class="row-2col">
+                  <div class="form-group">
+                    <label class="form-label">Qtd.</label>
+                    <input type="number" id="qtdServico" class="form-control" value="1" min="1">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Preco unit. (R$)</label>
+                    <input type="number" id="precoServico" class="form-control" placeholder="0.00" step="0.01">
+                  </div>
+                </div>
+
+                <button type="button" class="btn btn-secondary btn-block" onclick="adicionarAoCarrinho()" style="margin-bottom: 16px;">
+                  <i class="bi bi-plus"></i> Incluir na ordem
+                </button>
+
+                <input type="hidden" name="itensCarrinho" id="inputItensCarrinho">
+
+                <div class="divider"></div>
+
+                <button class="btn btn-primary btn-block btn-lg">
+                  <i class="bi bi-check-lg"></i> Abrir ordem de servico
+                </button>
+              </form>
+            </div>
+          </div>
+
+          <div>
+            <div class="table-wrapper" style="margin-bottom: 20px;">
+              <div class="card-header">
+                <h3><i class="bi bi-cart3" style="color: var(--info);"></i> Servicos da ordem atual</h3>
+              </div>
+              <div class="cart-container">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Servico</th>
+                      <th style="text-align: center;">Qtd</th>
+                      <th style="text-align: right;">Preco</th>
+                      <th style="text-align: right;">Subtotal</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody id="listaCarrinho">
+                    <tr><td colspan="5" class="empty-state"><p>Nenhum servico adicionado.</p></td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <div style="padding: 16px 20px; border-top: 1px solid var(--border-color);">
+                <div class="summary-total">
+                  <span class="label">Total da ordem</span>
+                  <span class="value" id="totalOSDisplay">R$ 0.00</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="table-wrapper">
+              <div class="card-header">
+                <h3><i class="bi bi-clock-history" style="color: var(--text-muted);"></i> Ordens registradas</h3>
+              </div>
+              <div class="card-body" style="padding: 12px 20px;">
+                <form action="/ordens" method="GET" class="d-flex gap-sm items-center">
+                  <label class="form-label" style="margin:0;">Status</label>
+                  <select name="status" class="form-select" style="max-width: 200px;" onchange="this.form.submit()">
+                    <option value="" <%= statusFiltro === '' ? 'selected' : '' %>>Todos</option>
+                    <option value="ABERTA" <%= statusFiltro === 'ABERTA' ? 'selected' : '' %>>Aberta</option>
+                    <option value="EM_EXECUCAO" <%= statusFiltro === 'EM_EXECUCAO' ? 'selected' : '' %>>Em execucao</option>
+                    <option value="CONCLUIDA" <%= statusFiltro === 'CONCLUIDA' ? 'selected' : '' %>>Concluida</option>
+                    <option value="CANCELADA" <%= statusFiltro === 'CANCELADA' ? 'selected' : '' %>>Cancelada</option>
+                  </select>
+                </form>
+              </div>
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Cliente</th>
+                    <th>Funcionario</th>
+                    <th style="text-align: right;">Valor</th>
+                    <th style="text-align: center;">Status</th>
+                    <th style="text-align: right;">Acao</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% historico.forEach(os => { %>
+                    <tr>
+                      <td class="col-primary"><%= os.nomeCliente %></td>
+                      <td style="color: var(--text-muted);"><%= os.nomeFuncionario || "-" %></td>
+                      <td style="text-align: right;"><span class="text-info fw-600">R$ <%= os.valorTotal.toFixed(2) %></span></td>
+                      <td style="text-align: center;">
+                        <% if (os.status === 'ABERTA') { %>
+                          <span class="badge badge-warning">Aberta</span>
+                        <% } else if (os.status === 'EM_EXECUCAO') { %>
+                          <span class="badge badge-info">Em execucao</span>
+                        <% } else if (os.status === 'CONCLUIDA') { %>
+                          <span class="badge badge-success">Concluida</span>
+                        <% } else { %>
+                          <span class="badge badge-error">Cancelada</span>
+                        <% } %>
+                      </td>
+                      <td class="col-actions">
+                        <% if (os.status === 'ABERTA') { %>
+                          <a href="/ordens/iniciar/<%= os.idOS %>" class="btn btn-secondary btn-sm">Iniciar</a>
+                        <% } %>
+                        <% if (os.status === 'ABERTA' || os.status === 'EM_EXECUCAO') { %>
+                          <a href="/ordens/concluir/<%= os.idOS %>" class="btn btn-success btn-sm" onclick="return confirm('Concluir esta ordem de servico?');">Concluir</a>
+                          <a href="/ordens/cancelar/<%= os.idOS %>" class="btn btn-danger btn-sm" onclick="return confirm('Cancelar esta ordem de servico?');">Cancelar</a>
+                        <% } %>
+                      </td>
+                    </tr>
+                  <% }) %>
+                  <% if (historico.length === 0) { %>
+                    <tr><td colspan="5" class="empty-state"><p>Nenhuma ordem de servico registrada.</p></td></tr>
+                  <% } %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="/app.js"></script>
+
+  <script>
+    var carrinho = [];
+
+    function adicionarAoCarrinho() {
+      var sel = document.getElementById('selServico');
+      var qtdInput = document.getElementById('qtdServico');
+      var precoInput = document.getElementById('precoServico');
+      var id = sel.value;
+      var opt = sel.options[sel.selectedIndex];
+      var nome = opt ? opt.getAttribute('data-nome') : '';
+      var qtd = parseInt(qtdInput.value);
+      var preco = parseFloat(precoInput.value);
+
+      if (!id) { alert("Selecione um servico."); return; }
+      if (qtd <= 0 || isNaN(qtd)) { alert("Quantidade invalida."); return; }
+      if (isNaN(preco) || preco < 0) { alert("Informe o preco unitario."); return; }
+
+      carrinho.push({ id: id, nome: nome, qtd: qtd, preco: preco });
+      atualizarTabela();
+      sel.value = ""; qtdInput.value = "1"; precoInput.value = ""; sel.focus();
+    }
+
+    document.getElementById('selServico').addEventListener('change', function() {
+      var opt = this.options[this.selectedIndex];
+      var preco = opt ? opt.getAttribute('data-preco') : '';
+      document.getElementById('precoServico').value = preco || '';
+    });
+
+    function removerItem(index) {
+      carrinho.splice(index, 1);
+      atualizarTabela();
+    }
+
+    function atualizarTabela() {
+      var tbody = document.getElementById('listaCarrinho');
+      var totalDisplay = document.getElementById('totalOSDisplay');
+      var inputHidden = document.getElementById('inputItensCarrinho');
+      tbody.innerHTML = "";
+      var totalGeral = 0;
+
+      if (carrinho.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="empty-state"><p>Nenhum servico adicionado.</p></td></tr>';
+      }
+
+      carrinho.forEach(function(item, index) {
+        var subtotal = item.qtd * item.preco;
+        totalGeral += subtotal;
+        var tr = document.createElement('tr');
+        tr.innerHTML = '<td class="col-primary">' + item.nome + '</td>' +
+          '<td style="text-align:center;">' + item.qtd + '</td>' +
+          '<td style="text-align:right;">R$ ' + item.preco.toFixed(2) + '</td>' +
+          '<td style="text-align:right;" class="text-info fw-600">R$ ' + subtotal.toFixed(2) + '</td>' +
+          '<td class="col-actions"><button type="button" class="btn btn-danger btn-icon sm" onclick="removerItem(' + index + ')"><i class="bi bi-x-lg"></i></button></td>';
+        tbody.appendChild(tr);
+      });
+
+      totalDisplay.innerText = "R$ " + totalGeral.toFixed(2);
+      inputHidden.value = JSON.stringify(carrinho);
+    }
+
+    document.getElementById('formOrdem').onsubmit = function() {
+      if (carrinho.length === 0) { alert("A ordem de servico deve ter pelo menos um servico!"); return false; }
+      return true;
+    };
+  </script>
+</body>
+</html>

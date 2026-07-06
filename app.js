@@ -33,6 +33,7 @@ app.get("/", (req, res) => {
 app.use("/dashboard", autenticado, require("./routes/dashboard"));
 app.use("/clientes", autenticado, require("./routes/clientes"));
 app.use("/vendas", autenticado, require("./routes/vendas"));
+app.use("/ordens", autenticado, require("./routes/ordens"));
 
 app.use("/categorias", autenticado, require("./routes/categorias"));
 app.use("/servicos", autenticado, require("./routes/servicos"));
