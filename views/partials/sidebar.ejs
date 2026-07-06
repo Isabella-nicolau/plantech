@@ -29,6 +29,8 @@
       <span>Dashboard</span>
     </a>
 
+    <div class="sidebar-section-label">Movimentos</div>
+
     <% if (perfil === 'ADMIN') { %>
     <a href="/compras" class="sidebar-nav-link" data-page="compras">
       <i class="bi bi-box-arrow-in-down"></i>
@@ -39,6 +41,11 @@
     <a href="/vendas" class="sidebar-nav-link" data-page="vendas">
       <i class="bi bi-cart3"></i>
       <span>Vendas</span>
+    </a>
+
+    <a href="/ordens" class="sidebar-nav-link" data-page="ordens">
+      <i class="bi bi-clipboard-check"></i>
+      <span>Ordens de Servico</span>
     </a>
 
     <div class="sidebar-section-label">Cadastros</div>
@@ -62,17 +69,41 @@
     </a>
     <% } %>
 
+    <a href="/categorias" class="sidebar-nav-link" data-page="categorias">
+      <i class="bi bi-tags"></i>
+      <span>Categorias</span>
+    </a>
+
+    <a href="/servicos" class="sidebar-nav-link" data-page="servicos">
+      <i class="bi bi-tools"></i>
+      <span>Servicos</span>
+    </a>
+
     <% if (perfil === 'ADMIN') { %>
+    <a href="/funcionarios" class="sidebar-nav-link" data-page="funcionarios">
+      <i class="bi bi-person-badge"></i>
+      <span>Funcionarios</span>
+    </a>
+    <% } %>
+
     <div class="sidebar-section-label">Analise</div>
 
-    <a href="/relatorios" class="sidebar-nav-link" data-page="relatorios">
+    <a href="<%= perfil === 'ADMIN' ? '/relatorios' : '/relatorios/compras' %>" class="sidebar-nav-link" data-page="relatorios">
       <i class="bi bi-bar-chart-line"></i>
       <span>Relatorios</span>
     </a>
 
+    <% if (perfil === 'ADMIN') { %>
     <a href="/auditoria" class="sidebar-nav-link" data-page="auditoria">
       <i class="bi bi-shield-check"></i>
       <span>Auditoria</span>
+    </a>
+
+    <div class="sidebar-section-label">Admin</div>
+
+    <a href="/usuarios" class="sidebar-nav-link" data-page="usuarios">
+      <i class="bi bi-person-gear"></i>
+      <span>Usuarios</span>
     </a>
     <% } %>
   </nav>
