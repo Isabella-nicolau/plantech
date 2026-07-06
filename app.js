@@ -44,6 +44,7 @@ app.use("/fornecedores", autenticado, permitir("ADMIN"), require("./routes/forne
 app.use("/compras", autenticado, permitir("ADMIN"), require("./routes/compras"));
 app.use("/relatorios", autenticado, require("./routes/relatorios"));
 app.use("/auditoria", autenticado, permitir("ADMIN"), require("./routes/auditoria"));
+app.use("/admin/seed", autenticado, permitir("ADMIN"), require("./routes/seed"));
 
 const port = process.env.PORT || 3000;
 

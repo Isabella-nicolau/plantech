@@ -6,6 +6,7 @@
   "scripts": {
     "start": "node app.js",
     "initdb": "node db/init.js",
+    "seed:demo": "node db/seedDemo.js",
     "test": "jest --forceExit --detectOpenHandles --testPathIgnorePatterns='e2e'",
     "test:e2e": "npx playwright test"
   },
