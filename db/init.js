@@ -19,6 +19,24 @@ function get(sql, params) {
   });
 }
 
+function all(sql, params) {
+  return new Promise((resolve, reject) => {
+    db.all(sql, params || [], (err, rows) => {
+      if (err) reject(err);
+      else resolve(rows);
+    });
+  });
+}
+
+async function addColunaSeNaoExiste(tabela, definicaoColuna) {
+  const nomeColuna = definicaoColuna.trim().split(/\s+/)[0];
+  const colunas = await all(`PRAGMA table_info(${tabela})`);
+  const jaExiste = colunas.some((c) => c.name === nomeColuna);
+  if (!jaExiste) {
+    await run(`ALTER TABLE ${tabela} ADD COLUMN ${definicaoColuna}`);
+  }
+}
+
 async function initDb() {
   console.log("Inicializando banco de dados Plantech...");
 
@@ -118,6 +136,69 @@ async function initDb() {
     FOREIGN KEY(idVenda) REFERENCES Vendas(idVenda),
     FOREIGN KEY(idProduto) REFERENCES Produto(numProduto)
   )`);
+
+  // RF13 - Categorias de produto
+  await run(`CREATE TABLE IF NOT EXISTS Categoria (
+    idCategoria INTEGER PRIMARY KEY AUTOINCREMENT,
+    nome VARCHAR(50) NOT NULL,
+    descricao VARCHAR(255)
+  )`);
+
+  // RF14 - Servicos prestados
+  await run(`CREATE TABLE IF NOT EXISTS Servico (
+    idServico INTEGER PRIMARY KEY AUTOINCREMENT,
+    nome VARCHAR(100) NOT NULL,
+    descricao VARCHAR(255),
+    preco REAL NOT NULL DEFAULT 0,
+    duracaoEstimada INTEGER,
+    ativo INTEGER NOT NULL DEFAULT 1
+  )`);
+
+  // RF15 - Funcionarios
+  await run(`CREATE TABLE IF NOT EXISTS Funcionario (
+    idFuncionario INTEGER PRIMARY KEY AUTOINCREMENT,
+    nome VARCHAR(100) NOT NULL,
+    cargo VARCHAR(50),
+    telefone VARCHAR(20),
+    email VARCHAR(100),
+    dataAdmissao DATE,
+    ativo INTEGER NOT NULL DEFAULT 1
+  )`);
+
+  // RF17 - Ordem de Servico (movimento) + itens
+  await run(`CREATE TABLE IF NOT EXISTS OrdemServico (
+    idOS INTEGER PRIMARY KEY AUTOINCREMENT,
+    idCliente INTEGER NOT NULL,
+    idFuncionario INTEGER,
+    dataAbertura DATETIME DEFAULT CURRENT_TIMESTAMP,
+    dataAgendada DATE,
+    dataConclusao DATETIME,
+    status VARCHAR(20) NOT NULL DEFAULT 'ABERTA',
+    valorTotal REAL NOT NULL DEFAULT 0,
+    observacao VARCHAR(255),
+    FOREIGN KEY(idCliente) REFERENCES Clientes(idCliente),
+    FOREIGN KEY(idFuncionario) REFERENCES Funcionario(idFuncionario)
+  )`);
+
+  await run(`CREATE TABLE IF NOT EXISTS ItensOrdemServico (
+    idItem INTEGER PRIMARY KEY AUTOINCREMENT,
+    idOS INTEGER NOT NULL,
+    idServico INTEGER NOT NULL,
+    quantidade INTEGER NOT NULL DEFAULT 1,
+    precoUnitario REAL NOT NULL,
+    subtotal REAL NOT NULL,
+    FOREIGN KEY(idOS) REFERENCES OrdemServico(idOS),
+    FOREIGN KEY(idServico) REFERENCES Servico(idServico)
+  )`);
+
+  // --- Colunas novas (idempotente) ---
+  await addColunaSeNaoExiste("Produto", "idCategoria INTEGER REFERENCES Categoria(idCategoria)");
+  await addColunaSeNaoExiste("Usuario", "nome VARCHAR(100)");
+  await addColunaSeNaoExiste("Usuario", "ativo INTEGER NOT NULL DEFAULT 1");
+
+  // --- Seed: categorias padrao ---
+  await run(`INSERT OR IGNORE INTO Categoria (idCategoria, nome) VALUES
+    (1,'Plantas'),(2,'Gramas'),(3,'Vasos'),(4,'Insumos'),(5,'Ferramentas')`);
 
   // --- Seed: usuarios ---
   const adminExists = await get("SELECT id FROM Usuario WHERE username = 'admin'");
