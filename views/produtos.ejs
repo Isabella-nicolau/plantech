@@ -52,14 +52,12 @@
 
                 <div class="row-2col">
                   <div class="form-group">
-                    <label class="form-label">Categoria</label>
-                    <select name="categoria" id="selCat" class="form-select">
+                    <label class="form-label">Categoria <span class="required">*</span></label>
+                    <select name="idCategoria" id="selCat" class="form-select" required>
                       <option value="" disabled selected>Tipo...</option>
-                      <option value="Plantas">Plantas</option>
-                      <option value="Gramas">Gramas</option>
-                      <option value="Vasos">Vasos</option>
-                      <option value="Insumos">Insumos</option>
-                      <option value="Ferramentas">Ferramentas</option>
+                      <% categorias.forEach(c => { %>
+                        <option value="<%= c.idCategoria %>"><%= c.nome %></option>
+                      <% }) %>
                     </select>
                   </div>
                   <div class="form-group">
@@ -161,7 +159,7 @@
                           onclick="editar(this)"
                           data-id="<%= p.numProduto %>"
                           data-nome="<%= p.nomeProduto %>"
-                          data-cat="<%= p.categoria %>"
+                          data-cat="<%= p.idCategoria %>"
                           data-und="<%= p.unidadeMedida %>"
                           data-preco="<%= p.precoVenda %>"
                           data-estoque="<%= p.estoqueAtual %>"

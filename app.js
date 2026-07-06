@@ -34,6 +34,7 @@ app.use("/dashboard", autenticado, require("./routes/dashboard"));
 app.use("/clientes", autenticado, require("./routes/clientes"));
 app.use("/vendas", autenticado, require("./routes/vendas"));
 
+app.use("/categorias", autenticado, require("./routes/categorias"));
 app.use("/produtos", autenticado, permitir("ADMIN"), require("./routes/produtos"));
 app.use("/fornecedores", autenticado, permitir("ADMIN"), require("./routes/fornecedores"));
 app.use("/compras", autenticado, permitir("ADMIN"), require("./routes/compras"));

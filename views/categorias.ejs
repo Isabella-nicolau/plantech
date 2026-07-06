@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <%- include('partials/head', { pageTitle: 'Categorias' }) %>
+</head>
+<body>
+  <div class="app-layout">
+    <%- include('partials/sidebar') %>
+
+    <main class="main-content">
+      <%- include('partials/topbar', { topTitle: 'Categorias', topSubtitle: 'Classificacao dos produtos do catalogo' }) %>
+
+      <div class="page-content">
+        <% var podeEditar = (typeof sessionUser !== 'undefined' && sessionUser && sessionUser.perfil === 'ADMIN'); %>
+        <div class="page-header">
+          <div class="page-header-left">
+            <h2>Categorias de Produto</h2>
+          </div>
+          <div class="page-header-actions">
+            <% if (podeEditar) { %>
+              <button onclick="limparForm()" class="btn btn-primary btn-sm"><i class="bi bi-plus"></i> Nova categoria</button>
+            <% } %>
+            <span class="badge-count"><%= lista.length %> registros</span>
+          </div>
+        </div>
+
+        <% if (erro) { %>
+          <div class="alert alert-error"><i class="bi bi-exclamation-circle"></i> <%= erro %></div>
+        <% } %>
+
+        <div class="split-layout">
+          <% if (podeEditar) { %>
+          <div class="form-panel">
+            <div class="form-panel-header">
+              <i class="bi bi-tags"></i>
+              <h3 id="formTitle">Nova categoria</h3>
+            </div>
+            <div class="form-panel-body">
+              <form action="/categorias/add" method="POST" class="needs-validation" id="formCategoria" novalidate>
+                <div class="form-group">
+                  <label class="form-label">Nome <span class="required">*</span></label>
+                  <input type="text" name="nome" id="inputNome" class="form-control" required placeholder="Ex: Plantas">
+                  <div class="form-error">Nome e obrigatorio.</div>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Descricao</label>
+                  <textarea name="descricao" id="inputDesc" class="form-control" rows="2" placeholder="Detalhes sobre a categoria..."></textarea>
+                </div>
+
+                <div class="d-flex gap-sm" style="margin-top: 20px;">
+                  <button type="submit" class="btn btn-primary btn-block" id="btnSalvar">
+                    <i class="bi bi-check-lg"></i> Salvar
+                  </button>
+                  <button type="button" class="btn btn-secondary btn-block" id="btnCancelar" onclick="limparForm()" style="display:none;">
+                    Cancelar
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+          <% } %>
+
+          <div class="table-wrapper">
+            <div class="card-header">
+              <h3><i class="bi bi-list-ul" style="color: var(--primary);"></i> Categorias cadastradas</h3>
+            </div>
+            <div class="table-scroll">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Nome</th>
+                    <th>Descricao</th>
+                    <% if (podeEditar) { %><th style="text-align: right;">Acao</th><% } %>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% lista.forEach(c => { %>
+                    <tr>
+                      <td class="col-primary"><%= c.nome %></td>
+                      <td style="color: var(--text-muted);"><%= c.descricao || "-" %></td>
+                      <% if (podeEditar) { %>
+                      <td class="col-actions">
+                        <button class="btn btn-ghost btn-icon sm" title="Editar"
+                          onclick="editar(this)"
+                          data-id="<%= c.idCategoria %>"
+                          data-nome="<%= c.nome %>"
+                          data-desc="<%= c.descricao %>">
+                          <i class="bi bi-pencil"></i>
+                        </button>
+                        <a href="/categorias/delete/<%= c.idCategoria %>"
+                           class="btn btn-danger btn-icon sm" title="Excluir"
+                           onclick="return confirm('Tem certeza?');">
+                          <i class="bi bi-trash3"></i>
+                        </a>
+                      </td>
+                      <% } %>
+                    </tr>
+                  <% }) %>
+                  <% if (lista.length === 0) { %>
+                    <tr>
+                      <td colspan="<%= podeEditar ? 3 : 2 %>" class="empty-state">
+                        <div class="empty-state-icon"><i class="bi bi-tags"></i></div>
+                        <p>Nenhuma categoria cadastrada.</p>
+                      </td>
+                    </tr>
+                  <% } %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="/app.js"></script>
+
+  <script>
+    function editar(btn) {
+      var d = btn.dataset;
+      document.getElementById('inputNome').value = d.nome;
+      document.getElementById('inputDesc').value = d.desc;
+
+      document.getElementById('formCategoria').action = "/categorias/update/" + d.id;
+      document.getElementById('formTitle').innerText = "Editar categoria";
+      document.getElementById('btnSalvar').innerHTML = '<i class="bi bi-check-lg"></i> Atualizar';
+      document.getElementById('btnCancelar').style.display = "block";
+      document.querySelector('.form-panel').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function limparForm() {
+      var form = document.getElementById('formCategoria');
+      form.reset();
+      form.classList.remove('was-validated');
+      form.action = "/categorias/add";
+      document.getElementById('formTitle').innerText = "Nova categoria";
+      document.getElementById('btnSalvar').innerHTML = '<i class="bi bi-check-lg"></i> Salvar';
+      document.getElementById('btnCancelar').style.display = "none";
+    }
+  </script>
+</body>
+</html>
