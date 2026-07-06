@@ -18,6 +18,7 @@ router.post("/login", (req, res) => {
 
     bcrypt.compare(password, user.password, (err, ok) => {
       if (!ok) return res.status(401).json({ erro: "Credenciais invalidas." });
+      if (!user.ativo) return res.status(401).json({ erro: "Usuario inativo." });
 
       const token = gerarToken(user);
       registrarLog(req, "API_LOGIN", `Token gerado para "${username}"`);

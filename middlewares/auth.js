@@ -1,6 +1,15 @@
+const db = require("../db/database");
+
 function autenticado(req, res, next) {
-  if (req.session && req.session.user) return next();
-  res.redirect("/login");
+  if (!req.session || !req.session.user) return res.redirect("/login");
+
+  db.get("SELECT ativo FROM Usuario WHERE id = ?", [req.session.user.id], (err, row) => {
+    if (err) return res.status(500).send("Erro interno ao validar sessao.");
+    if (!row || !row.ativo) {
+      return req.session.destroy(() => res.redirect("/login?erro=Usuario inativo. Contate o administrador."));
+    }
+    next();
+  });
 }
 
 function permitir(...perfis) {

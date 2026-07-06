@@ -7,7 +7,7 @@ const { gerarToken } = require("../middlewares/jwt");
 
 // Tela de Login
 router.get("/", (req, res) => {
-  res.render("login", { erro: null });
+  res.render("login", { erro: req.query.erro || null });
 });
 
 // Processar Login
@@ -33,7 +33,12 @@ router.post("/", (req, res) => {
         return res.render("login", { erro: "Senha incorreta." });
       }
 
-      req.session.user = user;
+      if (!user.ativo) {
+        registrarLog(req, "LOGIN_FALHA", `Usuario "${username}" esta inativo`);
+        return res.render("login", { erro: "Usuario inativo. Contate o administrador." });
+      }
+
+      req.session.user = { id: user.id, username: user.username, nome: user.nome, perfil: user.perfil };
       req.session.token = gerarToken(user);
       registrarLog(req, "LOGIN_OK", `Usuario "${username}" autenticado`);
       res.redirect("/dashboard");
