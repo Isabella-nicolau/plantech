@@ -178,11 +178,10 @@ async function seedDemo() {
       [idFornecedor, dataAtras(dias, 9, 15), valorTotal]
     );
     for (const item of itens) {
-      const rItem = await run(
+      await run(
         `INSERT INTO ItensCompra (idCompra, idProduto, quantidade, precoCusto, subtotal) VALUES (?, ?, ?, ?, ?)`,
         [rCompra.lastID, item.idProduto, item.qtd, item.custo, item.subtotal]
       );
-      await run(`INSERT INTO Distribuicao (idItemCompra, status) VALUES (?, 'CONCLUIDA')`, [rItem.lastID]);
     }
     totalCompras++;
   }

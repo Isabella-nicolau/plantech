@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const db = require("../db/database");
 const { registrarLog } = require("../helpers/audit");
+const { formatBRL } = require("../utils/format");
 
 // TELA DE ENTRADA (Compras)
 router.get("/", (req, res) => {
@@ -64,21 +65,16 @@ router.post("/add", (req, res) => {
             `INSERT INTO ItensCompra (idCompra, idProduto, quantidade, precoCusto, subtotal) VALUES (?, ?, ?, ?, ?)`,
             [idCompra, item.id, item.qtd, item.custo, subtotal],
             function(err) {
-              if (err) return console.error("Erro item compra:", err);
-
-              // b) Gera tarefa de distribuição para este item específico
-              // (Agora seguro pois usamos db.run direto, sem prepared statement fechado)
-              const idItemInserido = this.lastID;
-              db.run(`INSERT INTO Distribuicao (idItemCompra) VALUES (?)`, [idItemInserido]);
+              if (err) console.error("Erro item compra:", err);
             }
           );
-  
-          // c) Atualiza Estoque (RF5 - Automático)
+
+          // b) Atualiza Estoque (RF5 - Automático)
           db.run(`UPDATE Produto SET estoqueAtual = estoqueAtual + ? WHERE numProduto = ?`, [item.qtd, item.id]);
         });
       });
 
-      registrarLog(req, "COMPRA_CRIADA", `Compra #${idCompra} R$${valorTotal.toFixed(2)} (${itens.length} itens)`);
+      registrarLog(req, "COMPRA_CRIADA", `Compra #${idCompra} ${formatBRL(valorTotal)} (${itens.length} itens)`);
       res.redirect("/compras");
     }
   );
