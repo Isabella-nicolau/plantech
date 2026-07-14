@@ -50,12 +50,12 @@ async function initDb() {
 
   await run(`CREATE TABLE IF NOT EXISTS LogAuditoria (
     idLog INTEGER PRIMARY KEY AUTOINCREMENT,
+    dataHora DATETIME DEFAULT CURRENT_TIMESTAMP,
     idUsuario INTEGER,
-    usuario VARCHAR(50),
     acao VARCHAR(50) NOT NULL,
-    detalhe TEXT,
-    ip VARCHAR(45),
-    dataHora DATETIME DEFAULT CURRENT_TIMESTAMP
+    detalhe VARCHAR(255),
+    ip VARCHAR(100),
+    FOREIGN KEY(idUsuario) REFERENCES Usuario(id)
   )`);
 
   await run(`CREATE TABLE IF NOT EXISTS Clientes (
@@ -108,19 +108,13 @@ async function initDb() {
     FOREIGN KEY(idProduto) REFERENCES Produto(numProduto)
   )`);
 
-  await run(`CREATE TABLE IF NOT EXISTS Distribuicao (
-    idDistribuicao INTEGER PRIMARY KEY AUTOINCREMENT,
-    idItemCompra INTEGER NOT NULL,
-    status VARCHAR(20) DEFAULT 'PENDENTE',
-    FOREIGN KEY(idItemCompra) REFERENCES ItensCompra(idItem)
-  )`);
-
   await run(`CREATE TABLE IF NOT EXISTS Vendas (
     idVenda INTEGER PRIMARY KEY AUTOINCREMENT,
     idCliente INTEGER NOT NULL,
     dataVenda DATETIME DEFAULT CURRENT_TIMESTAMP,
     subtotal REAL NOT NULL,
     desconto REAL DEFAULT 0,
+    tipoDesconto VARCHAR(1) NOT NULL DEFAULT 'V',
     valorTotal REAL NOT NULL,
     formaPagamento VARCHAR(50),
     FOREIGN KEY(idCliente) REFERENCES Clientes(idCliente)
@@ -192,6 +186,7 @@ async function initDb() {
   )`);
 
   // --- Colunas novas (idempotente) ---
+  await addColunaSeNaoExiste("Vendas", "tipoDesconto VARCHAR(1) NOT NULL DEFAULT 'V'");
   await addColunaSeNaoExiste("Produto", "idCategoria INTEGER REFERENCES Categoria(idCategoria)");
   await addColunaSeNaoExiste("Usuario", "nome VARCHAR(100)");
   await addColunaSeNaoExiste("Usuario", "ativo INTEGER NOT NULL DEFAULT 1");
