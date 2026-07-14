@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const db = require("../db/database");
 const { registrarLog } = require("../helpers/audit");
+const { formatBRL } = require("../utils/format");
 
 // TELA DE VENDAS (PDV)
 router.get("/", (req, res) => {
@@ -33,7 +34,7 @@ router.get("/", (req, res) => {
 
 // PROCESSAR VENDA
 router.post("/add", (req, res) => {
-  const { idCliente, formaPagamento, desconto, itensCarrinho } = req.body;
+  const { idCliente, formaPagamento, desconto, tipoDesconto, itensCarrinho } = req.body;
   let itens;
 
   try {
@@ -47,8 +48,22 @@ router.post("/add", (req, res) => {
   }
 
   const valorDesconto = parseFloat(desconto) || 0;
+  const tipo = tipoDesconto === "P" ? "P" : "V";
   const subtotalGeral = itens.reduce((acc, item) => acc + (item.qtd * item.preco), 0);
-  const valorTotalFinal = Math.max(0, subtotalGeral - valorDesconto);
+
+  if (valorDesconto < 0) {
+    return res.redirect("/vendas?erro=" + encodeURIComponent("Desconto nao pode ser negativo."));
+  }
+  if (tipo === "P" && valorDesconto > 100) {
+    return res.redirect("/vendas?erro=" + encodeURIComponent("Desconto percentual nao pode ser maior que 100%."));
+  }
+  if (tipo === "V" && valorDesconto > subtotalGeral) {
+    return res.redirect("/vendas?erro=" + encodeURIComponent("Desconto em R$ nao pode ser maior que o subtotal."));
+  }
+
+  const valorTotalFinal = tipo === "P"
+    ? Math.max(0, +(subtotalGeral - (subtotalGeral * valorDesconto / 100)).toFixed(2))
+    : Math.max(0, +(subtotalGeral - valorDesconto).toFixed(2));
 
   // Validar estoque antes de processar
   const ids = itens.map(i => i.id);
@@ -68,8 +83,8 @@ router.post("/add", (req, res) => {
 
     db.serialize(() => {
       db.run(
-      `INSERT INTO Vendas (idCliente, subtotal, desconto, valorTotal, formaPagamento) VALUES (?, ?, ?, ?, ?)`,
-      [idCliente, subtotalGeral, valorDesconto, valorTotalFinal, formaPagamento],
+      `INSERT INTO Vendas (idCliente, subtotal, desconto, tipoDesconto, valorTotal, formaPagamento) VALUES (?, ?, ?, ?, ?, ?)`,
+      [idCliente, subtotalGeral, valorDesconto, tipo, valorTotalFinal, formaPagamento],
       function(err) {
         if (err) return res.send("Erro ao criar venda: " + err.message);
         
@@ -86,7 +101,7 @@ router.post("/add", (req, res) => {
             [item.qtd, item.id]);
         });
 
-        registrarLog(req, "VENDA_CRIADA", `Venda #${idVenda} R$${valorTotalFinal.toFixed(2)} (${itens.length} itens)`);
+        registrarLog(req, "VENDA_CRIADA", `Venda #${idVenda} ${formatBRL(valorTotalFinal)} (${itens.length} itens)`);
         res.redirect("/vendas?sucesso=true");
       }
     );

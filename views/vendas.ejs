@@ -65,7 +65,7 @@
                     <option value="" disabled selected>Pesquisar item...</option>
                     <% produtos.forEach(p => { %>
                       <option value="<%= p.numProduto %>" data-preco="<%= p.precoVenda %>" data-nome="<%= p.nomeProduto %>" data-estoque="<%= p.estoqueAtual %>">
-                        <%= p.nomeProduto %> (R$ <%= p.precoVenda.toFixed(2) %> — Est: <%= p.estoqueAtual %>)
+                        <%= p.nomeProduto %> (<%= formatBRL(p.precoVenda) %> — Est: <%= p.estoqueAtual %>)
                       </option>
                     <% }) %>
                   </select>
@@ -111,16 +111,21 @@
                 </table>
               </div>
               <div style="padding: 16px 20px; border-top: 1px solid var(--border-color);">
-                <div style="display: flex; gap: 12px; align-items: center; margin-bottom: 12px;">
-                  <label class="form-label" style="margin: 0; white-space: nowrap; font-size: 0.8125rem;">Desconto (R$)</label>
-                  <input type="number" id="inputDesconto" form="formVenda" name="desconto" class="form-control" placeholder="0.00" step="0.01" oninput="recalcularTotal()" style="max-width: 120px;">
+                <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 12px; flex-wrap: wrap;">
+                  <label class="form-label" style="margin: 0; white-space: nowrap; font-size: 0.8125rem;">Desconto</label>
+                  <input type="number" id="inputDesconto" form="formVenda" name="desconto" class="form-control" placeholder="0.00" step="0.01" min="0" oninput="recalcularTotal()" style="max-width: 100px;">
+                  <div class="btn-group btn-group-sm" role="group" aria-label="Tipo de desconto">
+                    <button type="button" class="btn btn-primary" id="btnDescontoValor" onclick="setTipoDesconto('V')">R$</button>
+                    <button type="button" class="btn btn-ghost" id="btnDescontoPercentual" onclick="setTipoDesconto('P')">%</button>
+                  </div>
+                  <input type="hidden" id="inputTipoDesconto" form="formVenda" name="tipoDesconto" value="V">
                 </div>
                 <div class="summary-total">
                   <div>
                     <span class="label">Total a pagar</span>
-                    <div style="font-size: 0.75rem; color: var(--text-muted);" id="subtotalDisplay">Subtotal: R$ 0.00</div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted);" id="subtotalDisplay">Subtotal: <%= formatBRL(0) %></div>
                   </div>
-                  <span class="value" id="totalVendaDisplay">R$ 0.00</span>
+                  <span class="value" id="totalVendaDisplay"><%= formatBRL(0) %></span>
                 </div>
               </div>
             </div>
@@ -145,7 +150,7 @@
                       <td style="color: var(--text-muted);"><%= new Date(v.dataVenda).toLocaleDateString() %></td>
                       <td class="col-primary"><%= v.nomeCliente %></td>
                       <td><span class="badge badge-default"><%= v.formaPagamento %></span></td>
-                      <td style="text-align: right;"><span class="text-primary fw-600">R$ <%= v.valorTotal.toFixed(2) %></span></td>
+                      <td style="text-align: right;"><span class="text-primary fw-600"><%= formatBRL(v.valorTotal) %></span></td>
                       <td class="col-actions">
                         <button onclick="imprimirComprovante(<%= v.idVenda %>)" class="btn btn-ghost btn-sm">
                           <i class="bi bi-printer"></i> Cupom
@@ -184,9 +189,9 @@
       <tbody id="cupom-itens"></tbody>
     </table>
     <div class="receipt-total">
-      <p style="margin:2px 0;">Subtotal: R$ <span id="cupom-subtotal">0.00</span></p>
-      <p style="margin:2px 0;">Desconto: - R$ <span id="cupom-desconto">0.00</span></p>
-      <h3 style="margin:5px 0; font-size:16px;">TOTAL: R$ <span id="cupom-total">0.00</span></h3>
+      <p style="margin:2px 0;">Subtotal: <span id="cupom-subtotal"><%= formatBRL(0) %></span></p>
+      <p style="margin:2px 0;">Desconto: - <span id="cupom-desconto"><%= formatBRL(0) %></span></p>
+      <h3 style="margin:5px 0; font-size:16px;">TOTAL: <span id="cupom-total"><%= formatBRL(0) %></span></h3>
     </div>
     <div style="text-align:center; margin-top:20px; font-size:10px;">
       <p>Obrigado pela preferencia!</p>
@@ -259,8 +264,8 @@
         var tr = document.createElement('tr');
         tr.innerHTML = '<td class="col-primary">' + item.nome + '</td>' +
           '<td style="text-align:center;">' + item.qtd + '</td>' +
-          '<td style="text-align:right;">R$ ' + item.preco.toFixed(2) + '</td>' +
-          '<td style="text-align:right;" class="fw-600">R$ ' + subtotal.toFixed(2) + '</td>' +
+          '<td style="text-align:right;">' + formatBRL(item.preco) + '</td>' +
+          '<td style="text-align:right;" class="fw-600">' + formatBRL(subtotal) + '</td>' +
           '<td class="col-actions"><button type="button" class="btn btn-danger btn-icon sm" onclick="removerItem(' + index + ')"><i class="bi bi-x-lg"></i></button></td>';
         tbody.appendChild(tr);
       });
@@ -268,12 +273,25 @@
       document.getElementById('inputItensCarrinho').value = JSON.stringify(carrinho);
     }
 
+    function setTipoDesconto(tipo) {
+      document.getElementById('inputTipoDesconto').value = tipo;
+      var btnValor = document.getElementById('btnDescontoValor');
+      var btnPercentual = document.getElementById('btnDescontoPercentual');
+      btnValor.classList.toggle('btn-primary', tipo === 'V');
+      btnValor.classList.toggle('btn-ghost', tipo !== 'V');
+      btnPercentual.classList.toggle('btn-primary', tipo === 'P');
+      btnPercentual.classList.toggle('btn-ghost', tipo !== 'P');
+      recalcularTotal();
+    }
+
     function recalcularTotal() {
       var subtotal = carrinho.reduce(function(acc, item) { return acc + (item.qtd * item.preco); }, 0);
       var desconto = parseFloat(document.getElementById('inputDesconto').value) || 0;
-      var totalFinal = Math.max(0, subtotal - desconto);
-      document.getElementById('subtotalDisplay').innerText = "Subtotal: R$ " + subtotal.toFixed(2);
-      document.getElementById('totalVendaDisplay').innerText = "R$ " + totalFinal.toFixed(2);
+      var tipo = document.getElementById('inputTipoDesconto').value;
+      var descontoAbsoluto = tipo === 'P' ? (subtotal * desconto / 100) : desconto;
+      var totalFinal = Math.max(0, subtotal - descontoAbsoluto);
+      document.getElementById('subtotalDisplay').innerText = "Subtotal: " + formatBRL(subtotal);
+      document.getElementById('totalVendaDisplay').innerText = formatBRL(totalFinal);
     }
 
     document.getElementById('formVenda').onsubmit = function(e) {
@@ -295,14 +313,16 @@
         document.getElementById('cupom-data').innerText = new Date(venda.dataVenda).toLocaleString();
         document.getElementById('cupom-cliente').innerText = venda.nomeCliente;
         document.getElementById('cupom-pgto').innerText = venda.formaPagamento;
-        document.getElementById('cupom-subtotal').innerText = (venda.subtotal || venda.valorTotal).toFixed(2);
-        document.getElementById('cupom-desconto').innerText = (venda.desconto || 0).toFixed(2);
-        document.getElementById('cupom-total').innerText = venda.valorTotal.toFixed(2);
+        document.getElementById('cupom-subtotal').innerText = formatBRL(venda.subtotal || venda.valorTotal);
+        document.getElementById('cupom-desconto').innerText = venda.tipoDesconto === 'P'
+          ? (venda.desconto || 0) + '%'
+          : formatBRL(venda.desconto || 0);
+        document.getElementById('cupom-total').innerText = formatBRL(venda.valorTotal);
 
         var tbody = document.getElementById('cupom-itens');
         tbody.innerHTML = "";
         itens.forEach(function(item) {
-          tbody.innerHTML += '<tr><td>' + item.quantidade + 'x</td><td>' + item.nomeProduto + '</td><td style="text-align:right;">' + (item.quantidade * item.precoUnitario).toFixed(2) + '</td></tr>';
+          tbody.innerHTML += '<tr><td>' + item.quantidade + 'x</td><td>' + item.nomeProduto + '</td><td style="text-align:right;">' + formatBRL(item.quantidade * item.precoUnitario) + '</td></tr>';
         });
 
         var elemento = document.getElementById('area-comprovante');
