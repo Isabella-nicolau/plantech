@@ -4,16 +4,21 @@ const db = require("../db/database");
 
 router.get("/", (req, res) => {
   const { dataInicio, dataFim } = req.query;
-  let sql = `SELECT * FROM LogAuditoria`;
+  let sql = `
+    SELECT log.idLog, log.dataHora, log.idUsuario, log.acao, log.detalhe, log.ip,
+           COALESCE(u.username, 'anonimo') AS usuario
+    FROM LogAuditoria log
+    LEFT JOIN Usuario u ON u.id = log.idUsuario
+  `;
   const params = [];
   const conditions = [];
 
   if (dataInicio) {
-    conditions.push("date(dataHora) >= ?");
+    conditions.push("date(log.dataHora) >= ?");
     params.push(dataInicio);
   }
   if (dataFim) {
-    conditions.push("date(dataHora) <= ?");
+    conditions.push("date(log.dataHora) <= ?");
     params.push(dataFim);
   }
 
@@ -21,7 +26,7 @@ router.get("/", (req, res) => {
     sql += " WHERE " + conditions.join(" AND ");
   }
 
-  sql += " ORDER BY dataHora DESC LIMIT 200";
+  sql += " ORDER BY log.dataHora DESC LIMIT 200";
 
   db.all(sql, params, (err, logs) => {
     res.render("auditoria", {
