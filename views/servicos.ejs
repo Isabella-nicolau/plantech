@@ -104,7 +104,7 @@
                           <%= s.descricao || "Sem descricao" %>
                         </div>
                       </td>
-                      <td><span class="text-primary fw-600">R$ <%= s.preco.toFixed(2) %></span></td>
+                      <td><span class="text-primary fw-600"><%= formatBRL(s.preco) %></span></td>
                       <td style="color: var(--text-muted);"><%= s.duracaoEstimada ? s.duracaoEstimada + " min" : "-" %></td>
                       <td style="text-align: center;">
                         <% if (s.ativo) { %>

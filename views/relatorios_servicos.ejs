@@ -65,7 +65,7 @@
         <div class="kpi-grid" style="grid-template-columns: 1fr; margin-bottom: 24px;">
           <div class="kpi-card" style="text-align: center; padding: 32px;">
             <div class="kpi-card-label" style="margin-bottom: 8px;">Faturamento de servicos concluidos</div>
-            <div class="kpi-card-value" style="font-size: 2rem;">R$ <%= faturamento.toFixed(2) %></div>
+            <div class="kpi-card-value" style="font-size: 2rem;"><%= formatBRL(faturamento) %></div>
             <div style="margin-top: 8px;"><span class="badge badge-success"><%= lista.length %> ordens no periodo</span></div>
           </div>
         </div>
@@ -81,7 +81,7 @@
                   <tr>
                     <td class="col-primary"><%= r.funcionario %></td>
                     <td style="text-align:center;"><%= r.totalOS %></td>
-                    <td style="text-align:right;">R$ <%= r.totalFaturado.toFixed(2) %></td>
+                    <td style="text-align:right;"><%= formatBRL(r.totalFaturado) %></td>
                   </tr>
                 <% }) %>
                 <% if (rankingFuncionarios.length === 0) { %>
@@ -134,7 +134,7 @@
                   <td class="col-primary"><%= os.cliente %></td>
                   <td><%= os.funcionario || "-" %></td>
                   <td style="text-align: center;"><span class="badge badge-default"><%= os.status %></span></td>
-                  <td style="text-align: right;"><span class="badge badge-success">R$ <%= os.valorTotal.toFixed(2) %></span></td>
+                  <td style="text-align: right;"><span class="badge badge-success"><%= formatBRL(os.valorTotal) %></span></td>
                 </tr>
               <% }) %>
               <% if (lista.length === 0) { %>
@@ -166,7 +166,7 @@
     </div>
     <div class="report-summary" style="display: flex; justify-content: space-between; align-items: center;">
       <div><span>Total de OS:</span> <strong><%= lista.length %></strong></div>
-      <div style="font-weight: bold; font-size: 14px; color: #1A7A3A;"><span>Faturamento concluido:</span> R$ <%= faturamento.toFixed(2) %></div>
+      <div style="font-weight: bold; font-size: 14px; color: #1A7A3A;"><span>Faturamento concluido:</span> <%= formatBRL(faturamento) %></div>
     </div>
     <br>
     <table class="report-table">
@@ -187,7 +187,7 @@
               <td><strong><%= os.cliente %></strong></td>
               <td><%= os.funcionario || "-" %></td>
               <td style="text-align: center;"><%= os.status %></td>
-              <td style="text-align: right; font-weight: bold;">R$ <%= os.valorTotal.toFixed(2) %></td>
+              <td style="text-align: right; font-weight: bold;"><%= formatBRL(os.valorTotal) %></td>
             </tr>
           <% }) %>
         <% } else { %>

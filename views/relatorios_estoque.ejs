@@ -43,7 +43,7 @@
           </div>
           <div class="kpi-card">
             <div class="kpi-card-icon green"><i class="bi bi-currency-dollar"></i></div>
-            <div class="kpi-card-value">R$ <%= stats.valorPatrimonial.toFixed(2) %></div>
+            <div class="kpi-card-value"><%= formatBRL(stats.valorPatrimonial) %></div>
             <div class="kpi-card-label">Valor patrimonial estimado</div>
           </div>
         </div>
@@ -75,8 +75,8 @@
                     <span class="fw-600"><%= p.estoqueAtual %></span>
                     <span class="text-muted" style="font-size: 0.75rem;"><%= p.unidadeMedida %></span>
                   </td>
-                  <td>R$ <%= p.precoVenda.toFixed(2) %></td>
-                  <td style="text-align: right;"><span class="text-primary fw-600">R$ <%= (p.estoqueAtual * p.precoVenda).toFixed(2) %></span></td>
+                  <td><%= formatBRL(p.precoVenda) %></td>
+                  <td style="text-align: right;"><span class="text-primary fw-600"><%= formatBRL((p.estoqueAtual * p.precoVenda)) %></span></td>
                   <td style="text-align: center;">
                     <% if(p.estoqueAtual === 0) { %>
                       <span class="badge badge-error">Esgotado</span>
@@ -117,7 +117,7 @@
     <div class="report-summary">
       <div style="display: flex; justify-content: space-between; margin-bottom: 5px;"><span>Total de Itens:</span><strong><%= stats.totalItens %></strong></div>
       <div style="display: flex; justify-content: space-between; margin-bottom: 5px;"><span>Itens Zerados:</span><strong style="color: #d32f2f;"><%= stats.itensZerados %></strong></div>
-      <div style="display: flex; justify-content: space-between; border-top: 1px solid #ddd; padding-top: 5px; margin-top: 5px; font-weight: bold; color: #1A7A3A;"><span>Patrimonio Total:</span><span>R$ <%= stats.valorPatrimonial.toFixed(2) %></span></div>
+      <div style="display: flex; justify-content: space-between; border-top: 1px solid #ddd; padding-top: 5px; margin-top: 5px; font-weight: bold; color: #1A7A3A;"><span>Patrimonio Total:</span><span><%= formatBRL(stats.valorPatrimonial) %></span></div>
     </div>
     <br>
     <table class="report-table">
@@ -137,8 +137,8 @@
             <td><strong><%= p.nomeProduto %></strong></td>
             <td><%= p.categoria %></td>
             <td style="text-align: center; font-weight: bold;"><%= p.estoqueAtual %> <%= p.unidadeMedida %></td>
-            <td>R$ <%= p.precoVenda.toFixed(2) %></td>
-            <td style="text-align: right;">R$ <%= (p.estoqueAtual * p.precoVenda).toFixed(2) %></td>
+            <td><%= formatBRL(p.precoVenda) %></td>
+            <td style="text-align: right;"><%= formatBRL((p.estoqueAtual * p.precoVenda)) %></td>
             <td style="text-align: center; font-weight: bold;">
               <%= p.estoqueAtual === 0 ? 'ESGOTADO' : (p.estoqueAtual < 10 ? 'BAIXO' : 'NORMAL') %>
             </td>

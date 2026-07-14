@@ -108,7 +108,7 @@
               <div style="padding: 16px 20px; border-top: 1px solid var(--border-color);">
                 <div class="summary-total">
                   <span class="label">Total da nota</span>
-                  <span class="value" id="totalCompraDisplay">R$ 0.00</span>
+                  <span class="value" id="totalCompraDisplay"><%= formatBRL(0) %></span>
                 </div>
               </div>
             </div>
@@ -131,7 +131,7 @@
                     <tr>
                       <td style="color: var(--text-muted);"><%= new Date(c.dataCompra).toLocaleDateString() %></td>
                       <td class="col-primary"><%= c.nomeFornecedor %></td>
-                      <td style="text-align: right;"><span class="text-info fw-600">R$ <%= c.valorTotal.toFixed(2) %></span></td>
+                      <td style="text-align: right;"><span class="text-info fw-600"><%= formatBRL(c.valorTotal) %></span></td>
                       <td class="col-actions">
                         <a href="/compras/delete/<%= c.idCompra %>"
                            class="btn btn-danger btn-sm"
@@ -199,13 +199,13 @@
         var tr = document.createElement('tr');
         tr.innerHTML = '<td class="col-primary">' + item.nome + '</td>' +
           '<td style="text-align:center;">' + item.qtd + '</td>' +
-          '<td style="text-align:right;">R$ ' + item.custo.toFixed(2) + '</td>' +
-          '<td style="text-align:right;" class="text-info fw-600">R$ ' + subtotal.toFixed(2) + '</td>' +
+          '<td style="text-align:right;">' + formatBRL(item.custo) + '</td>' +
+          '<td style="text-align:right;" class="text-info fw-600">' + formatBRL(subtotal) + '</td>' +
           '<td class="col-actions"><button type="button" class="btn btn-danger btn-icon sm" onclick="removerItem(' + index + ')"><i class="bi bi-x-lg"></i></button></td>';
         tbody.appendChild(tr);
       });
 
-      totalDisplay.innerText = "R$ " + totalGeral.toFixed(2);
+      totalDisplay.innerText = formatBRL(totalGeral);
       inputHidden.value = JSON.stringify(carrinho);
     }
 

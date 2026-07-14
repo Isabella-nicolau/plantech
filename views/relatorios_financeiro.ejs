@@ -51,19 +51,19 @@
         <div class="kpi-grid" style="grid-template-columns: repeat(3, 1fr);">
           <div class="kpi-card">
             <div class="kpi-card-icon green"><i class="bi bi-arrow-up-right"></i></div>
-            <div class="kpi-card-value">R$ <%= stats.receitas.toFixed(2) %></div>
+            <div class="kpi-card-value"><%= formatBRL(stats.receitas) %></div>
             <div class="kpi-card-label">Total de receitas (vendas)</div>
           </div>
           <div class="kpi-card">
             <div class="kpi-card-icon red"><i class="bi bi-arrow-down-right"></i></div>
-            <div class="kpi-card-value">R$ <%= stats.despesas.toFixed(2) %></div>
+            <div class="kpi-card-value"><%= formatBRL(stats.despesas) %></div>
             <div class="kpi-card-label">Total de despesas (compras)</div>
           </div>
           <div class="kpi-card">
             <div class="kpi-card-icon <%= stats.lucro >= 0 ? 'green' : 'red' %>">
               <i class="bi bi-<%= stats.lucro >= 0 ? 'graph-up-arrow' : 'graph-down-arrow' %>"></i>
             </div>
-            <div class="kpi-card-value" style="color: var(<%= stats.lucro >= 0 ? '--success' : '--error' %>);">R$ <%= stats.lucro.toFixed(2) %></div>
+            <div class="kpi-card-value" style="color: var(<%= stats.lucro >= 0 ? '--success' : '--error' %>);"><%= formatBRL(stats.lucro) %></div>
             <div class="kpi-card-label">Lucro liquido do periodo</div>
           </div>
         </div>
@@ -129,15 +129,15 @@
       <h3 style="border-bottom: 1px solid #ccc; padding-bottom: 5px; margin-bottom: 15px; font-size: 14px; color: #333;">Demonstrativo de Resultados</h3>
       <div style="display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 14px;">
         <span>(+) Receita Bruta de Vendas</span>
-        <span style="color: #1A7A3A;">R$ <%= stats.receitas.toFixed(2) %></span>
+        <span style="color: #1A7A3A;"><%= formatBRL(stats.receitas) %></span>
       </div>
       <div style="display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 14px;">
         <span>(-) Custo de Mercadoria Vendida / Compras</span>
-        <span style="color: #c62828;">(R$ <%= stats.despesas.toFixed(2) %>)</span>
+        <span style="color: #c62828;">(<%= formatBRL(stats.despesas) %>)</span>
       </div>
       <div style="display: flex; justify-content: space-between; border-top: 1px solid #ccc; padding-top: 10px; font-weight: bold; font-size: 16px; color: #1A7A3A;">
         <span>(=) Lucro Liquido / Prejuizo</span>
-        <span>R$ <%= stats.lucro.toFixed(2) %></span>
+        <span><%= formatBRL(stats.lucro) %></span>
       </div>
     </div>
     <div style="padding: 15px; background-color: #fff3e0; border: 1px solid #ffe0b2; border-radius: 5px;">

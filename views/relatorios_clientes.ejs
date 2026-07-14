@@ -79,9 +79,9 @@
                       <span class="col-primary"><%= c.nome %></span>
                     </div>
                   </td>
-                  <td style="text-align: right;">R$ <%= c.totalVendas.toFixed(2) %></td>
-                  <td style="text-align: right;">R$ <%= c.totalOS.toFixed(2) %></td>
-                  <td style="text-align: right;"><span class="badge badge-success">R$ <%= c.totalFaturamento.toFixed(2) %></span></td>
+                  <td style="text-align: right;"><%= formatBRL(c.totalVendas) %></td>
+                  <td style="text-align: right;"><%= formatBRL(c.totalOS) %></td>
+                  <td style="text-align: right;"><span class="badge badge-success"><%= formatBRL(c.totalFaturamento) %></span></td>
                 </tr>
               <% }) %>
               <% if (lista.length === 0) { %>
@@ -126,9 +126,9 @@
           <% lista.forEach(c => { %>
             <tr>
               <td><strong><%= c.nome %></strong></td>
-              <td style="text-align: right;">R$ <%= c.totalVendas.toFixed(2) %></td>
-              <td style="text-align: right;">R$ <%= c.totalOS.toFixed(2) %></td>
-              <td style="text-align: right; font-weight: bold;">R$ <%= c.totalFaturamento.toFixed(2) %></td>
+              <td style="text-align: right;"><%= formatBRL(c.totalVendas) %></td>
+              <td style="text-align: right;"><%= formatBRL(c.totalOS) %></td>
+              <td style="text-align: right; font-weight: bold;"><%= formatBRL(c.totalFaturamento) %></td>
             </tr>
           <% }) %>
         <% } else { %>

@@ -55,7 +55,7 @@
         <div class="kpi-grid" style="grid-template-columns: 1fr; margin-bottom: 24px;">
           <div class="kpi-card" style="text-align: center; padding: 32px;">
             <div class="kpi-card-label" style="margin-bottom: 8px;">Total de despesas no periodo</div>
-            <div class="kpi-card-value" style="font-size: 2rem;">R$ <%= totalDespesas.toFixed(2) %></div>
+            <div class="kpi-card-value" style="font-size: 2rem;"><%= formatBRL(totalDespesas) %></div>
             <div style="margin-top: 8px;"><span class="badge badge-info"><%= lista.length %> compras registradas</span></div>
           </div>
         </div>
@@ -80,7 +80,7 @@
                 <tr>
                   <td style="color: var(--text-muted);"><%= new Date(item.dataCompra).toLocaleDateString() %></td>
                   <td class="col-primary"><%= item.fornecedor %></td>
-                  <td style="text-align: right;"><span class="badge badge-info">R$ <%= item.valorTotal.toFixed(2) %></span></td>
+                  <td style="text-align: right;"><span class="badge badge-info"><%= formatBRL(item.valorTotal) %></span></td>
                 </tr>
               <% }) %>
               <% if (lista.length === 0) { %>
@@ -112,7 +112,7 @@
     </div>
     <div class="report-summary" style="display: flex; justify-content: space-between; align-items: center;">
       <div><span>Total de Compras:</span> <strong><%= lista.length %></strong></div>
-      <div style="font-weight: bold; font-size: 14px; color: #c62828;"><span>Despesas:</span> R$ <%= totalDespesas.toFixed(2) %></div>
+      <div style="font-weight: bold; font-size: 14px; color: #c62828;"><span>Despesas:</span> <%= formatBRL(totalDespesas) %></div>
     </div>
     <br>
     <table class="report-table">
@@ -129,7 +129,7 @@
             <tr>
               <td><%= new Date(item.dataCompra).toLocaleDateString() %></td>
               <td><strong><%= item.fornecedor %></strong></td>
-              <td style="text-align: right; font-weight: bold;">R$ <%= item.valorTotal.toFixed(2) %></td>
+              <td style="text-align: right; font-weight: bold;"><%= formatBRL(item.valorTotal) %></td>
             </tr>
           <% }) %>
         <% } else { %>

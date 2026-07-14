@@ -73,7 +73,7 @@
                     <option value="" disabled selected>Escolha o servico...</option>
                     <% servicos.forEach(s => { %>
                       <option value="<%= s.idServico %>" data-nome="<%= s.nome %>" data-preco="<%= s.preco %>">
-                        <%= s.nome %> (R$ <%= s.preco.toFixed(2) %>)
+                        <%= s.nome %> (<%= formatBRL(s.preco) %>)
                       </option>
                     <% }) %>
                   </select>
@@ -129,7 +129,7 @@
               <div style="padding: 16px 20px; border-top: 1px solid var(--border-color);">
                 <div class="summary-total">
                   <span class="label">Total da ordem</span>
-                  <span class="value" id="totalOSDisplay">R$ 0.00</span>
+                  <span class="value" id="totalOSDisplay"><%= formatBRL(0) %></span>
                 </div>
               </div>
             </div>
@@ -165,7 +165,7 @@
                     <tr>
                       <td class="col-primary"><%= os.nomeCliente %></td>
                       <td style="color: var(--text-muted);"><%= os.nomeFuncionario || "-" %></td>
-                      <td style="text-align: right;"><span class="text-info fw-600">R$ <%= os.valorTotal.toFixed(2) %></span></td>
+                      <td style="text-align: right;"><span class="text-info fw-600"><%= formatBRL(os.valorTotal) %></span></td>
                       <td style="text-align: center;">
                         <% if (os.status === 'ABERTA') { %>
                           <span class="badge badge-warning">Aberta</span>
@@ -253,13 +253,13 @@
         var tr = document.createElement('tr');
         tr.innerHTML = '<td class="col-primary">' + item.nome + '</td>' +
           '<td style="text-align:center;">' + item.qtd + '</td>' +
-          '<td style="text-align:right;">R$ ' + item.preco.toFixed(2) + '</td>' +
-          '<td style="text-align:right;" class="text-info fw-600">R$ ' + subtotal.toFixed(2) + '</td>' +
+          '<td style="text-align:right;">' + formatBRL(item.preco) + '</td>' +
+          '<td style="text-align:right;" class="text-info fw-600">' + formatBRL(subtotal) + '</td>' +
           '<td class="col-actions"><button type="button" class="btn btn-danger btn-icon sm" onclick="removerItem(' + index + ')"><i class="bi bi-x-lg"></i></button></td>';
         tbody.appendChild(tr);
       });
 
-      totalDisplay.innerText = "R$ " + totalGeral.toFixed(2);
+      totalDisplay.innerText = formatBRL(totalGeral);
       inputHidden.value = JSON.stringify(carrinho);
     }
 

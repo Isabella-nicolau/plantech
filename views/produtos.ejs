@@ -144,7 +144,7 @@
                         </div>
                       </td>
                       <td><span class="badge badge-default"><%= p.categoria %></span></td>
-                      <td><span class="text-primary fw-600">R$ <%= p.precoVenda.toFixed(2) %></span></td>
+                      <td><span class="text-primary fw-600"><%= formatBRL(p.precoVenda) %></span></td>
                       <td>
                         <% if(p.estoqueAtual > 10) { %>
                           <span class="badge badge-success"><%= p.estoqueAtual %> <%= p.unidadeMedida %></span>

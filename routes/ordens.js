@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const db = require("../db/database");
 const { registrarLog } = require("../helpers/audit");
+const { formatBRL } = require("../utils/format");
 
 function buscarOS(id) {
   return new Promise((resolve, reject) => {
@@ -84,7 +85,7 @@ router.post("/add", (req, res) => {
         });
       });
 
-      registrarLog(req, "OS_CRIADA", `Ordem de Servico #${idOS} R$${valorTotal.toFixed(2)} (${itens.length} servico(s))`);
+      registrarLog(req, "OS_CRIADA", `Ordem de Servico #${idOS} ${formatBRL(valorTotal)} (${itens.length} servico(s))`);
       res.redirect("/ordens");
     }
   );

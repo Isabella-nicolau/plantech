@@ -56,7 +56,7 @@
           <div class="kpi-grid" style="grid-template-columns: 1fr; margin-bottom: 24px;">
             <div class="kpi-card" style="text-align: center; padding: 32px;">
               <div class="kpi-card-label" style="margin-bottom: 8px;">Faturamento total no periodo</div>
-              <div class="kpi-card-value" style="font-size: 2rem;">R$ <%= totalGeral.toFixed(2) %></div>
+              <div class="kpi-card-value" style="font-size: 2rem;"><%= formatBRL(totalGeral) %></div>
               <div style="margin-top: 8px;"><span class="badge badge-success"><%= lista.length %> vendas registradas</span></div>
             </div>
           </div>
@@ -87,7 +87,7 @@
                   </td>
                   <td class="col-primary"><%= item.nomeCliente %></td>
                   <td style="font-size: 0.8125rem; color: var(--text-muted); max-width: 300px; line-height: 1.4;"><%= item.listaProdutos %></td>
-                  <td style="text-align: right;"><span class="badge badge-success">R$ <%= item.valorTotal.toFixed(2) %></span></td>
+                  <td style="text-align: right;"><span class="badge badge-success"><%= formatBRL(item.valorTotal) %></span></td>
                 </tr>
               <% }) %>
               <% if (lista.length === 0) { %>
@@ -119,7 +119,7 @@
     </div>
     <div class="report-summary" style="display: flex; justify-content: space-between; align-items: center;">
       <div><span>Total de Vendas:</span> <strong><%= lista.length %></strong></div>
-      <div style="font-weight: bold; font-size: 14px; color: #1A7A3A;"><span>Faturamento:</span> R$ <%= totalGeral.toFixed(2) %></div>
+      <div style="font-weight: bold; font-size: 14px; color: #1A7A3A;"><span>Faturamento:</span> <%= formatBRL(totalGeral) %></div>
     </div>
     <br>
     <table class="report-table">
@@ -138,7 +138,7 @@
               <td><%= new Date(item.dataVenda).toLocaleDateString() %><br><span style="font-size:9px; color:#666;"><%= new Date(item.dataVenda).toLocaleTimeString() %></span></td>
               <td><strong><%= item.nomeCliente %></strong></td>
               <td style="font-size: 10px; line-height: 1.2;"><%= item.listaProdutos %></td>
-              <td style="text-align: right; font-weight: bold;">R$ <%= item.valorTotal.toFixed(2) %></td>
+              <td style="text-align: right; font-weight: bold;"><%= formatBRL(item.valorTotal) %></td>
             </tr>
           <% }) %>
         <% } else { %>

@@ -64,8 +64,7 @@ function initCountUp() {
 
   document.querySelectorAll('[data-countup]').forEach(function(el) {
     var target = parseFloat(el.getAttribute('data-countup'));
-    var prefix = el.getAttribute('data-prefix') || '';
-    var isDecimal = String(target).indexOf('.') !== -1;
+    var isMoney = el.getAttribute('data-money') === 'true';
     var duration = 600;
     var start = performance.now();
 
@@ -75,7 +74,7 @@ function initCountUp() {
       var eased = 1 - Math.pow(1 - progress, 3);
       var current = target * eased;
 
-      el.textContent = prefix + (isDecimal ? current.toFixed(2) : Math.round(current));
+      el.textContent = isMoney ? formatBRL(current) : Math.round(current);
 
       if (progress < 1) {
         requestAnimationFrame(step);

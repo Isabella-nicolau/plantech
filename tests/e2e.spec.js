@@ -60,7 +60,7 @@ test.describe("E2E: Login e Dashboard", () => {
 
     await page.goto("http://localhost:3000/ordens");
     await page.selectOption('select[name="idCliente"]', { label: nomeCliente });
-    await page.selectOption("#selServico", { label: nomeServico + " (R$ 40.00)" });
+    await page.selectOption("#selServico", { label: nomeServico + " (R$ 40,00)" });
     await page.fill("#qtdServico", "1");
     await page.click('button:has-text("Incluir na ordem")');
     await page.click('button:has-text("Abrir ordem de servico")');
