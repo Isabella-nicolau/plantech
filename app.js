@@ -4,12 +4,14 @@ const bodyParser = require("body-parser");
 const session = require("express-session");
 const { autenticado, permitir } = require("./middlewares/auth");
 const initDb = require("./db/init");
+const { formatBRL } = require("./utils/format");
 const app = express();
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static("public"));
 app.set("view engine", "ejs");
+app.locals.formatBRL = formatBRL;
 
 app.use(session({
   secret: process.env.SESSION_SECRET || "plantech_dev_fallback",
